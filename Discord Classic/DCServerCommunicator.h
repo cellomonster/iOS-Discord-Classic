@@ -25,6 +25,7 @@
 + (DCServerCommunicator *)sharedInstance;
 - (void)startCommunicator;
 - (void)sendResume;
+- (void)reconnect;
 - (void)sendHeartbeat:(NSTimer *)timer;
 - (void)sendJSON:(NSDictionary*)dictionary;
 - (NSDictionary*)sendMessage:(NSString*)message inChannel:(DCChannel*)channel;

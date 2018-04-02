@@ -29,7 +29,7 @@
 	
 	if(!DCServerCommunicator.sharedInstance.isReconnecting){
 		[DCServerCommunicator.sharedInstance.websocket close];
-		[DCServerCommunicator.sharedInstance startCommunicator];
+		[DCServerCommunicator.sharedInstance reconnect];
 	}
 }
 

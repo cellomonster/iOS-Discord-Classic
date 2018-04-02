@@ -14,6 +14,7 @@
 @interface DCServerCommunicator()
 @property bool didRecieveHeartbeatResponse;
 @property bool shouldResume;
+@property bool heartbeatDefined;
 
 @property int sequenceNumber;
 @property NSString* sessionId;
@@ -28,7 +29,7 @@
 	
 	static DCServerCommunicator *sharedInstance = nil;
 	
-	if (DCServerCommunicator.sharedInstance == nil) {
+	if (sharedInstance == nil) {
 		sharedInstance = DCServerCommunicator.new;
 	}
 	
@@ -46,13 +47,16 @@
 	
 	if(token!=nil){
 		
+		//Close possible previous session
+		if(!self.shouldResume)
+			[self.websocket close];
+		
 		self.token = token;
 		self.gatewayURL = @"wss://gateway.discord.gg/?encoding=json&v=6";
 		
 		//Establish websocket connection with Discord
 		NSURL *websocketUrl = [NSURL URLWithString:self.gatewayURL];
 		self.websocket = [WSWebSocket.alloc initWithURL:websocketUrl protocols:nil];
-		
 		
 		[self.websocket setTextCallback:^(NSString *responseString) {
 			
@@ -71,8 +75,10 @@
 			
 			if(op == 10){
 				if(self.shouldResume){
+					
 					NSLog(@"Sending Resume %i %@", self.sequenceNumber, self.sessionId);
-					NSDictionary* userInfo = @{
+					
+					userInfo = @{
 					@"op":@6,
 					@"d":@{
 					@"token":self.token,
@@ -81,9 +87,6 @@
 					}
 					};
 					
-					NSLog(@"%@", userInfo);
-					
-					[weakSelf sendJSON:userInfo];
 					self.shouldResume = false;
 					
 				}else{
@@ -91,14 +94,18 @@
 					int heartbeatInterval = [[d valueForKey:@"heartbeat_interval"] intValue];
 					
 					//Send a heartbeat at interval heartbeatinterval
-					dispatch_async(dispatch_get_main_queue(), ^{
-						
-						[NSTimer scheduledTimerWithTimeInterval:heartbeatInterval/1000
-																						 target:weakSelf
-																					 selector:@selector(sendHeartbeat:)
-																					 userInfo:nil
-																						repeats:YES];
-					});
+					if(!self.heartbeatDefined){
+						self.heartbeatDefined = true;
+						NSLog(@"Defined heartbeat");
+						dispatch_async(dispatch_get_main_queue(), ^{
+							
+							[NSTimer scheduledTimerWithTimeInterval:heartbeatInterval/1000
+																							 target:weakSelf
+																						 selector:@selector(sendHeartbeat:)
+																						 userInfo:nil
+																							repeats:YES];
+						});
+					}
 					
 					NSLog(@"Sending Identify");
 					userInfo = @{
@@ -110,10 +117,9 @@
 					}
 					};
 					
-					
-					
-					[weakSelf sendJSON:userInfo];
 				}
+				
+				[weakSelf sendJSON:userInfo];
 			}
 			
 			
@@ -136,7 +142,7 @@
 					//Set session ID
 					self.sessionId = [d valueForKey:@"session_id"];
 					NSLog(@"Got session ID %@", self.sessionId);
-					
+	
 					
 					self.guilds = NSMutableArray.new;
 					self.channels = NSMutableDictionary.new;
@@ -217,7 +223,7 @@
 										[newChannels addObject:newChannel];
 										[self.channels setObject:newChannel forKey:newChannel.snowflake];
 										
-										NSLog(@"Created new channel object: %@", newChannel);
+										//NSLog(@"Created new channel object: %@", newChannel);
 									}
 								}
 								
@@ -238,7 +244,7 @@
 									
 								}];
 								
-								NSLog(@"Created new guild object: %@", newGuild);
+								//NSLog(@"Created new guild object: %@", newGuild);
 								
 								//Add it to our communicator guild array
 								[self.guilds addObject:newGuild];
@@ -326,27 +332,7 @@
 			
 			if(op == 9){
 				dispatch_async(dispatch_get_main_queue(), ^{
-					if(!self.isReconnecting){
-						self.isReconnecting = true;
-						[weakSelf performSelector:@selector(startCommunicator)
-													 withObject:weakSelf
-													 afterDelay:5];
-						
-						
-						self.alertView = [UIAlertView.alloc initWithTitle:@"Reconnecting"
-																											message:@"\n"
-																										 delegate:self
-																						cancelButtonTitle:nil
-																						otherButtonTitles:nil];
-						
-						UIActivityIndicatorView *spinner = [UIActivityIndicatorView.alloc initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-						spinner.center = CGPointMake(139.5, 75.5);
-						
-						[self.alertView addSubview:spinner];
-						[spinner startAnimating];
-						
-						[self.alertView show];
-					}
+					[weakSelf reconnect];
 				});
 			}
 		}];
@@ -355,9 +341,36 @@
 	}
 }
 
+
 - (void)sendResume{
 	self.shouldResume = true;
 	[self startCommunicator];
+}
+
+
+-(void)reconnect{
+	[self.websocket close];
+	if(!self.isReconnecting){
+		self.isReconnecting = true;
+		[self performSelector:@selector(startCommunicator)
+									 withObject:nil
+									 afterDelay:5];
+		
+		
+		self.alertView = [UIAlertView.alloc initWithTitle:@"Reconnecting"
+																							message:@"\n"
+																						 delegate:self
+																		cancelButtonTitle:nil
+																		otherButtonTitles:nil];
+		
+		UIActivityIndicatorView *spinner = [UIActivityIndicatorView.alloc initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+		spinner.center = CGPointMake(139.5, 75.5);
+		
+		[self.alertView addSubview:spinner];
+		[spinner startAnimating];
+		
+		[self.alertView show];
+	}
 }
 
 
