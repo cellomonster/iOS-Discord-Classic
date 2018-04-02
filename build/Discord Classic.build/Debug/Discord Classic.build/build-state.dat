@@ -1,0 +1,116 @@
+TDiscord Classic
+v7
+r1
+cCheck dependencies
+
+N/Users/trevir/Desktop/Discord Classic/Discord Classic/en.lproj/InfoPlist.strings
+c000000005A99D7D4000000000000002D
+t1520031700
+s45
+
+N/Users/trevir/Desktop/Discord Classic/Discord Classic/en.lproj/MainStoryboard_iPad.storyboard
+c000000005A99D7D40000000000000647
+t1520031700
+s1607
+
+N/Users/trevir/Desktop/Discord Classic/Discord Classic/en.lproj/MainStoryboard_iPhone.storyboard
+c000000005A9A2B6600000000000006EA
+t1520053094
+s1770
+
+N/Users/trevir/Desktop/Discord Classic/build/Debug/Discord Classic.app
+t2
+s0
+
+N/Users/trevir/Desktop/Discord Classic/build/Debug/Discord Classic.app/Contents/Info.plist
+t2
+s0
+
+N/Users/trevir/Desktop/Discord Classic/build/Debug/Discord Classic.app/Contents/PkgInfo
+t2
+s0
+
+N/Users/trevir/Desktop/Discord Classic/build/Debug/Discord Classic.app/Contents/Resources/en.lproj/InfoPlist.strings
+t2
+s0
+
+N/Users/trevir/Desktop/Discord Classic/build/Debug/Discord Classic.app/Contents/Resources/en.lproj/MainStoryboard_iPad.storyboard
+t2
+s0
+
+N/Users/trevir/Desktop/Discord Classic/build/Debug/Discord Classic.app/Contents/Resources/en.lproj/MainStoryboard_iPhone.storyboard
+t2
+s0
+
+N/Users/trevir/MEGA/Projects/Discord Classic/Discord Classic/en.lproj/InfoPlist.strings
+c000000005A99D7D4000000000000002D
+t1520031700
+s45
+
+N/Users/trevir/MEGA/Projects/Discord Classic/Discord Classic/en.lproj/MainStoryboard_iPad.storyboard
+c000000005A99D7D40000000000000647
+t1520031700
+s1607
+
+N/Users/trevir/MEGA/Projects/Discord Classic/Discord Classic/en.lproj/MainStoryboard_iPhone.storyboard
+c000000005A9A2B6600000000000006EA
+t1520053094
+s1770
+
+N/Users/trevir/MEGA/Projects/Discord Classic/build/Debug/Discord Classic.app
+t2
+s0
+
+N/Users/trevir/MEGA/Projects/Discord Classic/build/Debug/Discord Classic.app/Contents/Info.plist
+t2
+s0
+
+N/Users/trevir/MEGA/Projects/Discord Classic/build/Debug/Discord Classic.app/Contents/PkgInfo
+t2
+s0
+
+N/Users/trevir/MEGA/Projects/Discord Classic/build/Debug/Discord Classic.app/Contents/Resources/en.lproj/InfoPlist.strings
+t2
+s0
+
+N/Users/trevir/MEGA/Projects/Discord Classic/build/Debug/Discord Classic.app/Contents/Resources/en.lproj/MainStoryboard_iPad.storyboard
+t2
+s0
+
+N/Users/trevir/MEGA/Projects/Discord Classic/build/Debug/Discord Classic.app/Contents/Resources/en.lproj/MainStoryboard_iPhone.storyboard
+t2
+s0
+
+NDiscord Classic/Discord Classic-Info.plist
+c000000005A99D7E100000000000005D3
+t1520031713
+s1491
+
+CCheck dependencies
+r0
+lSLF07#2@18"Check dependencies541809452#541809452#0(63"[BEROR]error: There is no SDK with the name or path 'iphoneos'1(4@55"error: There is no SDK with the name or path 'iphoneos'541809452#18446744073709551615#0#0(1@0"0(0#1#0"17207422208#0"0#
+
+CCopyStringsFile "/Users/trevir/Desktop/Discord Classic/build/Debug/Discord Classic.app/Contents/Resources/en.lproj/InfoPlist.strings" "Discord Classic/en.lproj/InfoPlist.strings"
+r0
+
+CCopyStringsFile "/Users/trevir/MEGA/Projects/Discord Classic/build/Debug/Discord Classic.app/Contents/Resources/en.lproj/InfoPlist.strings" "Discord Classic/en.lproj/InfoPlist.strings"
+r0
+
+CCpResource "build/Debug/Discord Classic.app/Contents/Resources/en.lproj/MainStoryboard_iPad.storyboard" "Discord Classic/en.lproj/MainStoryboard_iPad.storyboard"
+r0
+
+CCpResource "build/Debug/Discord Classic.app/Contents/Resources/en.lproj/MainStoryboard_iPhone.storyboard" "Discord Classic/en.lproj/MainStoryboard_iPhone.storyboard"
+r0
+
+CProcessInfoPlistFile "/Users/trevir/Desktop/Discord Classic/build/Debug/Discord Classic.app/Contents/Info.plist" "Discord Classic/Discord Classic-Info.plist"
+r0
+
+CProcessInfoPlistFile "/Users/trevir/MEGA/Projects/Discord Classic/build/Debug/Discord Classic.app/Contents/Info.plist" "Discord Classic/Discord Classic-Info.plist"
+r0
+
+CTouch "/Users/trevir/Desktop/Discord Classic/build/Debug/Discord Classic.app"
+r0
+
+CTouch "/Users/trevir/MEGA/Projects/Discord Classic/build/Debug/Discord Classic.app"
+r0
+
