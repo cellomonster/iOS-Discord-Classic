@@ -9,10 +9,10 @@ Huge thanks to [Ty Brasher](https://twitter.com/TyBrasher) for icon design
 
 Hide channels that user shouldn't see
 
-Support DM and DM groups
+~~Support DM and DM groups~~ Done!
 
 Images in chat
 
 Support for iPhone OS 2, 3 & 4
 
-Notifications (maybe)
+Notifications
