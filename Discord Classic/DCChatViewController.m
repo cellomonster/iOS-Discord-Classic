@@ -37,7 +37,13 @@
 
 
 -(void)viewWillAppear:(BOOL)animated{
-	NSString* channelNameWithPound = [@"#" stringByAppendingString:self.selectedChannel.name];
+	NSString* channelNameWithPound;
+	if(self.selectedChannel.type == 0)
+		channelNameWithPound = [@"#" stringByAppendingString:self.selectedChannel.name];
+	else if(self.selectedChannel.type == 1)
+		channelNameWithPound = [@"@" stringByAppendingString:self.selectedChannel.name];
+	else
+		channelNameWithPound = self.selectedChannel.name;
 	[self.navigationItem setTitle:channelNameWithPound];
 }
 
@@ -68,7 +74,7 @@
 		
 		id parsedResponse = [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
 		
-		NSString* chatTextViewContent = @"Loeading...";
+		NSString* chatTextViewContent = @"";
 		
 		if([parsedResponse isKindOfClass:NSArray.class]){
 			[self setMessages:parsedResponse];

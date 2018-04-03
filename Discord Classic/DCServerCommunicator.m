@@ -162,26 +162,38 @@
 						DCChannel* newChannel = DCChannel.new;
 						newChannel.snowflake = [privateChannel valueForKey:@"id"];
 						
+						NSLog(@"%@", privateChannel);
+						
 						NSString* privateChannelName = [privateChannel valueForKey:@"name"];
 						
-						//Some private channels dont have names
-						if(privateChannelName.length)
-							newChannel.name = [privateChannel valueForKey:@"name"];
+						//Some private channels dont have names, check if nil
+						if(privateChannelName!=(id)NSNull.null && privateChannelName)
+							
+							newChannel.name = privateChannelName;
+						
 						else{
-							//If no name, create a name from list of members
+							//If no name, create a name from member or list of members
 							NSString* fullChannelName = @"";
 							NSArray* privateChannelMembers = [privateChannel valueForKey:@"recipients"];
 							
-							if(privateChannelMembers.count)
+							if(privateChannelMembers.count){
+								
 								for(NSDictionary* privateChannelMember in privateChannelMembers){
+									//add , between member names
+									if([privateChannelMembers indexOfObject:privateChannelMember] != 0)
+										fullChannelName = [fullChannelName stringByAppendingString:@", "];
+									
 									NSString* memberName = [privateChannelMember valueForKey:@"username"];
 									fullChannelName = [fullChannelName stringByAppendingString:memberName];
+									
 									newChannel.name = fullChannelName;
 								}
+							}
 						}
 						
 						newChannel.lastMessageId = [privateChannel valueForKey:@"last_message_id"];
 						newChannel.parentGuild = privateGuild;
+						newChannel.type = 1;
 						
 						[newChannels addObject:newChannel];
 						[self.channels setObject:newChannel forKey:newChannel.snowflake];
@@ -218,6 +230,7 @@
 										newChannel.name = [jsonChannel valueForKey:@"name"];
 										newChannel.lastMessageId = [jsonChannel valueForKey:@"last_message_id"];
 										newChannel.parentGuild = newGuild;
+										newChannel.type = 0;
 										
 										//Add that channel to the channels array for the new guild
 										[newChannels addObject:newChannel];
