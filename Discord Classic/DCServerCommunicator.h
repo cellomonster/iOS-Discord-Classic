@@ -13,7 +13,6 @@
 #import "DCChatViewController.h"
 
 @interface DCServerCommunicator : NSObject
-@property bool isReconnecting;
 
 @property WSWebSocket* websocket;
 @property NSString* token;

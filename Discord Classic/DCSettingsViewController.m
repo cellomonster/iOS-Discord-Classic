@@ -27,10 +27,8 @@
 - (void)viewWillDisappear:(BOOL)animated{
 	[NSUserDefaults.standardUserDefaults setObject:self.tokenInputField.text forKey:@"token"];
 	
-	if(!DCServerCommunicator.sharedInstance.isReconnecting){
-		[DCServerCommunicator.sharedInstance.websocket close];
-		[DCServerCommunicator.sharedInstance reconnect];
-	}
+	[DCServerCommunicator.sharedInstance.websocket close];
+	[DCServerCommunicator.sharedInstance reconnect];
 }
 
 @end

@@ -16,13 +16,14 @@
 @property bool shouldResume;
 @property bool heartbeatDefined;
 
-@property bool botAccount;
+@property bool canIdentify;
 
 @property int sequenceNumber;
 @property NSString* sessionId;
 
 @property NSString* snowflake;
 
+@property NSTimer* cooldownTimer;
 @property UIAlertView* alertView;
 @end
 
@@ -35,14 +36,13 @@
 	
 	if (sharedInstance == nil) {
 		sharedInstance = DCServerCommunicator.new;
+		sharedInstance.canIdentify = true;
 	}
 	
 	return sharedInstance;
 }
 
 - (void)startCommunicator{
-	
-	self.botAccount = false;
 	
 	//To prevent retain cycle
 	__weak typeof(self) weakSelf = self;
@@ -51,7 +51,18 @@
 	
 	NSString* token = [NSUserDefaults.standardUserDefaults stringForKey:@"token"];
 	
-	if(token!=nil){
+	if(self.canIdentify && token!=nil){
+		
+		self.canIdentify = false;
+		
+		dispatch_async(dispatch_get_main_queue(), ^{
+			
+			self.cooldownTimer = [NSTimer scheduledTimerWithTimeInterval:5
+																			 target:weakSelf
+																		 selector:@selector(refreshIdentifyCooldown:)
+																		 userInfo:nil
+																			repeats:NO];
+		});
 		
 		//Close possible previous session
 		if(!self.shouldResume)
@@ -137,9 +148,8 @@
 				self.sequenceNumber = [[parsedWebsocketResponse valueForKey:@"s"] integerValue];
 				NSLog(@"Got event %@ with sequence number %i", t, self.sequenceNumber);
 				
-				if([t isEqualToString:@"READY"] && !self.botAccount){
+				if([t isEqualToString:@"READY"]){
 					
-					self.isReconnecting = false;
 					dispatch_async(dispatch_get_main_queue(), ^{
 						[self.alertView dismissWithClickedButtonIndex:0 animated:YES];
 					});
@@ -236,7 +246,7 @@
 									[userRoles addObject:everyoneRoleId];
 								}
 							}
-						
+							
 							//Create array of json channels from the current json guild
 							NSArray* jsonChannelsArray = [jsonGuild valueForKey:@"channels"];
 							
@@ -254,7 +264,17 @@
 										
 										NSArray* permissions = [jsonChannel objectForKey:@"permission_overwrites"];
 										
-										bool shouldCreateChannel = true;
+										//Allow code is used to calculate the permission hirearchy.
+										/*
+										 0 - No overwrites. Channel should be created
+										 
+										 1 - Hidden by role. Channel should not be created unless another role contradicts
+										 2 - Shown by role. Channel should be created unless hidden by member.
+										 
+										 3 - Hidden by member. Channel should not be created.
+										 4 - Shown by member. Channel should be created.
+										 */
+										int allowCode = 0;
 										
 										//Calculate permissions
 										//The next 4 for loops are written incredibly shitty and should be consolidated into only 1
@@ -262,100 +282,38 @@
 											
 											NSString* type = [permission valueForKey:@"type"];
 											
-											bool hasRole = false;
-											
 											if([type isEqualToString:@"role"]){
 												NSString* roleId = [permission valueForKey:@"id"];
 												for(NSString* snowflake in userRoles){
 													if([snowflake isEqualToString:roleId]){
-														hasRole = true;
+														int deny = [[permission valueForKey:@"deny"] intValue];
+														int allow = [[permission valueForKey:@"allow"] intValue];
+														
+														if((deny & 1024) == 1024 && allowCode < 1)
+															allowCode = 1;
+														
+														if(((allow & 1024) == 1024) && allowCode < 2)
+															allowCode = 2;
 													}
 												}
 											}
-											
-											int deny = [[permission valueForKey:@"deny"] intValue];
-											NSLog(@"Deny %i %@", deny & 1024, [jsonChannel valueForKey:@"name"]);
-											
-											if(hasRole){
-												if(((deny & 1024) == 1024)){
-													shouldCreateChannel = false;
-												}
-											}
-										}
-										
-										for(NSDictionary* permission in permissions){
-											NSString* type = [permission valueForKey:@"type"];
-											
-											bool hasRole = false;
-											
-											if([type isEqualToString:@"role"]){
-												NSString* roleId = [permission valueForKey:@"id"];
-												for(NSString* snowflake in userRoles){
-													if([snowflake isEqualToString:roleId]){
-														hasRole = true;
-													}
-												}
-											}
-											
-											int allow = [[permission valueForKey:@"allow"] intValue];
-											if(hasRole){
-												if(((allow & 1024) == 1024)){
-													shouldCreateChannel = true;
-												}
-											}
-											NSLog(@"Allow %i %@", allow & 1024, [jsonChannel valueForKey:@"name"]);
-											NSLog(@"%@", permission);
-										}
-										
-										for(NSDictionary* permission in permissions){
-											NSString* type = [permission valueForKey:@"type"];
-											
-											bool hasRole = false;
 											
 											if([type isEqualToString:@"member"]){
 												NSString* memberId = [permission valueForKey:@"id"];
-												for(NSString* snowflake in userRoles){
-													if([self.snowflake isEqualToString:memberId]){
-														hasRole = true;
-													}
-												}
-											}
-											
-											int deny = [[permission valueForKey:@"deny"] intValue];
-											NSLog(@"Deny %i %@", deny & 1024, [jsonChannel valueForKey:@"name"]);
-											
-											if(hasRole){
-												if(((deny & 1024) == 1024)){
-													shouldCreateChannel = false;
+												if([memberId isEqualToString:self.snowflake]){
+													int deny = [[permission valueForKey:@"deny"] intValue];
+													int allow = [[permission valueForKey:@"allow"] intValue];
+													
+													if((deny & 1024) == 1024 && allowCode < 3)
+														allowCode = 3;
+													
+													if((allow & 1024) == 1024)
+														allowCode = 4;
 												}
 											}
 										}
 										
-										for(NSDictionary* permission in permissions){
-											NSString* type = [permission valueForKey:@"type"];
-											
-											bool hasRole = false;
-											
-											if([type isEqualToString:@"member"]){
-												NSString* memberId = [permission valueForKey:@"id"];
-												for(NSString* snowflake in userRoles){
-													if([self.snowflake isEqualToString:memberId]){
-														hasRole = true;
-													}
-												}
-											}
-											
-											int allow = [[permission valueForKey:@"allow"] intValue];
-											NSLog(@"Allow %i %@", allow & 1024, [jsonChannel valueForKey:@"name"]);
-											
-											if(hasRole){
-												if(((allow & 1024) == 1024)){
-													shouldCreateChannel = true;
-												}
-											}
-										}
-										
-										if(shouldCreateChannel){
+										if(allowCode == 0 || allowCode == 2 || allowCode == 4){
 											DCChannel* newChannel = DCChannel.new;
 											
 											newChannel.snowflake = [jsonChannel valueForKey:@"id"];
@@ -495,29 +453,32 @@
 }
 
 
--(void)reconnect{
+- (void)reconnect{
 	[self.websocket close];
-	if(!self.isReconnecting){
-		self.isReconnecting = true;
+	
+	if(self.canIdentify)
+		[self startCommunicator];
+	else
 		[self performSelector:@selector(startCommunicator)
 							 withObject:nil
-							 afterDelay:5];
-		
-		
-		self.alertView = [UIAlertView.alloc initWithTitle:@"Reconnecting"
-																							message:@"\n"
-																						 delegate:self
-																		cancelButtonTitle:nil
-																		otherButtonTitles:nil];
-		
-		UIActivityIndicatorView *spinner = [UIActivityIndicatorView.alloc initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-		spinner.center = CGPointMake(139.5, 75.5);
-		
-		[self.alertView addSubview:spinner];
-		[spinner startAnimating];
-		
-		[self.alertView show];
-	}
+							 afterDelay:self.cooldownTimer.fireDate.timeIntervalSinceNow];
+	
+	NSLog(@"%f",self.cooldownTimer.fireDate.timeIntervalSinceNow);
+	
+	
+	self.alertView = [UIAlertView.alloc initWithTitle:@"Reconnecting"
+																						message:@"\n"
+																					 delegate:self
+																	cancelButtonTitle:nil
+																	otherButtonTitles:nil];
+	
+	UIActivityIndicatorView *spinner = [UIActivityIndicatorView.alloc initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+	spinner.center = CGPointMake(139.5, 75.5);
+	
+	[self.alertView addSubview:spinner];
+	[spinner startAnimating];
+	
+	[self.alertView show];
 }
 
 
@@ -530,6 +491,11 @@
 		NSLog(@"Did not get heartbeat response, sending RESUME with sequence %i %@", self.sequenceNumber, self.sessionId);
 		[self sendResume];
 	}
+}
+
+
+- (void)refreshIdentifyCooldown:(NSTimer *)timer{
+	self.canIdentify = true;
 }
 
 
