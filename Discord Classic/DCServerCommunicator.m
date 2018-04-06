@@ -307,8 +307,10 @@
 													if((deny & 1024) == 1024 && allowCode < 3)
 														allowCode = 3;
 													
-													if((allow & 1024) == 1024)
+													if((allow & 1024) == 1024){
 														allowCode = 4;
+														break;
+													}
 												}
 											}
 										}
