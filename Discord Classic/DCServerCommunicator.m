@@ -16,8 +16,12 @@
 @property bool shouldResume;
 @property bool heartbeatDefined;
 
+@property bool botAccount;
+
 @property int sequenceNumber;
 @property NSString* sessionId;
+
+@property NSString* snowflake;
 
 @property UIAlertView* alertView;
 @end
@@ -37,6 +41,8 @@
 }
 
 - (void)startCommunicator{
+	
+	self.botAccount = false;
 	
 	//To prevent retain cycle
 	__weak typeof(self) weakSelf = self;
@@ -131,25 +137,23 @@
 				self.sequenceNumber = [[parsedWebsocketResponse valueForKey:@"s"] integerValue];
 				NSLog(@"Got event %@ with sequence number %i", t, self.sequenceNumber);
 				
-				
-				if([t isEqualToString:@"READY"]){
+				if([t isEqualToString:@"READY"] && !self.botAccount){
 					
 					self.isReconnecting = false;
 					dispatch_async(dispatch_get_main_queue(), ^{
 						[self.alertView dismissWithClickedButtonIndex:0 animated:YES];
 					});
 					
-					//Set session ID
 					self.sessionId = [d valueForKey:@"session_id"];
 					NSLog(@"Got session ID %@", self.sessionId);
-	
+					
+					NSDictionary* user = [d objectForKey:@"user"];
+					self.snowflake = [user valueForKey:@"id"];
 					
 					self.guilds = NSMutableArray.new;
 					self.channels = NSMutableDictionary.new;
 					
-					
 					NSMutableArray* newChannels = NSMutableArray.new;
-					
 					
 					//Take care of private channels (direct messages)
 					//The user's DMs are treated like a guild, where the channels are different DM/groups
@@ -161,8 +165,6 @@
 					for(NSDictionary* privateChannel in privateChannels){
 						DCChannel* newChannel = DCChannel.new;
 						newChannel.snowflake = [privateChannel valueForKey:@"id"];
-						
-						NSLog(@"%@", privateChannel);
 						
 						NSString* privateChannelName = [privateChannel valueForKey:@"name"];
 						
@@ -209,6 +211,32 @@
 						
 						for(NSDictionary* jsonGuild in jsonGuilds){
 							
+							NSMutableArray* userRoles;
+							
+							//Get roles of the current user
+							NSArray* members = [jsonGuild objectForKey:@"members"];
+							if(members)
+								for(NSDictionary* member in members){
+									
+									NSDictionary* memberInfo = [member objectForKey:@"user"];
+									NSString* memberId = [memberInfo valueForKey:@"id"];
+									
+									if([memberId isEqualToString:self.snowflake])
+										userRoles = [[member valueForKey:@"roles"] mutableCopy];
+								}
+							
+							//Get @everyone role
+							NSArray* guildRoles = [jsonGuild objectForKey:@"roles"];
+							for(NSDictionary* guildRole in guildRoles){
+								
+								NSString* guildRoleName = [guildRole valueForKey:@"name"];
+								if([guildRoleName isEqualToString:@"@everyone"]){
+									
+									NSString* everyoneRoleId = [guildRole valueForKey:@"id"];
+									[userRoles addObject:everyoneRoleId];
+								}
+							}
+						
 							//Create array of json channels from the current json guild
 							NSArray* jsonChannelsArray = [jsonGuild valueForKey:@"channels"];
 							
@@ -224,19 +252,125 @@
 									//Check if text channel
 									if([jsonChannel valueForKey:@"type"] == @0){
 										
-										DCChannel* newChannel = DCChannel.new;
+										NSArray* permissions = [jsonChannel objectForKey:@"permission_overwrites"];
 										
-										newChannel.snowflake = [jsonChannel valueForKey:@"id"];
-										newChannel.name = [jsonChannel valueForKey:@"name"];
-										newChannel.lastMessageId = [jsonChannel valueForKey:@"last_message_id"];
-										newChannel.parentGuild = newGuild;
-										newChannel.type = 0;
+										bool shouldCreateChannel = true;
 										
-										//Add that channel to the channels array for the new guild
-										[newChannels addObject:newChannel];
-										[self.channels setObject:newChannel forKey:newChannel.snowflake];
+										//Calculate permissions
+										//The next 4 for loops are written incredibly shitty and should be consolidated into only 1
+										for(NSDictionary* permission in permissions){
+											
+											NSString* type = [permission valueForKey:@"type"];
+											
+											bool hasRole = false;
+											
+											if([type isEqualToString:@"role"]){
+												NSString* roleId = [permission valueForKey:@"id"];
+												for(NSString* snowflake in userRoles){
+													if([snowflake isEqualToString:roleId]){
+														hasRole = true;
+													}
+												}
+											}
+											
+											int deny = [[permission valueForKey:@"deny"] intValue];
+											NSLog(@"Deny %i %@", deny & 1024, [jsonChannel valueForKey:@"name"]);
+											
+											if(hasRole){
+												if(((deny & 1024) == 1024)){
+													shouldCreateChannel = false;
+												}
+											}
+										}
 										
-										//NSLog(@"Created new channel object: %@", newChannel);
+										for(NSDictionary* permission in permissions){
+											NSString* type = [permission valueForKey:@"type"];
+											
+											bool hasRole = false;
+											
+											if([type isEqualToString:@"role"]){
+												NSString* roleId = [permission valueForKey:@"id"];
+												for(NSString* snowflake in userRoles){
+													if([snowflake isEqualToString:roleId]){
+														hasRole = true;
+													}
+												}
+											}
+											
+											int allow = [[permission valueForKey:@"allow"] intValue];
+											if(hasRole){
+												if(((allow & 1024) == 1024)){
+													shouldCreateChannel = true;
+												}
+											}
+											NSLog(@"Allow %i %@", allow & 1024, [jsonChannel valueForKey:@"name"]);
+											NSLog(@"%@", permission);
+										}
+										
+										for(NSDictionary* permission in permissions){
+											NSString* type = [permission valueForKey:@"type"];
+											
+											bool hasRole = false;
+											
+											if([type isEqualToString:@"member"]){
+												NSString* memberId = [permission valueForKey:@"id"];
+												for(NSString* snowflake in userRoles){
+													if([self.snowflake isEqualToString:memberId]){
+														hasRole = true;
+													}
+												}
+											}
+											
+											int deny = [[permission valueForKey:@"deny"] intValue];
+											NSLog(@"Deny %i %@", deny & 1024, [jsonChannel valueForKey:@"name"]);
+											
+											if(hasRole){
+												if(((deny & 1024) == 1024)){
+													shouldCreateChannel = false;
+												}
+											}
+										}
+										
+										for(NSDictionary* permission in permissions){
+											NSString* type = [permission valueForKey:@"type"];
+											
+											bool hasRole = false;
+											
+											if([type isEqualToString:@"member"]){
+												NSString* memberId = [permission valueForKey:@"id"];
+												for(NSString* snowflake in userRoles){
+													if([self.snowflake isEqualToString:memberId]){
+														hasRole = true;
+													}
+												}
+											}
+											
+											int allow = [[permission valueForKey:@"allow"] intValue];
+											NSLog(@"Allow %i %@", allow & 1024, [jsonChannel valueForKey:@"name"]);
+											
+											if(hasRole){
+												if(((allow & 1024) == 1024)){
+													shouldCreateChannel = true;
+												}
+											}
+										}
+										
+										if(shouldCreateChannel){
+											DCChannel* newChannel = DCChannel.new;
+											
+											newChannel.snowflake = [jsonChannel valueForKey:@"id"];
+											newChannel.name = [jsonChannel valueForKey:@"name"];
+											newChannel.lastMessageId = [jsonChannel valueForKey:@"last_message_id"];
+											newChannel.parentGuild = newGuild;
+											newChannel.type = 0;
+											
+											//Add that channel to the channels array for the new guild
+											[newChannels addObject:newChannel];
+											[self.channels setObject:newChannel forKey:newChannel.snowflake];
+											
+											//NSLog(@"Created new channel object: %@", newChannel);
+											
+										}
 									}
 								}
 								
@@ -366,8 +500,8 @@
 	if(!self.isReconnecting){
 		self.isReconnecting = true;
 		[self performSelector:@selector(startCommunicator)
-									 withObject:nil
-									 afterDelay:5];
+							 withObject:nil
+							 afterDelay:5];
 		
 		
 		self.alertView = [UIAlertView.alloc initWithTitle:@"Reconnecting"
