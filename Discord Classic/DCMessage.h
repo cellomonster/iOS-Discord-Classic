@@ -15,8 +15,10 @@
 @property NSString* authorName;
 //content
 @property NSString* content;
+//image included in message
+@property UIImage* embededImage;
 //if the message includes an image
-@property UIImage* includedImage;
+@property bool hasEmbededImage;
 
 -(void)checkIfRead;
 @end
