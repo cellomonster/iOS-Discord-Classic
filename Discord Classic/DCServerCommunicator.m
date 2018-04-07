@@ -152,6 +152,8 @@
 				
 				if([t isEqualToString:@"READY"]){
 					
+					NSLog(@"%@", d);
+					
 					dispatch_async(dispatch_get_main_queue(), ^{
 						[self.alertView dismissWithClickedButtonIndex:0 animated:YES];
 					});
@@ -214,7 +216,6 @@
 					}
 					privateGuild.channels = newChannels;
 					[self.guilds addObject:privateGuild];
-					
 					
 					
 					//Take care of normal guilds (servers)
@@ -335,7 +336,6 @@
 											[self.channels setObject:newChannel forKey:newChannel.snowflake];
 											
 											//NSLog(@"Created new channel object: %@", newChannel);
-											
 										}
 									}
 								}
@@ -348,6 +348,9 @@
 								NSString* iconURL = [NSString stringWithFormat:@"https://cdn.discordapp.com/icons/%@/%@",
 																		 newGuild.snowflake, [jsonGuild valueForKey:@"icon"]];
 								
+								//Add it to our communicator guild array
+								[self.guilds addObject:newGuild];
+								
 								[DCTools processImageDataWithURLString:iconURL andBlock:^(NSData *imageData) {
 									newGuild.icon = [UIImage imageWithData:imageData];
 									
@@ -358,9 +361,7 @@
 								}];
 								
 								//NSLog(@"Created new guild object: %@", newGuild);
-								
-								//Add it to our communicator guild array
-								[self.guilds addObject:newGuild];
+								//]:[guildPositions indexOfObject:newGuild.snowflake]+1 withObject:newGuild];//:newGuild atIndexedSubscript:[guildPositions indexOfObject:newGuild.snowflake]];//setObject:newGuild atIndexSubscript:[guildPositions indexOfObject:newGuild.snowflake]];
 							}
 						}
 					}
@@ -439,7 +440,8 @@
 			
 			if(op == 9){
 				dispatch_async(dispatch_get_main_queue(), ^{
-					[weakSelf reconnect];
+					if(self.canIdentify)
+						[weakSelf reconnect];
 				});
 			}
 		}];
@@ -456,6 +458,8 @@
 
 
 - (void)reconnect{
+	[self.alertView dismissWithClickedButtonIndex:0 animated:NO];
+	
 	[self.websocket close];
 	
 	if(self.canIdentify)
