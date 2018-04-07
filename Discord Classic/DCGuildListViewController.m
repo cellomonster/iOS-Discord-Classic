@@ -53,6 +53,8 @@
 	
 	if(!DCServerCommunicator.sharedInstance.token.length)
 		[self performSegueWithIdentifier:@"to Settings" sender:self];
+	
+	[self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"Background.tiff"]]];
 }
 
 - (void)handleReady:(NSNotification*)notification {

@@ -34,6 +34,8 @@
 																				 selector:@selector(keyboardWillHide:)
 																						 name:UIKeyboardWillHideNotification
 																					 object:nil];
+	
+	[self.chatTableView setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"Background.tiff"]]];
 }
 
 

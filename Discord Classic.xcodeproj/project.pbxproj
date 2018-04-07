@@ -43,6 +43,9 @@
 		09DD1FA2204F35FD00153EC7 /* DCChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 09DD1FA1204F35FD00153EC7 /* DCChatViewController.m */; };
 		09E183BA205EF64700FE90E8 /* DCViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 09E183B9205EF64700FE90E8 /* DCViewController.m */; };
 		09E183BD205EF65000FE90E8 /* DCGuildListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 09E183BC205EF65000FE90E8 /* DCGuildListViewController.m */; };
+		09E2DB7C20789C9700267A62 /* UINavigationBarTexture.png in Resources */ = {isa = PBXBuildFile; fileRef = 09E2DB7A20789C9700267A62 /* UINavigationBarTexture.png */; };
+		09E2DB7D20789C9700267A62 /* UINavigationBarTexture@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 09E2DB7B20789C9700267A62 /* UINavigationBarTexture@2x.png */; };
+		09E2DB8520789F4100267A62 /* Background.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 09E2DB8420789F4100267A62 /* Background.tiff */; };
 		09E3ED262069F21200E90DA1 /* DCTools.m in Sources */ = {isa = PBXBuildFile; fileRef = 09E3ED252069F21200E90DA1 /* DCTools.m */; };
 		09E3ED272069F21200E90DA1 /* DCTools.m in Sources */ = {isa = PBXBuildFile; fileRef = 09E3ED252069F21200E90DA1 /* DCTools.m */; };
 		09E3ED282069F62200E90DA1 /* Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 09C8E2EC204C3B64006A1422 /* Storyboard.storyboard */; };
@@ -81,7 +84,7 @@
 		09A2A3112072674000F3D98C /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };
 		09A2A3132072674500F3D98C /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
 		09C0F691204E4823000C8EA6 /* Discord.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Discord.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		09C0F693204E4823000C8EA6 /* Discord ClassicTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Discord ClassicTests.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		09C0F693204E4823000C8EA6 /* Discord ClassicTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = "Discord ClassicTests.octest"; path = "/Users/Trevir/Desktop/iOS-Discord-Classic/build/Release-iphoneos/Discord ClassicTests.octest"; sourceTree = "<absolute>"; };
 		09C6B924204A0F54007EAC26 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		09C6B926204A0F54007EAC26 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		09C6B928204A0F54007EAC26 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -116,6 +119,9 @@
 		09E183B9205EF64700FE90E8 /* DCViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCViewController.m; sourceTree = "<group>"; };
 		09E183BB205EF65000FE90E8 /* DCGuildListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCGuildListViewController.h; sourceTree = "<group>"; };
 		09E183BC205EF65000FE90E8 /* DCGuildListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCGuildListViewController.m; sourceTree = "<group>"; };
+		09E2DB7A20789C9700267A62 /* UINavigationBarTexture.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = UINavigationBarTexture.png; sourceTree = "<group>"; };
+		09E2DB7B20789C9700267A62 /* UINavigationBarTexture@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "UINavigationBarTexture@2x.png"; sourceTree = "<group>"; };
+		09E2DB8420789F4100267A62 /* Background.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Background.tiff; sourceTree = "<group>"; };
 		09E3ED242069F21200E90DA1 /* DCTools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCTools.h; sourceTree = "<group>"; };
 		09E3ED252069F21200E90DA1 /* DCTools.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCTools.m; sourceTree = "<group>"; };
 		09FF0300205EFB8800BCBA8D /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
@@ -162,12 +168,14 @@
 				09A2A3132072674500F3D98C /* Icon.png */,
 				09A2A3112072674000F3D98C /* Icon@2x.png */,
 				09FF0300205EFB8800BCBA8D /* Default-568h@2x.png */,
+				09E2DB7A20789C9700267A62 /* UINavigationBarTexture.png */,
+				09E2DB7B20789C9700267A62 /* UINavigationBarTexture@2x.png */,
+				09E2DB8420789F4100267A62 /* Background.tiff */,
 				095284622055EFDA00760073 /* Etc */,
 				09C6B97D204A1782007EAC26 /* Websocket */,
 				09C6B92A204A0F54007EAC26 /* Discord Classic */,
 				09C6B923204A0F54007EAC26 /* Frameworks */,
 				09C0F691204E4823000C8EA6 /* Discord.app */,
-				09C0F693204E4823000C8EA6 /* Discord ClassicTests.octest */,
 			);
 			sourceTree = "<group>";
 		};
@@ -321,6 +329,9 @@
 				09FF0301205EFB8800BCBA8D /* Default-568h@2x.png in Resources */,
 				09A2A3122072674000F3D98C /* Icon@2x.png in Resources */,
 				09A2A3142072674500F3D98C /* Icon.png in Resources */,
+				09E2DB7C20789C9700267A62 /* UINavigationBarTexture.png in Resources */,
+				09E2DB7D20789C9700267A62 /* UINavigationBarTexture@2x.png in Resources */,
+				09E2DB8520789F4100267A62 /* Background.tiff in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -478,6 +489,7 @@
 				CLANG_WARN_OBJCPP_ARC_ABI = YES;
 				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "-";
+				COMPRESS_PNG_FILES = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Discord Classic/Discord Classic-Prefix.pch";
 				INFOPLIST_FILE = "Discord Classic/Discord Classic-Info.plist";
@@ -495,6 +507,7 @@
 				CLANG_WARN_OBJCPP_ARC_ABI = YES;
 				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "-";
+				COMPRESS_PNG_FILES = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Discord Classic/Discord Classic-Prefix.pch";
 				INFOPLIST_FILE = "Discord Classic/Discord Classic-Info.plist";

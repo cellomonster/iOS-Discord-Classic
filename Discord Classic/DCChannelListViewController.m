@@ -24,6 +24,7 @@
 - (void)viewDidLoad{
 	[super viewDidLoad];
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleMessageAck:) name:@"MESSAGE ACK" object:nil];
+	[self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"Background.tiff"]]];
 }
 
 
