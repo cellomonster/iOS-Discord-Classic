@@ -7,7 +7,7 @@ Huge thanks to [Ty Brasher](https://twitter.com/TyBrasher) for icon design
 
 ## Things that need done:
 
-Hide channels that user shouldn't see
+~~Hide channels that user shouldn't see~~ Somewhat complete
 
 ~~Support DM and DM groups~~ Done!
 
