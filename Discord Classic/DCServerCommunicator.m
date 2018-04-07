@@ -51,6 +51,8 @@
 	
 	NSString* token = [NSUserDefaults.standardUserDefaults stringForKey:@"token"];
 	
+	bool permissionCalculationEnabled = [NSUserDefaults.standardUserDefaults boolForKey:@"perm calc"];
+	
 	if(self.canIdentify && token!=nil){
 		
 		self.canIdentify = false;
@@ -58,10 +60,10 @@
 		dispatch_async(dispatch_get_main_queue(), ^{
 			
 			self.cooldownTimer = [NSTimer scheduledTimerWithTimeInterval:5
-																			 target:weakSelf
-																		 selector:@selector(refreshIdentifyCooldown:)
-																		 userInfo:nil
-																			repeats:NO];
+																														target:weakSelf
+																													selector:@selector(refreshIdentifyCooldown:)
+																													userInfo:nil
+																													 repeats:NO];
 		});
 		
 		//Close possible previous session
@@ -223,27 +225,29 @@
 							
 							NSMutableArray* userRoles;
 							
-							//Get roles of the current user
-							NSArray* members = [jsonGuild objectForKey:@"members"];
-							if(members)
-								for(NSDictionary* member in members){
-									
-									NSDictionary* memberInfo = [member objectForKey:@"user"];
-									NSString* memberId = [memberInfo valueForKey:@"id"];
-									
-									if([memberId isEqualToString:self.snowflake])
-										userRoles = [[member valueForKey:@"roles"] mutableCopy];
-								}
-							
-							//Get @everyone role
-							NSArray* guildRoles = [jsonGuild objectForKey:@"roles"];
-							for(NSDictionary* guildRole in guildRoles){
+							if(permissionCalculationEnabled){
+								//Get roles of the current user
+								NSArray* members = [jsonGuild objectForKey:@"members"];
+								if(members)
+									for(NSDictionary* member in members){
+										
+										NSDictionary* memberInfo = [member objectForKey:@"user"];
+										NSString* memberId = [memberInfo valueForKey:@"id"];
+										
+										if([memberId isEqualToString:self.snowflake])
+											userRoles = [[member valueForKey:@"roles"] mutableCopy];
+									}
 								
-								NSString* guildRoleName = [guildRole valueForKey:@"name"];
-								if([guildRoleName isEqualToString:@"@everyone"]){
+								//Get @everyone role
+								NSArray* guildRoles = [jsonGuild objectForKey:@"roles"];
+								for(NSDictionary* guildRole in guildRoles){
 									
-									NSString* everyoneRoleId = [guildRole valueForKey:@"id"];
-									[userRoles addObject:everyoneRoleId];
+									NSString* guildRoleName = [guildRole valueForKey:@"name"];
+									if([guildRoleName isEqualToString:@"@everyone"]){
+										
+										NSString* everyoneRoleId = [guildRole valueForKey:@"id"];
+										[userRoles addObject:everyoneRoleId];
+									}
 								}
 							}
 							
@@ -262,8 +266,6 @@
 									//Check if text channel
 									if([jsonChannel valueForKey:@"type"] == @0){
 										
-										NSArray* permissions = [jsonChannel objectForKey:@"permission_overwrites"];
-										
 										//Allow code is used to calculate the permission hirearchy.
 										/*
 										 0 - No overwrites. Channel should be created
@@ -276,40 +278,44 @@
 										 */
 										int allowCode = 0;
 										
-										//Calculate permissions
-										//The next 4 for loops are written incredibly shitty and should be consolidated into only 1
-										for(NSDictionary* permission in permissions){
+										if(permissionCalculationEnabled){
+											NSArray* permissions = [jsonChannel objectForKey:@"permission_overwrites"];
 											
-											NSString* type = [permission valueForKey:@"type"];
-											
-											if([type isEqualToString:@"role"]){
-												NSString* roleId = [permission valueForKey:@"id"];
-												for(NSString* snowflake in userRoles){
-													if([snowflake isEqualToString:roleId]){
+											//Calculate permissions
+											//The next 4 for loops are written incredibly shitty and should be consolidated into only 1
+											for(NSDictionary* permission in permissions){
+												
+												NSString* type = [permission valueForKey:@"type"];
+												
+												if([type isEqualToString:@"role"]){
+													NSString* roleId = [permission valueForKey:@"id"];
+													for(NSString* snowflake in userRoles){
+														if([snowflake isEqualToString:roleId]){
+															int deny = [[permission valueForKey:@"deny"] intValue];
+															int allow = [[permission valueForKey:@"allow"] intValue];
+															
+															if((deny & 1024) == 1024 && allowCode < 1)
+																allowCode = 1;
+															
+															if(((allow & 1024) == 1024) && allowCode < 2)
+																allowCode = 2;
+														}
+													}
+												}
+												
+												if([type isEqualToString:@"member"]){
+													NSString* memberId = [permission valueForKey:@"id"];
+													if([memberId isEqualToString:self.snowflake]){
 														int deny = [[permission valueForKey:@"deny"] intValue];
 														int allow = [[permission valueForKey:@"allow"] intValue];
 														
-														if((deny & 1024) == 1024 && allowCode < 1)
-															allowCode = 1;
+														if((deny & 1024) == 1024 && allowCode < 3)
+															allowCode = 3;
 														
-														if(((allow & 1024) == 1024) && allowCode < 2)
-															allowCode = 2;
-													}
-												}
-											}
-											
-											if([type isEqualToString:@"member"]){
-												NSString* memberId = [permission valueForKey:@"id"];
-												if([memberId isEqualToString:self.snowflake]){
-													int deny = [[permission valueForKey:@"deny"] intValue];
-													int allow = [[permission valueForKey:@"allow"] intValue];
-													
-													if((deny & 1024) == 1024 && allowCode < 3)
-														allowCode = 3;
-													
-													if((allow & 1024) == 1024){
-														allowCode = 4;
-														break;
+														if((allow & 1024) == 1024){
+															allowCode = 4;
+															break;
+														}
 													}
 												}
 											}
@@ -398,16 +404,10 @@
 					if(self.selectedChannel != nil
 						 && [channelIdOfMessage isEqualToString:self.selectedChannel.snowflake]){
 						
-						
-						NSString* messageAuthorName = [d valueForKeyPath:@"author.username"];
-						NSString* messageContent = [d objectForKey:@"content"];
-						NSString* message = [NSString stringWithFormat:@"\n%@\n%@\n", messageAuthorName, messageContent];
-						
-						NSDictionary* userInfo = @{@"message": message};
-						
 						dispatch_async(dispatch_get_main_queue(), ^{
 							//Send notification with the new message
-							[NSNotificationCenter.defaultCenter postNotificationName:@"MESSAGE CREATE" object:weakSelf userInfo:userInfo];
+							[NSNotificationCenter.defaultCenter postNotificationName:@"MESSAGE CREATE" object:weakSelf userInfo:d];
+							NSLog(@"%@", d);
 						});
 						
 						//Update current channel & read state last message

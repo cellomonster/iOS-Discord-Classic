@@ -9,11 +9,11 @@
 #import <UIKit/UIKit.h>
 #import "DCChannel.h"
 
-@interface DCChatViewController : UIViewController <UITextFieldDelegate>
+@interface DCChatViewController : UIViewController <UITextFieldDelegate, UITableViewDataSource, UITableViewDelegate>
 - (void)getMessages;
 
 @property (weak, nonatomic) IBOutlet UIToolbar *toolbar;
-@property (weak, nonatomic) IBOutlet UITextView *chatTextView;
+@property (weak, nonatomic) IBOutlet UITableView *chatTableView;
 @property (weak, nonatomic) IBOutlet UITextField *inputField;
 
 @property DCChannel* selectedChannel;

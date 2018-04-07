@@ -9,20 +9,21 @@
 #import "DCChatViewController.h"
 #import "DCServerCommunicator.h"
 #import "TRMalleableFrameView.h"
+#import "DCMessage.h"
+#import "DCTools.h"
+
+@interface DCChatViewController()
+@property NSArray* jsonMessages;
+@end
 
 @implementation DCChatViewController
-
-/*- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
-	self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-	return self;
-}*/
 
 - (void)viewDidLoad{
 	[super viewDidLoad];
 	
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleMessageCreate:) name:@"MESSAGE CREATE" object:nil];
 	
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleReady:) name:@"READY" object:nil];
+	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleReady) name:@"READY" object:nil];
 	
 	[NSNotificationCenter.defaultCenter addObserver:self
 																				 selector:@selector(keyboardWillShow:)
@@ -54,6 +55,7 @@
 
 
 - (void)getMessages{
+	self.messages = NSMutableArray.new;
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 		
 		NSURL* getChannelURL = [NSURL URLWithString:
@@ -74,40 +76,120 @@
 		
 		id parsedResponse = [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
 		
-		NSString* chatTextViewContent = @"";
-		
 		if([parsedResponse isKindOfClass:NSArray.class]){
-			[self setMessages:parsedResponse];
+			self.jsonMessages = parsedResponse;
 			
-			for(NSDictionary* message in [self.messages reverseObjectEnumerator]){
-				NSString* username = [message valueForKeyPath:@"author.username"];
-				NSString* content = [message valueForKey:@"content"];
-				NSString* message = [NSString stringWithFormat:@"\n%@\n%@\n", username, content];
-				chatTextViewContent = [chatTextViewContent stringByAppendingString:message];
+			for(NSDictionary* message in [self.jsonMessages reverseObjectEnumerator]){
+				DCMessage* newMessage = DCMessage.new;
+				newMessage.authorName = [message valueForKeyPath:@"author.username"];
+				newMessage.content = [message valueForKey:@"content"];
+				
+				NSArray* embeds = [message objectForKey:@"embeds"];
+				for(NSDictionary* embed in embeds){
+					NSString* embedType = [embed valueForKey:@"type"];
+					if([embedType isEqualToString:@"image"]){
+						
+						NSString* embededImageAddress = [embed valueForKeyPath:@"thumbnail.url"];
+						
+						[DCTools processImageDataWithURLString:embededImageAddress andBlock:^(NSData *imageData){
+							newMessage.includedImage = [UIImage imageWithData:imageData];
+						}];
+						
+						/*NSDictionary* thumbnail = [embed objectForKey:@"thumbnail"];
+						 if(thumbnail){
+						 NSString* embededImageAddress = [thumbnail ]
+						 }*/
+					}
+				}
+				
+				NSArray* attachments = [message objectForKey:@"attachments"];
+				for(NSDictionary* attachment in attachments){
+					NSString* embededImageAddress = [attachment valueForKey:@"url"];
+					
+					[DCTools processImageDataWithURLString:embededImageAddress andBlock:^(NSData *imageData){
+						newMessage.includedImage = [UIImage imageWithData:imageData];
+					}];
+					
+					/*NSDictionary* thumbnail = [embed objectForKey:@"thumbnail"];
+					 if(thumbnail){
+					 NSString* embededImageAddress = [thumbnail ]*/
+				}
+				
+				[self.messages addObject:newMessage];
 			}
-		}else{
-			chatTextViewContent = @"Error loading messages\nYou may not be able to view this channel!";
 		}
-		
 		dispatch_async(dispatch_get_main_queue(), ^{
-			[self.chatTextView setText:chatTextViewContent];
-			[self.chatTextView scrollRangeToVisible:NSMakeRange(self.chatTextView.text.length, 0)];
+			[self.chatTableView reloadData];
+			
+			CGPoint offset = CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height);
+			[self.chatTableView setContentOffset:offset animated:NO];
 		});
 	});
 }
 
 
-- (void)handleReady:(NSNotification*)notification {
+- (void)handleReady {
 	if(self.selectedChannel)
 		[self getMessages];
 }
 
 
 - (void)handleMessageCreate:(NSNotification*)notification {
-  NSString* newMessage = [notification.userInfo valueForKey:@"message"];
-	[self.chatTextView setText:[self.chatTextView.text stringByAppendingString:newMessage]];
-	[self.chatTextView scrollRangeToVisible:NSMakeRange(self.chatTextView.text.length, 0)];
+	
+  DCMessage* newMessage = DCMessage.new;
+	newMessage.authorName = [notification.userInfo valueForKeyPath:@"author.username"];
+	newMessage.content = [notification.userInfo valueForKey:@"content"];
+	[self.messages addObject:newMessage];
+	[self.chatTableView reloadData];
+	
+	CGPoint offset = CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height);
+	[self.chatTableView setContentOffset:offset animated:YES];
 }
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+	//static NSString *guildCellIdentifier = @"Channel Cell";
+	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Message Cell" forIndexPath:indexPath];
+	
+	DCMessage* messageAtRowIndex = [self.messages objectAtIndex:indexPath.row];
+	
+	[cell.detailTextLabel setText:messageAtRowIndex.content];
+	
+	[cell.textLabel setText:messageAtRowIndex.authorName];
+	cell.detailTextLabel.numberOfLines = 0;
+	cell.detailTextLabel.lineBreakMode = UILineBreakModeWordWrap;
+	
+	[cell.imageView setImage:messageAtRowIndex.includedImage];
+	cell.imageView.width = 100;
+	cell.imageView.contentMode = UIViewContentModeScaleAspectFit;
+	
+	return cell;
+}
+
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+	DCMessage* messageAtRowIndex = [self.messages objectAtIndex:indexPath.row];
+	
+	CGSize authorNameSize = [messageAtRowIndex.authorName sizeWithFont:[UIFont boldSystemFontOfSize:18]
+																									 constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT)
+																											 lineBreakMode:UILineBreakModeWordWrap];
+	CGSize contentSize = [messageAtRowIndex.content sizeWithFont:[UIFont systemFontOfSize:14]
+																						 constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT)
+																								 lineBreakMode:UILineBreakModeWordWrap];
+	
+	return authorNameSize.height + contentSize.height + 22;
+}
+
+
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+	return 1;
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+	return self.messages.count;
+}
+
+#pragma mark - Table view delegate
 
 
 - (void)keyboardWillShow:(NSNotification *)notification {
@@ -123,12 +205,13 @@
 	[UIView setAnimationDuration:keyboardAnimationDuration];
 	[UIView setAnimationCurve:keyboardAnimationCurve];
 	[UIView setAnimationBeginsFromCurrentState:YES];
-	[self.chatTextView setHeight:self.view.height - keyboardHeight - self.toolbar.height];
+	[self.chatTableView setHeight:self.view.height - keyboardHeight - self.toolbar.height];
 	[self.toolbar setY:self.view.height - keyboardHeight - self.toolbar.height];
 	[self.inputField setWidth:self.toolbar.width - 110];
 	[UIView commitAnimations];
 	
-	[self.chatTextView scrollRangeToVisible:NSMakeRange(self.chatTextView.text.length, 0)];
+	CGPoint offset = CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height);
+	[self.chatTableView setContentOffset:offset animated:NO];
 }
 
 
@@ -141,7 +224,7 @@
 	[UIView setAnimationDuration:keyboardAnimationDuration];
 	[UIView setAnimationCurve:keyboardAnimationCurve];
 	[UIView setAnimationBeginsFromCurrentState:YES];
-	[self.chatTextView setHeight:self.view.height - self.toolbar.height];
+	[self.chatTableView setHeight:self.view.height - self.toolbar.height];
 	[self.toolbar setY:self.view.height - self.toolbar.height];
 	[self.inputField setWidth:self.toolbar.width - 12];
 	[UIView commitAnimations];
@@ -158,7 +241,8 @@
 	
 	[self.inputField setText:@""];
 	
-	[self.chatTextView scrollRangeToVisible:NSMakeRange(self.chatTextView.text.length, 0)];
+	CGPoint offset = CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height);
+	[self.chatTableView setContentOffset:offset animated:YES];
 }
 
 

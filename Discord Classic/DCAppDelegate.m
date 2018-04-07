@@ -35,7 +35,7 @@
 
 - (void)applicationDidBecomeActive:(UIApplication *)application{
 	NSLog(@"Did become active");
-	if(self.shouldReload){
+	if(self.shouldReload && [NSUserDefaults.standardUserDefaults stringForKey:@"token"]){
 		[DCServerCommunicator.sharedInstance sendResume];
 	}
 }

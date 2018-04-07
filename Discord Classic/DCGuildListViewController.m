@@ -79,22 +79,6 @@
 	return DCServerCommunicator.sharedInstance.guilds.count;
 }
 
-/*-(void)viewWillAppear:(BOOL)animated{
- for(int i = 0; i < DCServerCommunicator.sharedInstance.guilds.count; i++){
- 
- DCGuild* guildAtIndex = [DCServerCommunicator.sharedInstance.guilds objectAtIndex:i];
- NSIndexPath* indexPath = [NSIndexPath indexPathForRow:i inSection:0];
- UITableViewCell* cell = [self.tableView cellForRowAtIndexPath:indexPath];
- 
- NSString* iconURL = [NSString stringWithFormat:@"https://cdn.discordapp.com/icons/%@/%@",
- guildAtIndex.snowflake, guildAtIndex.iconHash];
- 
- [DCWebImageOperations processImageDataWithURLString:iconURL andBlock:^(NSData *imageData) {
- [cell.imageView setImage:[UIImage imageWithData:imageData]];
- [self.tableView reloadData];
- }];
- }
- }*/
 
 #pragma mark - Table view delegate
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="2840" systemVersion="12F45" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" initialViewController="I1M-Vv-1nm">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="2840" systemVersion="13E28" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" initialViewController="I1M-Vv-1nm">
     <dependencies>
         <development version="4400" identifier="xcode"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="1926"/>
@@ -25,7 +25,7 @@
         <scene sceneID="QJ3-kn-Swx">
             <objects>
                 <tableViewController id="sL2-AC-FA3" customClass="DCGuildListViewController" sceneMemberID="viewController">
-                    <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" indicatorStyle="black" dataMode="prototypes" style="plain" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="O1E-bi-Jyg">
+                    <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" indicatorStyle="black" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="O1E-bi-Jyg">
                         <rect key="frame" x="0.0" y="64" width="320" height="416"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -91,6 +91,32 @@
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
+                            <tableViewSection headerTitle="Beta Features" id="Ges-Ze-Ymy">
+                                <string key="footerTitle">Permission Calculation is used to determine what channels should and shouldn't be seen by the user. If you notice any channels you should be able to see are missing, disable this setting.</string>
+                                <cells>
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" textLabel="7dc-aN-TaA" style="IBUITableViewCellStyleDefault" id="gqy-Qz-5of">
+                                        <rect key="frame" x="0.0" y="138" width="320" height="46"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                                            <rect key="frame" x="10" y="1" width="300" height="43"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" text="Perm Calculation" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="7dc-aN-TaA">
+                                                    <rect key="frame" x="10" y="0.0" width="280" height="43"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                    <color key="highlightedColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                                </label>
+                                            </subviews>
+                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                        </view>
+                                        <connections>
+                                            <outlet property="accessoryView" destination="stB-TJ-wYf" id="iv8-bh-sC2"/>
+                                        </connections>
+                                    </tableViewCell>
+                                </cells>
+                            </tableViewSection>
                         </sections>
                         <connections>
                             <outlet property="dataSource" destination="Y2n-LQ-P1S" id="i1p-jz-ZfG"/>
@@ -99,10 +125,16 @@
                     </tableView>
                     <navigationItem key="navigationItem" title="Settings" id="p8A-x4-fml"/>
                     <connections>
+                        <outlet property="permissionCalculationToggle" destination="stB-TJ-wYf" id="WXJ-xS-7Rb"/>
                         <outlet property="tokenInputField" destination="Zt4-z2-sPh" id="jb8-r8-DKM"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="fCs-Nh-p2U" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <switch opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" id="stB-TJ-wYf">
+                    <rect key="frame" x="0.0" y="0.0" width="79" height="27"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <color key="onTintColor" red="0.84636124319999995" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                </switch>
             </objects>
             <point key="canvasLocation" x="544" y="-654"/>
         </scene>
@@ -147,13 +179,43 @@
                         <rect key="frame" x="0.0" y="64" width="320" height="416"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" id="7Tv-RZ-9ja">
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" allowsSelection="NO" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="FQU-uE-jCg">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="372"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                            </textView>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <prototypes>
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="Message Cell" textLabel="lDk-g7-EOF" detailTextLabel="2bu-fO-G8A" style="IBUITableViewCellStyleSubtitle" id="nlM-de-gEU">
+                                        <rect key="frame" x="0.0" y="22" width="320" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                                            <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" text="Title" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="lDk-g7-EOF">
+                                                    <rect key="frame" x="10" y="2" width="38" height="22"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="18"/>
+                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                    <color key="highlightedColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                                </label>
+                                                <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" text="Subtitle" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="2bu-fO-G8A">
+                                                    <rect key="frame" x="10" y="24" width="47" height="18"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                    <color key="textColor" red="0.50196078431372548" green="0.50196078431372548" blue="0.50196078431372548" alpha="1" colorSpace="calibratedRGB"/>
+                                                    <color key="highlightedColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                                </label>
+                                            </subviews>
+                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                        </view>
+                                    </tableViewCell>
+                                </prototypes>
+                                <sections/>
+                                <connections>
+                                    <outlet property="dataSource" destination="SPS-Go-Xtj" id="HNW-az-QdB"/>
+                                    <outlet property="delegate" destination="SPS-Go-Xtj" id="zAV-aN-J65"/>
+                                </connections>
+                            </tableView>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="naG-kY-gaA">
                                 <rect key="frame" x="0.0" y="372" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
@@ -188,7 +250,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="VOY-oz-qxj"/>
                     <connections>
-                        <outlet property="chatTextView" destination="7Tv-RZ-9ja" id="W28-kC-RXK"/>
+                        <outlet property="chatTableView" destination="FQU-uE-jCg" id="Zu3-NK-RP6"/>
                         <outlet property="inputField" destination="2TA-Zy-0gC" id="61P-JM-RG5"/>
                         <outlet property="searchDisplayController" destination="EvX-d6-39L" id="cKg-Hb-40j"/>
                         <outlet property="toolbar" destination="naG-kY-gaA" id="6Kz-MB-aVh"/>
@@ -216,7 +278,7 @@
             <relationships>
                 <relationship kind="action" name="hideKeyboard:"/>
                 <relationship kind="action" name="sendMessage:"/>
-                <relationship kind="outlet" name="chatTextView" candidateClass="UITextView"/>
+                <relationship kind="outlet" name="chatTableView" candidateClass="UITableView"/>
                 <relationship kind="outlet" name="inputField" candidateClass="UITextField"/>
                 <relationship kind="outlet" name="toolbar" candidateClass="UIToolbar"/>
             </relationships>
@@ -227,6 +289,7 @@
         <class className="DCSettingsViewController" superclassName="UITableViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/DCSettingsViewController.h"/>
             <relationships>
+                <relationship kind="outlet" name="permissionCalculationToggle" candidateClass="UISwitch"/>
                 <relationship kind="outlet" name="tokenInputField" candidateClass="UITextField"/>
             </relationships>
         </class>

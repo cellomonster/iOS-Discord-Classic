@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		090C6BD120784DDD00EC552F /* DCMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 090C6BD020784DDD00EC552F /* DCMessage.m */; };
 		091C51E02069D52C0081348C /* DCSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 09D84D0B205F36B90070020A /* DCSettingsViewController.m */; };
 		09260EC720575AE900083813 /* DCGuild.m in Sources */ = {isa = PBXBuildFile; fileRef = 09260EC620575AE900083813 /* DCGuild.m */; };
 		09260ECA20575BB200083813 /* DCChannel.m in Sources */ = {isa = PBXBuildFile; fileRef = 09260EC920575BB200083813 /* DCChannel.m */; };
@@ -67,6 +68,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		090C6BCF20784DDD00EC552F /* DCMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCMessage.h; sourceTree = "<group>"; };
+		090C6BD020784DDD00EC552F /* DCMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCMessage.m; sourceTree = "<group>"; };
 		09260EC520575AE900083813 /* DCGuild.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCGuild.h; sourceTree = "<group>"; };
 		09260EC620575AE900083813 /* DCGuild.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCGuild.m; sourceTree = "<group>"; };
 		09260EC820575BB200083813 /* DCChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCChannel.h; sourceTree = "<group>"; };
@@ -205,6 +208,8 @@
 				09260EC620575AE900083813 /* DCGuild.m */,
 				09260EC820575BB200083813 /* DCChannel.h */,
 				09260EC920575BB200083813 /* DCChannel.m */,
+				090C6BCF20784DDD00EC552F /* DCMessage.h */,
+				090C6BD020784DDD00EC552F /* DCMessage.m */,
 				09C6B92B204A0F54007EAC26 /* Supporting Files */,
 			);
 			path = "Discord Classic";
@@ -367,6 +372,7 @@
 				09FF02F8205EF9DF00BCBA8D /* DCViewController.m in Sources */,
 				09D84D0C205F36B90070020A /* DCSettingsViewController.m in Sources */,
 				09E3ED262069F21200E90DA1 /* DCTools.m in Sources */,
+				090C6BD120784DDD00EC552F /* DCMessage.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
