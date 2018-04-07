@@ -55,17 +55,6 @@
 	
 	if(self.canIdentify && token!=nil){
 		
-		self.canIdentify = false;
-		
-		dispatch_async(dispatch_get_main_queue(), ^{
-			
-			self.cooldownTimer = [NSTimer scheduledTimerWithTimeInterval:5
-																														target:weakSelf
-																													selector:@selector(refreshIdentifyCooldown:)
-																													userInfo:nil
-																													 repeats:NO];
-		});
-		
 		//Close possible previous session
 		if(!self.shouldResume)
 			[self.websocket close];
@@ -126,6 +115,17 @@
 						});
 					}
 					
+					self.canIdentify = false;
+					
+					dispatch_async(dispatch_get_main_queue(), ^{
+						
+						self.cooldownTimer = [NSTimer scheduledTimerWithTimeInterval:5
+																																	target:weakSelf
+																																selector:@selector(refreshIdentifyCooldown:)
+																																userInfo:nil
+																																 repeats:NO];
+					});
+					
 					NSLog(@"Sending Identify");
 					userInfo = @{
 					@"op":@2,
@@ -151,8 +151,6 @@
 				NSLog(@"Got event %@ with sequence number %i", t, self.sequenceNumber);
 				
 				if([t isEqualToString:@"READY"]){
-					
-					NSLog(@"%@", d);
 					
 					dispatch_async(dispatch_get_main_queue(), ^{
 						[self.alertView dismissWithClickedButtonIndex:0 animated:YES];
@@ -360,8 +358,7 @@
 									
 								}];
 								
-								//NSLog(@"Created new guild object: %@", newGuild);
-								//]:[guildPositions indexOfObject:newGuild.snowflake]+1 withObject:newGuild];//:newGuild atIndexedSubscript:[guildPositions indexOfObject:newGuild.snowflake]];//setObject:newGuild atIndexSubscript:[guildPositions indexOfObject:newGuild.snowflake]];
+								NSLog(@"Created new guild object: %@", newGuild);
 							}
 						}
 					}
@@ -408,7 +405,6 @@
 						dispatch_async(dispatch_get_main_queue(), ^{
 							//Send notification with the new message
 							[NSNotificationCenter.defaultCenter postNotificationName:@"MESSAGE CREATE" object:weakSelf userInfo:d];
-							NSLog(@"%@", d);
 						});
 						
 						//Update current channel & read state last message
@@ -440,7 +436,7 @@
 			
 			if(op == 9){
 				dispatch_async(dispatch_get_main_queue(), ^{
-					if(self.canIdentify)
+//					if(self.canIdentify)
 						[weakSelf reconnect];
 				});
 			}
@@ -469,7 +465,9 @@
 							 withObject:nil
 							 afterDelay:self.cooldownTimer.fireDate.timeIntervalSinceNow];
 	
-	NSLog(@"%f",self.cooldownTimer.fireDate.timeIntervalSinceNow);
+	NSLog(@"Cooldown %f",self.cooldownTimer.fireDate.timeIntervalSinceNow);
+	
+	self.canIdentify = false;
 	
 	
 	self.alertView = [UIAlertView.alloc initWithTitle:@"Reconnecting"
