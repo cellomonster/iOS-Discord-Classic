@@ -11,8 +11,10 @@ Huge thanks to [Ty Brasher](https://twitter.com/TyBrasher) for icon design
 
 ~~Support DM and DM groups~~ Done!
 
-Images in chat
+~~Images in chat~~ Functional. Comming Soon
 
 Support for iPhone OS 2, 3 & 4
 
 Notifications
+
+![screenshot](https://github.com/Cellomonster/iOS-Discord-Classic/raw/master/Screenshot.PNG)
