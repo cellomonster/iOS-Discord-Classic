@@ -201,8 +201,8 @@
                             <tableView clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" allowsSelection="NO" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="FQU-uE-jCg">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="372"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                <color key="backgroundColor" red="0.16888552300000001" green="0.16888552300000001" blue="0.16888552300000001" alpha="1" colorSpace="calibratedRGB"/>
-                                <color key="separatorColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="backgroundColor" red="0.13962850765306123" green="0.13962850765306123" blue="0.13962850765306123" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="separatorColor" red="0.15660873724489799" green="0.15660873724489799" blue="0.15660873724489799" alpha="1" colorSpace="calibratedRGB"/>
                                 <sections/>
                                 <connections>
                                     <outlet property="dataSource" destination="SPS-Go-Xtj" id="HNW-az-QdB"/>
