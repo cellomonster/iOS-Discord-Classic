@@ -5,7 +5,7 @@ An unofficial and bare-bones Discord client for iOS 5 and 6
 
 Huge thanks to [Ty Brasher](https://twitter.com/TyBrasher) for icon design
 
-![screenshot](https://github.com/Cellomonster/iOS-Discord-Classic/raw/master/Screenshot.png)
+![screenshot](https://github.com/Cellomonster/iOS-Discord-Classic/raw/master/Screenshot.PNG)
 
 ## Things that need done:
 
