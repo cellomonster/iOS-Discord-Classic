@@ -67,7 +67,9 @@
 														 self.selectedChannel.snowflake,
 														 @"/messages"]];
 		
-		NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:getChannelURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:60.0];
+		NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:getChannelURL
+																															cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+																													timeoutInterval:60.0];
 		
 		[urlRequest addValue:DCServerCommunicator.sharedInstance.token forHTTPHeaderField:@"Authorization"];
 		[urlRequest addValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
@@ -141,7 +143,7 @@
   DCMessage* newMessage = DCMessage.new;
 	newMessage.authorName = [notification.userInfo valueForKeyPath:@"author.username"];
 	newMessage.content = [notification.userInfo valueForKey:@"content"];
-	
+	NSLog(@"%@", notification.userInfo);
 	NSArray* embeds = [notification.userInfo objectForKey:@"embeds"];
 	if(embeds)
 		for(NSDictionary* embed in embeds){

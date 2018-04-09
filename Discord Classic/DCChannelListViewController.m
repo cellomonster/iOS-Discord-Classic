@@ -39,12 +39,13 @@
 	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Channel Cell"];
 	
 	DCChannel* channelAtRowIndex = [self.selectedGuild.channels objectAtIndex:indexPath.row];
-	if(!channelAtRowIndex.read)
+	if(channelAtRowIndex.unread)
 		[cell setAccessoryType:UITableViewCellAccessoryDetailDisclosureButton];
 	else
 		[cell setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
 	
 	[cell.textLabel setText:channelAtRowIndex.name];
+	
 	return cell;
 }
 

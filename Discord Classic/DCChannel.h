@@ -23,7 +23,7 @@
 //ID/snowflake of last read message
 @property NSString* lastReadMessageId;
 //Whether or not the chnanel has been read
-@property bool read;
+@property bool unread;
 //Type of channel (voice, text, catagory, etc)
 @property int type;
 

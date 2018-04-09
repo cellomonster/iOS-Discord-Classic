@@ -22,7 +22,7 @@
 //Array of child DCCannel objects
 @property NSMutableArray* channels;
 //Whether or not the guild has any unread child channels
-@property bool read;
+@property bool unread;
 
 -(void)checkIfRead;
 @end

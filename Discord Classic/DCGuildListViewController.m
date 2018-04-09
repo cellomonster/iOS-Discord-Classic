@@ -24,7 +24,7 @@
 	
 	DCGuild* guildAtRowIndex = [DCServerCommunicator.sharedInstance.guilds objectAtIndex:indexPath.row];
 	
-	if(!guildAtRowIndex.read)
+	if(guildAtRowIndex.unread)
 		[cell setAccessoryType:UITableViewCellAccessoryDetailDisclosureButton];
 	else
 		[cell setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];

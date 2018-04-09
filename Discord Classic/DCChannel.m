@@ -13,14 +13,13 @@
 
 
 -(NSString *)description{
-	return [NSString stringWithFormat:@"[Channel] Snowflake: %@, Type: %i, Read: %d, Name: %@", self.snowflake, self.type, self.read, self.name];
+	return [NSString stringWithFormat:@"[Channel] Snowflake: %@, Type: %i, Read: %d, Name: %@", self.snowflake, self.type, self.unread, self.name];
 }
 
 -(void)checkIfRead{
-	if([self.lastReadMessageId isEqualToString:self.lastMessageId])
-		[self setRead:true];
-	else
-		[self setRead:false];
+	self.unread = (self.lastReadMessageId != (id)NSNull.null && ![self.lastReadMessageId isEqualToString:self.lastMessageId]);
+	
+	NSLog(@"%@, %d", self.name, self.unread);
 	
 	[self.parentGuild checkIfRead];
 }

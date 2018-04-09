@@ -503,27 +503,31 @@
 
 - (NSDictionary*)ackMessage:(NSString*)messageId inChannel:(DCChannel*)channel{
 	
-	NSURL* channelURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@%@%@%@",
-																						@"https://discordapp.com/api/channels/",
-																						channel.snowflake, @"/messages/",
-																						messageId,
-																						@"/ack"]];
-	
-	NSMutableURLRequest *urlRequest=[NSMutableURLRequest requestWithURL:channelURL
-																													cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-																											timeoutInterval:5];
-	
-	[urlRequest addValue:DCServerCommunicator.sharedInstance.token forHTTPHeaderField:@"Authorization"];
-	[urlRequest addValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-	[urlRequest setHTTPMethod:@"POST"];
-	
-	
-	NSError *error = nil;
-	NSHTTPURLResponse *responseCode = nil;
-	
-	NSData *response = [NSURLConnection sendSynchronousRequest:urlRequest returningResponse:&responseCode error:&error];
-	
-	return [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
+	if(messageId != (id)NSNull.null){
+		NSURL* channelURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@%@%@%@",
+																							@"https://discordapp.com/api/channels/",
+																							channel.snowflake, @"/messages/",
+																							messageId,
+																							@"/ack"]];
+		
+		NSMutableURLRequest *urlRequest=[NSMutableURLRequest requestWithURL:channelURL
+																														cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+																												timeoutInterval:5];
+		
+		[urlRequest addValue:DCServerCommunicator.sharedInstance.token forHTTPHeaderField:@"Authorization"];
+		[urlRequest addValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+		[urlRequest setHTTPMethod:@"POST"];
+		
+		
+		NSError *error = nil;
+		NSHTTPURLResponse *responseCode = nil;
+		
+		NSData *response = [NSURLConnection sendSynchronousRequest:urlRequest returningResponse:&responseCode error:&error];
+		
+		return [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
+	}else{
+		return nil;
+	}
 }
 
 @end
