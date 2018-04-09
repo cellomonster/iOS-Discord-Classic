@@ -34,7 +34,6 @@
 	static DCServerCommunicator *sharedInstance = nil;
 	
 	if (sharedInstance == nil) {
-		NSLog(@"Created DCServerCommunicator shared class");
 		//Initialize if a sharedInstance does not yet exist
 		sharedInstance = DCServerCommunicator.new;
 		sharedInstance.identifyCooldown = true;
@@ -50,8 +49,6 @@
 	self.didRecieveHeartbeatResponse = true;
 	self.token = [NSUserDefaults.standardUserDefaults stringForKey:@"token"];
 	bool permissionCalculationEnabled = [NSUserDefaults.standardUserDefaults boolForKey:@"perm calc"];
-	
-	NSLog(@"Perm calculations enabled %d", permissionCalculationEnabled);
 	
 	self.gatewayURL = @"wss://gateway.discord.gg/?encoding=json&v=6";
 	
@@ -80,7 +77,7 @@
 				
 				if(self.shouldResume){
 					
-					NSLog(@"Sending Resume %i %@", self.sequenceNumber, self.sessionId);
+					NSLog(@"Sending Resume with sequence number %i, session ID %@", self.sequenceNumber, self.sessionId);
 					
 					//RESUME
 					[weakSelf sendJSON:@{
@@ -219,8 +216,6 @@
 									[userRoles addObject:[guildRole valueForKey:@"id"]];
 						}
 						
-						NSLog(@"User roles %@", userRoles);
-						
 						DCGuild* newGuild = DCGuild.new;
 						newGuild.name = [jsonGuild valueForKey:@"name"];
 						newGuild.snowflake = [jsonGuild valueForKey:@"id"];
@@ -304,8 +299,6 @@
 									}
 								}
 								
-								NSLog(@"Allow code %i for channel %@", allowCode, [jsonChannel valueForKey:@"name"]);
-								
 								if(allowCode == 0 || allowCode == 2 || allowCode == 4){
 									DCChannel* newChannel = DCChannel.new;
 									
@@ -322,7 +315,6 @@
 						}
 						
 						[self.guilds addObject:newGuild];
-						NSLog(@"Created new guild object: %@", newGuild);
 					}
 					
 					
@@ -364,8 +356,6 @@
 					//and if so, if that channel is the same the message was sent in
 					if(self.selectedChannel != nil && [channelIdOfMessage isEqualToString:self.selectedChannel.snowflake]){
 						
-						NSLog(@"The message recieved was sent in the current channel");
-						
 						dispatch_async(dispatch_get_main_queue(), ^{
 							//Send notification with the new message
 							//will be recieved by DCChatViewController
@@ -387,7 +377,6 @@
 							[NSNotificationCenter.defaultCenter postNotificationName:@"MESSAGE ACK" object:weakSelf];
 						});
 					}
-					NSLog(@"The message recieved was NOT sent in the current channel");
 				}
 			}
 			
@@ -414,8 +403,9 @@
 }
 
 
+
 - (void)reconnect{
-	NSLog(@"Cooldown %f",self.cooldownTimer.fireDate.timeIntervalSinceNow);
+	NSLog(@"Identify cooldown %f",self.cooldownTimer.fireDate.timeIntervalSinceNow);
 	
 	//Begin new session
 	[self.websocket close];

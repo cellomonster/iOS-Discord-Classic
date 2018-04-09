@@ -80,6 +80,7 @@
                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                         <sections>
                             <tableViewSection headerTitle="Token" id="rjG-ap-esH">
+                                <string key="footerTitle">Be sure that there are no quotation marks or spaces in the token you give. If the client cannot connect, make sure you're token is correct.</string>
                                 <cells>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="OlX-dT-XQh">
                                         <rect key="frame" x="0.0" y="46" width="320" height="46"/>
@@ -104,7 +105,7 @@
                                 <string key="footerTitle">Permission Calculation is used to determine what channels should and shouldn't be seen by the user. If you notice any channels you should be able to see are missing, disable this setting.</string>
                                 <cells>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" textLabel="7dc-aN-TaA" style="IBUITableViewCellStyleDefault" id="gqy-Qz-5of">
-                                        <rect key="frame" x="0.0" y="138" width="320" height="46"/>
+                                        <rect key="frame" x="0.0" y="226" width="320" height="46"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
                                             <rect key="frame" x="10" y="1" width="300" height="43"/>
