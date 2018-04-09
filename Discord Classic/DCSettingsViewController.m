@@ -32,13 +32,7 @@
 - (void)viewWillDisappear:(BOOL)animated{
 	[NSUserDefaults.standardUserDefaults setObject:self.tokenInputField.text forKey:@"token"];
 	[NSUserDefaults.standardUserDefaults setBool:self.permissionCalculationToggle.on forKey:@"perm calc"];
-	NSLog(@"Permission set %d", self.permissionCalculationToggle.on);
-	[DCServerCommunicator.sharedInstance.websocket close];
+	
 	[DCServerCommunicator.sharedInstance reconnect];
-}
-
-- (void)viewDidUnload {
-	[self setPermissionCalculationToggle:nil];
-	[super viewDidUnload];
 }
 @end

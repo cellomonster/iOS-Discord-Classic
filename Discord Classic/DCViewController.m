@@ -14,9 +14,12 @@
 
 - (void)viewDidLoad{
 	[super viewDidLoad];
+	
 	[DCServerCommunicator.sharedInstance startCommunicator];
+	
 	[self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"Background.tiff"]]];
 }
+
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation{
 	return (interfaceOrientation == UIInterfaceOrientationPortrait);

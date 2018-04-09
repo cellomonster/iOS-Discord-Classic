@@ -13,7 +13,6 @@
 #import "DCChannel.h"
 
 @interface DCChannelListViewController ()
-@property (nonatomic)  DCGuild* selectedGuild;
 @property int selectedChannelIndex;
 @property DCChannel* selectedChannel;
 @end
@@ -23,13 +22,20 @@
 
 - (void)viewDidLoad{
 	[super viewDidLoad];
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleMessageAck:) name:@"MESSAGE ACK" object:nil];
+	
 	[self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"Background.tiff"]]];
+	
+	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleMessageAck) name:@"MESSAGE ACK" object:nil];
 }
 
 
 -(void)viewWillAppear:(BOOL)animated{
 	[self.navigationItem setTitle:self.selectedGuild.name];
+}
+
+
+- (void)handleMessageAck {
+	[self.tableView reloadData];
 }
 
 
@@ -50,23 +56,6 @@
 }
 
 
--(void)setSelectedGuild:(DCGuild*)selectedGuild{
-	//self.selectedGuild causes crash and im not smart enough to know why
-	_selectedGuild = selectedGuild;
-	[self.tableView reloadData];
-}
-
-
-- (void)handleMessageAck:(NSNotification*)notification {
-	[self.tableView reloadData];
-}
-
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation{
-	return (interfaceOrientation == UIInterfaceOrientationPortrait);
-}
-
-
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
 	return 1;
 }
@@ -77,22 +66,15 @@
 }
 
 
-#pragma mark - Table view delegate
-
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-	[self setSelectedChannel:[self.selectedGuild.channels objectAtIndex:indexPath.row]];
-	
-	self.selectedChannel.lastReadMessageId = self.selectedChannel.lastMessageId;
+	self.selectedChannel = [self.selectedGuild.channels objectAtIndex:indexPath.row];
 	
 	[DCServerCommunicator.sharedInstance ackMessage:self.selectedChannel.lastMessageId inChannel:self.selectedChannel];
 	
 	[self.selectedChannel checkIfRead];
 	
-	UITableViewCell* cellAtIndex = [self.tableView cellForRowAtIndexPath:indexPath];
+	[[self.tableView cellForRowAtIndexPath:indexPath] setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
 	
-	[cellAtIndex setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
-	
-	NSLog(@"Selected channel: %@", self.selectedChannel);
 	[self performSegueWithIdentifier:@"Channels to Chat" sender:self];
 }
 
@@ -102,8 +84,10 @@
 		DCChatViewController *chatViewController = [segue destinationViewController];
 		
 		if ([chatViewController isKindOfClass:DCChatViewController.class]){
-			[chatViewController setSelectedChannel:self.selectedChannel];
-			[DCServerCommunicator.sharedInstance setSelectedChannel:self.selectedChannel];
+			
+			chatViewController.selectedChannel = self.selectedChannel;
+			DCServerCommunicator.sharedInstance.selectedChannel = self.selectedChannel;
+			
 			dispatch_async(dispatch_get_main_queue(), ^{
 				[chatViewController getMessages];
 			});

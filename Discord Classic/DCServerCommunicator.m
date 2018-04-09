@@ -504,6 +504,8 @@
 - (NSDictionary*)ackMessage:(NSString*)messageId inChannel:(DCChannel*)channel{
 	
 	if(messageId != (id)NSNull.null){
+		channel.lastReadMessageId = messageId;
+		
 		NSURL* channelURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@%@%@%@",
 																							@"https://discordapp.com/api/channels/",
 																							channel.snowflake, @"/messages/",

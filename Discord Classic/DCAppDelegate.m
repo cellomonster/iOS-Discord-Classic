@@ -22,18 +22,22 @@
 	return YES;
 }
 
+
 - (void)applicationWillResignActive:(UIApplication *)application{
 	NSLog(@"Will resign active");
 }
+
 
 - (void)applicationDidEnterBackground:(UIApplication *)application{
 	NSLog(@"Did enter background");
 	self.shouldReload = true;
 }
 
+
 - (void)applicationWillEnterForeground:(UIApplication *)application{
 	NSLog(@"Will enter foreground");
 }
+
 
 - (void)applicationDidBecomeActive:(UIApplication *)application{
 	NSLog(@"Did become active");
@@ -41,6 +45,7 @@
 		[DCServerCommunicator.sharedInstance sendResume];
 	}
 }
+
 
 - (void)applicationWillTerminate:(UIApplication *)application{
 	NSLog(@"Will terminate");

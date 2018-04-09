@@ -10,5 +10,5 @@
 #import "DCGuild.h"
 
 @interface DCChannelListViewController : UITableViewController
--(void)setSelectedGuild:(DCGuild*)selectedGuild;
+@property DCGuild* selectedGuild;
 @end

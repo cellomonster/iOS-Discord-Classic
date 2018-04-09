@@ -18,6 +18,29 @@
 
 @implementation DCGuildListViewController
 
+- (void)viewDidLoad{
+	[super viewDidLoad];
+	
+	//Go to settings if no token is set
+	if(!DCServerCommunicator.sharedInstance.token)
+		[self performSegueWithIdentifier:@"to Settings" sender:self];
+	
+	[self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"Background.tiff"]]];
+	
+	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleReady) name:@"READY" object:nil];
+	
+	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleReady) name:@"MESSAGE ACK" object:nil];
+	
+	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleReady) name:@"RELOAD GUILD LIST" object:nil];
+}
+
+
+- (void)handleReady {
+	//Refresh tableView data on READY notification
+  [self.tableView reloadData];
+}
+
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
 	
 	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Guild Cell"];
@@ -37,55 +60,18 @@
 }
 
 
--(void)viewWillAppear:(BOOL)animated{
-	[self.tableView reloadData];
-}
-
-
-- (void)viewDidLoad{
-	[super viewDidLoad];
-	
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleReady:) name:@"READY" object:nil];
-	
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleMessageAck:) name:@"MESSAGE ACK" object:nil];
-	
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleReady:) name:@"RELOAD GUILD LIST" object:nil];
-	
-	if(!DCServerCommunicator.sharedInstance.token.length)
-		[self performSegueWithIdentifier:@"to Settings" sender:self];
-	
-	[self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"Background.tiff"]]];
-}
-
-- (void)handleReady:(NSNotification*)notification {
-	//Refresh tableView data on READY notification
-  [self.tableView reloadData];
-}
-
-- (void)handleMessageAck:(NSNotification*)notification {
-	[self.tableView reloadData];
-}
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation{
-	return (interfaceOrientation == UIInterfaceOrientationPortrait);
-}
-
-
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
 	return 1;
 }
 
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-	//We only have as many items as we are members of guilds
 	return DCServerCommunicator.sharedInstance.guilds.count;
 }
 
 
-#pragma mark - Table view delegate
-
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-	[self setSelectedGuild:[DCServerCommunicator.sharedInstance.guilds objectAtIndex:indexPath.row]];
+	self.selectedGuild = [DCServerCommunicator.sharedInstance.guilds objectAtIndex:indexPath.row];
 	[self performSegueWithIdentifier:@"Guilds to Channels" sender:self];
 }
 
@@ -96,7 +82,7 @@
 		DCChannelListViewController *channelListViewController = [segue destinationViewController];
 		
 		if ([channelListViewController isKindOfClass:DCChannelListViewController.class])
-			[channelListViewController setSelectedGuild:self.selectedGuild];
+			channelListViewController.selectedGuild = self.selectedGuild;
 	}
 }
 

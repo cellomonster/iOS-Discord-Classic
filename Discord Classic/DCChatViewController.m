@@ -22,6 +22,8 @@
 - (void)viewDidLoad{
 	[super viewDidLoad];
 	
+	[self.chatTableView setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"Background.tiff"]]];
+	
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleMessageCreate:) name:@"MESSAGE CREATE" object:nil];
 	
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleReady) name:@"READY" object:nil];
@@ -35,8 +37,6 @@
 																				 selector:@selector(keyboardWillHide:)
 																						 name:UIKeyboardWillHideNotification
 																					 object:nil];
-	
-	[self.chatTableView setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"Background.tiff"]]];
 }
 
 
@@ -53,12 +53,13 @@
 
 
 - (void)viewWillDisappear:(BOOL)animated{
-	[DCServerCommunicator.sharedInstance setSelectedChannel:nil];
+	DCServerCommunicator.sharedInstance.selectedChannel = nil;
 }
 
 
 - (void)getMessages{
 	self.messages = NSMutableArray.new;
+	
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 		
 		NSURL* getChannelURL = [NSURL URLWithString:
@@ -81,6 +82,7 @@
 		
 		id parsedResponse = [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
 		
+#warning TODO: consolidate this attachment handling boiler code 
 		if([parsedResponse isKindOfClass:NSArray.class]){
 			self.jsonMessages = parsedResponse;
 			
@@ -137,7 +139,7 @@
 		[self getMessages];
 }
 
-
+#warning TODO: consolidate this attachment handling boiler code
 - (void)handleMessageCreate:(NSNotification*)notification {
 	
   DCMessage* newMessage = DCMessage.new;
@@ -288,11 +290,6 @@
 	
 	CGPoint offset = CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height);
 	[self.chatTableView setContentOffset:offset animated:YES];
-}
-
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation{
-	return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 
 @end
