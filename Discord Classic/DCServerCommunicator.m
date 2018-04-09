@@ -16,7 +16,7 @@
 @property bool shouldResume;
 @property bool heartbeatDefined;
 
-@property bool canIdentify;
+@property bool identifyCooldown;
 
 @property int sequenceNumber;
 @property NSString* sessionId;
@@ -31,36 +31,34 @@
 @implementation DCServerCommunicator
 
 + (DCServerCommunicator *)sharedInstance {
-	
 	static DCServerCommunicator *sharedInstance = nil;
 	
 	if (sharedInstance == nil) {
+		NSLog(@"Created DCServerCommunicator shared class");
+		//Initialize if a sharedInstance does not yet exist
 		sharedInstance = DCServerCommunicator.new;
-		sharedInstance.canIdentify = true;
+		sharedInstance.identifyCooldown = true;
 	}
 	
 	return sharedInstance;
 }
 
+
 - (void)startCommunicator{
+	
+	//Init and grab user settings
+	self.didRecieveHeartbeatResponse = true;
+	self.token = [NSUserDefaults.standardUserDefaults stringForKey:@"token"];
+	bool permissionCalculationEnabled = [NSUserDefaults.standardUserDefaults boolForKey:@"perm calc"];
+	
+	NSLog(@"Perm calculations enabled %d", permissionCalculationEnabled);
+	
+	self.gatewayURL = @"wss://gateway.discord.gg/?encoding=json&v=6";
 	
 	//To prevent retain cycle
 	__weak typeof(self) weakSelf = self;
 	
-	self.didRecieveHeartbeatResponse = true;
-	
-	NSString* token = [NSUserDefaults.standardUserDefaults stringForKey:@"token"];
-	
-	bool permissionCalculationEnabled = [NSUserDefaults.standardUserDefaults boolForKey:@"perm calc"];
-	
-	if(self.canIdentify && token!=nil){
-		
-		//Close possible previous session
-		if(!self.shouldResume)
-			[self.websocket close];
-		
-		self.token = token;
-		self.gatewayURL = @"wss://gateway.discord.gg/?encoding=json&v=6";
+	if(self.token!=nil){
 		
 		//Establish websocket connection with Discord
 		NSURL *websocketUrl = [NSURL URLWithString:self.gatewayURL];
@@ -69,298 +67,262 @@
 		[self.websocket setTextCallback:^(NSString *responseString) {
 			
 			//Parse JSON to a dictionary
-			NSDictionary *parsedWebsocketResponse = [DCTools parseJSON:responseString];
+			NSDictionary *parsedJsonResponse = [DCTools parseJSON:responseString];
 			
 			//Data values for easy access
-			int op = [[parsedWebsocketResponse valueForKey:@"op"] integerValue];
-			NSDictionary* d = [parsedWebsocketResponse valueForKey:@"d"];
-			
-			//Dictionary that will be used to send information via websocket
-			NSDictionary *userInfo;
+			int op = [[parsedJsonResponse valueForKey:@"op"] integerValue];
+			NSDictionary* d = [parsedJsonResponse valueForKey:@"d"];
 			
 			NSLog(@"Got op code %i", op);
 			
-			
+			//revcieved HELLO event
 			if(op == 10){
+				
 				if(self.shouldResume){
 					
 					NSLog(@"Sending Resume %i %@", self.sequenceNumber, self.sessionId);
 					
-					userInfo = @{
-					@"op":@6,
-					@"d":@{
-					@"token":self.token,
-					@"session_id":self.sessionId,
-					@"seq":@(self.sequenceNumber),
-					}
-					};
+					//RESUME
+					[weakSelf sendJSON:@{
+					 @"op":@6,
+					 @"d":@{
+					 @"token":self.token,
+					 @"session_id":self.sessionId,
+					 @"seq":@(self.sequenceNumber),
+					 }
+					 }];
 					
 					self.shouldResume = false;
 					
 				}else{
 					
+					NSLog(@"Sending Identify");
+					
+					//IDENTIFY
+					[weakSelf sendJSON:@{
+					 @"op":@2,
+					 @"d":@{
+					 @"token":self.token,
+					 @"properties":@{ @"$browser" : @"peble" },
+					 @"large_threshold":@"50",
+					 }
+					 }];
+					
+					//Disable ability to identify until reenabled 5 seconds later.
+					//API only allows once identify every 5 seconds
+					self.identifyCooldown = false;
+					
 					int heartbeatInterval = [[d valueForKey:@"heartbeat_interval"] intValue];
 					
-					//Send a heartbeat at interval heartbeatinterval
-					if(!self.heartbeatDefined){
-						self.heartbeatDefined = true;
-						NSLog(@"Defined heartbeat");
-						dispatch_async(dispatch_get_main_queue(), ^{
+					dispatch_async(dispatch_get_main_queue(), ^{
+						
+						static dispatch_once_t once;
+						dispatch_once(&once, ^ {
 							
+							//Begin heartbeat cycle if not already begun
 							[NSTimer scheduledTimerWithTimeInterval:heartbeatInterval/1000
 																							 target:weakSelf
 																						 selector:@selector(sendHeartbeat:)
 																						 userInfo:nil
 																							repeats:YES];
+							
+							//Reenable ability to identify in 5 seconds
+							self.cooldownTimer = [NSTimer scheduledTimerWithTimeInterval:5
+																																		target:weakSelf
+																																	selector:@selector(refreshIdentifyCooldown:)
+																																	userInfo:nil
+																																	 repeats:NO];
 						});
-					}
-					
-					self.canIdentify = false;
-					
-					dispatch_async(dispatch_get_main_queue(), ^{
-						
-						self.cooldownTimer = [NSTimer scheduledTimerWithTimeInterval:5
-																																	target:weakSelf
-																																selector:@selector(refreshIdentifyCooldown:)
-																																userInfo:nil
-																																 repeats:NO];
 					});
 					
-					NSLog(@"Sending Identify");
-					userInfo = @{
-					@"op":@2,
-					@"d":@{
-					@"token":self.token,
-					@"properties":@{ @"$browser" : @"peble" },
-					@"large_threshold":@"50",
-					}
-					};
-					
 				}
-				
-				[weakSelf sendJSON:userInfo];
 			}
 			
 			
-			//Event
+			//Misc Event
 			if(op == 0){
 				
 				//Get event type and sequence number
-				NSString* t = [parsedWebsocketResponse valueForKey:@"t"];
-				self.sequenceNumber = [[parsedWebsocketResponse valueForKey:@"s"] integerValue];
+				NSString* t = [parsedJsonResponse valueForKey:@"t"];
+				self.sequenceNumber = [[parsedJsonResponse valueForKey:@"s"] integerValue];
+				
 				NSLog(@"Got event %@ with sequence number %i", t, self.sequenceNumber);
 				
+				//recieved READY
 				if([t isEqualToString:@"READY"]){
 					
-					dispatch_async(dispatch_get_main_queue(), ^{
-						[self.alertView dismissWithClickedButtonIndex:0 animated:YES];
-					});
-					
+					//Grab session id (used for RESUME) and user id
 					self.sessionId = [d valueForKey:@"session_id"];
-					NSLog(@"Got session ID %@", self.sessionId);
+					self.snowflake = [d valueForKeyPath:@"user.id"];
 					
-					NSDictionary* user = [d objectForKey:@"user"];
-					self.snowflake = [user valueForKey:@"id"];
-					
+					//array of all guilds the user is a member of
 					self.guilds = NSMutableArray.new;
+					//all channels with their ids as keys
 					self.channels = NSMutableDictionary.new;
 					
-					NSMutableArray* newChannels = NSMutableArray.new;
-					
-					//Take care of private channels (direct messages)
+					//Get user DMs and DM groups
 					//The user's DMs are treated like a guild, where the channels are different DM/groups
 					DCGuild* privateGuild = DCGuild.new;
 					privateGuild.name = @"Direct Messages";
+					privateGuild.channels = NSMutableArray.new;
 					
-					NSArray* privateChannels = [d valueForKey:@"private_channels"];
-					
-					for(NSDictionary* privateChannel in privateChannels){
+					for(NSDictionary* privateChannel in [d valueForKey:@"private_channels"]){
+						
 						DCChannel* newChannel = DCChannel.new;
 						newChannel.snowflake = [privateChannel valueForKey:@"id"];
-						
-						NSString* privateChannelName = [privateChannel valueForKey:@"name"];
-						
-						//Some private channels dont have names, check if nil
-						if(privateChannelName!=(id)NSNull.null && privateChannelName)
-							
-							newChannel.name = privateChannelName;
-						
-						else{
-							//If no name, create a name from member or list of members
-							NSString* fullChannelName = @"";
-							NSArray* privateChannelMembers = [privateChannel valueForKey:@"recipients"];
-							
-							if(privateChannelMembers.count){
-								
-								for(NSDictionary* privateChannelMember in privateChannelMembers){
-									//add , between member names
-									if([privateChannelMembers indexOfObject:privateChannelMember] != 0)
-										fullChannelName = [fullChannelName stringByAppendingString:@", "];
-									
-									NSString* memberName = [privateChannelMember valueForKey:@"username"];
-									fullChannelName = [fullChannelName stringByAppendingString:memberName];
-									
-									newChannel.name = fullChannelName;
-								}
-							}
-						}
-						
 						newChannel.lastMessageId = [privateChannel valueForKey:@"last_message_id"];
 						newChannel.parentGuild = privateGuild;
 						newChannel.type = 1;
 						
-						[newChannels addObject:newChannel];
+						NSString* privateChannelName = [privateChannel valueForKey:@"name"];
+						
+						//Some private channels dont have names, check if nil
+						if(privateChannelName && privateChannelName != (id)NSNull.null){
+							newChannel.name = privateChannelName;
+						}else{
+							//If no name, create a name from channel members
+							NSMutableString* fullChannelName = [@"" mutableCopy];
+							
+							NSArray* privateChannelMembers = [privateChannel valueForKey:@"recipients"];
+							for(NSDictionary* privateChannelMember in privateChannelMembers){
+								//add comma between member names
+								if([privateChannelMembers indexOfObject:privateChannelMember] != 0)
+									[fullChannelName appendString:@", @"];
+								
+								NSString* memberName = [privateChannelMember valueForKey:@"username"];
+								[fullChannelName appendString:memberName];
+								
+								newChannel.name = fullChannelName;
+							}
+						}
+						
+						[privateGuild.channels addObject:newChannel];
 						[self.channels setObject:newChannel forKey:newChannel.snowflake];
 					}
-					privateGuild.channels = newChannels;
 					[self.guilds addObject:privateGuild];
 					
 					
-					//Take care of normal guilds (servers)
-					NSArray* jsonGuilds = [d valueForKey:@"guilds"];
-					if(jsonGuilds){
+					//Get servers (guilds) the user is a member of
+					for(NSDictionary* jsonGuild in [d valueForKey:@"guilds"]){
 						
-						for(NSDictionary* jsonGuild in jsonGuilds){
+						NSMutableArray* userRoles;
+						
+						if(permissionCalculationEnabled){
+							//Get roles of the current user
+							for(NSDictionary* member in [jsonGuild objectForKey:@"members"])
+								if([[member valueForKeyPath:@"user.id"] isEqualToString:self.snowflake])
+									userRoles = [[member valueForKey:@"roles"] mutableCopy];
 							
-							NSMutableArray* userRoles;
+							//Get @everyone role
+							for(NSDictionary* guildRole in [jsonGuild objectForKey:@"roles"])
+								if([[guildRole valueForKey:@"name"] isEqualToString:@"@everyone"])
+									[userRoles addObject:[guildRole valueForKey:@"id"]];
+						}
+						
+						NSLog(@"User roles %@", userRoles);
+						
+						DCGuild* newGuild = DCGuild.new;
+						newGuild.name = [jsonGuild valueForKey:@"name"];
+						newGuild.snowflake = [jsonGuild valueForKey:@"id"];
+						newGuild.channels = NSMutableArray.new;
+						
+						NSString* iconURL = [NSString stringWithFormat:@"https://cdn.discordapp.com/icons/%@/%@",
+																 newGuild.snowflake, [jsonGuild valueForKey:@"icon"]];
+						
+						[DCTools processImageDataWithURLString:iconURL andBlock:^(NSData *imageData) {
+							newGuild.icon = [UIImage imageWithData:imageData];
 							
-							if(permissionCalculationEnabled){
-								//Get roles of the current user
-								NSArray* members = [jsonGuild objectForKey:@"members"];
-								if(members)
-									for(NSDictionary* member in members){
-										
-										NSDictionary* memberInfo = [member objectForKey:@"user"];
-										NSString* memberId = [memberInfo valueForKey:@"id"];
-										
-										if([memberId isEqualToString:self.snowflake])
-											userRoles = [[member valueForKey:@"roles"] mutableCopy];
-									}
+							dispatch_async(dispatch_get_main_queue(), ^{
+								[NSNotificationCenter.defaultCenter postNotificationName:@"RELOAD GUILD LIST" object:weakSelf];
+							});
+							
+						}];
+						
+						for(NSDictionary* jsonChannel in [jsonGuild valueForKey:@"channels"]){
+							
+							//Make sure jsonChannel is a text cannel
+							//we dont want to include voice channels in the text channel list
+							if([jsonChannel valueForKey:@"type"] == @0){
 								
-								//Get @everyone role
-								NSArray* guildRoles = [jsonGuild objectForKey:@"roles"];
-								for(NSDictionary* guildRole in guildRoles){
+								//Allow code is used to calculate the permission hirearchy.
+								/*
+								 0 - No overwrites. Channel should be created
+								 
+								 1 - Hidden by role. Channel should not be created unless another role contradicts (code 2)
+								 2 - Shown by role. Channel should be created unless hidden by member overwrite (code 3)
+								 
+								 3 - Hidden by member. Channel should not be created
+								 4 - Shown by member. Channel should be created
+								 
+								 3 & 4 are mutually exclusive
+								 */
+								int allowCode = 0;
+								
+								if(permissionCalculationEnabled){
 									
-									NSString* guildRoleName = [guildRole valueForKey:@"name"];
-									if([guildRoleName isEqualToString:@"@everyone"]){
+									//Calculate permissions
+									for(NSDictionary* permission in [jsonChannel objectForKey:@"permission_overwrites"]){
 										
-										NSString* everyoneRoleId = [guildRole valueForKey:@"id"];
-										[userRoles addObject:everyoneRoleId];
-									}
-								}
-							}
-							
-							//Create array of json channels from the current json guild
-							NSArray* jsonChannelsArray = [jsonGuild valueForKey:@"channels"];
-							
-							if(jsonChannelsArray){
-								
-								DCGuild* newGuild = DCGuild.new;
-								
-								//We will pass this array into our new guild object later. This is an array of that guild's channels
-								newChannels = NSMutableArray.new;
-								
-								for(NSDictionary* jsonChannel in jsonChannelsArray){
-									
-									//Check if text channel
-									if([jsonChannel valueForKey:@"type"] == @0){
 										
-										//Allow code is used to calculate the permission hirearchy.
-										/*
-										 0 - No overwrites. Channel should be created
-										 
-										 1 - Hidden by role. Channel should not be created unless another role contradicts
-										 2 - Shown by role. Channel should be created unless hidden by member.
-										 
-										 3 - Hidden by member. Channel should not be created.
-										 4 - Shown by member. Channel should be created.
-										 */
-										int allowCode = 0;
 										
-										if(permissionCalculationEnabled){
-											NSArray* permissions = [jsonChannel objectForKey:@"permission_overwrites"];
+										//Type of permission can either be role or member
+										NSString* type = [permission valueForKey:@"type"];
+										
+										if([type isEqualToString:@"role"]){
 											
-											//Calculate permissions
-											//The next 4 for loops are written incredibly shitty and should be consolidated into only 1
-											for(NSDictionary* permission in permissions){
+											//Check if this channel dictates permissions over any roles the user has
+											if([userRoles containsObject:[permission valueForKey:@"id"]]){
+												int deny = [[permission valueForKey:@"deny"] intValue];
+												int allow = [[permission valueForKey:@"allow"] intValue];
 												
-												NSString* type = [permission valueForKey:@"type"];
+												if((deny & 1024) == 1024 && allowCode < 1)
+													allowCode = 1;
 												
-												if([type isEqualToString:@"role"]){
-													NSString* roleId = [permission valueForKey:@"id"];
-													for(NSString* snowflake in userRoles){
-														if([snowflake isEqualToString:roleId]){
-															int deny = [[permission valueForKey:@"deny"] intValue];
-															int allow = [[permission valueForKey:@"allow"] intValue];
-															
-															if((deny & 1024) == 1024 && allowCode < 1)
-																allowCode = 1;
-															
-															if(((allow & 1024) == 1024) && allowCode < 2)
-																allowCode = 2;
-														}
-													}
-												}
-												
-												if([type isEqualToString:@"member"]){
-													NSString* memberId = [permission valueForKey:@"id"];
-													if([memberId isEqualToString:self.snowflake]){
-														int deny = [[permission valueForKey:@"deny"] intValue];
-														int allow = [[permission valueForKey:@"allow"] intValue];
-														
-														if((deny & 1024) == 1024 && allowCode < 3)
-															allowCode = 3;
-														
-														if((allow & 1024) == 1024){
-															allowCode = 4;
-															break;
-														}
-													}
-												}
+												if(((allow & 1024) == 1024) && allowCode < 2)
+													allowCode = 2;
 											}
 										}
 										
-										if(allowCode == 0 || allowCode == 2 || allowCode == 4){
-											DCChannel* newChannel = DCChannel.new;
+										
+										if([type isEqualToString:@"member"]){
 											
-											newChannel.snowflake = [jsonChannel valueForKey:@"id"];
-											newChannel.name = [jsonChannel valueForKey:@"name"];
-											newChannel.lastMessageId = [jsonChannel valueForKey:@"last_message_id"];
-											newChannel.parentGuild = newGuild;
-											newChannel.type = 0;
-											
-											//Add that channel to the channels array for the new guild
-											[newChannels addObject:newChannel];
-											[self.channels setObject:newChannel forKey:newChannel.snowflake];
-											
-											//NSLog(@"Created new channel object: %@", newChannel);
+											//Check if
+											NSString* memberId = [permission valueForKey:@"id"];
+											if([memberId isEqualToString:self.snowflake]){
+												int deny = [[permission valueForKey:@"deny"] intValue];
+												int allow = [[permission valueForKey:@"allow"] intValue];
+												
+												if((deny & 1024) == 1024 && allowCode < 3)
+													allowCode = 3;
+												
+												if((allow & 1024) == 1024){
+													allowCode = 4;
+													break;
+												}
+											}
 										}
 									}
 								}
 								
-								//Set the guild details
-								newGuild.snowflake = [jsonGuild valueForKey:@"id"];
-								newGuild.name = [jsonGuild valueForKey:@"name"];
-								newGuild.channels = newChannels;
+								NSLog(@"Allow code %i for channel %@", allowCode, [jsonChannel valueForKey:@"name"]);
 								
-								NSString* iconURL = [NSString stringWithFormat:@"https://cdn.discordapp.com/icons/%@/%@",
-																		 newGuild.snowflake, [jsonGuild valueForKey:@"icon"]];
-								
-								//Add it to our communicator guild array
-								[self.guilds addObject:newGuild];
-								
-								[DCTools processImageDataWithURLString:iconURL andBlock:^(NSData *imageData) {
-									newGuild.icon = [UIImage imageWithData:imageData];
+								if(allowCode == 0 || allowCode == 2 || allowCode == 4){
+									DCChannel* newChannel = DCChannel.new;
 									
-									dispatch_async(dispatch_get_main_queue(), ^{
-										[NSNotificationCenter.defaultCenter postNotificationName:@"RELOAD GUILD LIST" object:weakSelf];
-									});
+									newChannel.snowflake = [jsonChannel valueForKey:@"id"];
+									newChannel.name = [jsonChannel valueForKey:@"name"];
+									newChannel.lastMessageId = [jsonChannel valueForKey:@"last_message_id"];
+									newChannel.parentGuild = newGuild;
+									newChannel.type = 0;
 									
-								}];
-								
-								NSLog(@"Created new guild object: %@", newGuild);
+									[newGuild.channels addObject:newChannel];
+									[self.channels setObject:newChannel forKey:newChannel.snowflake];
+								}
 							}
 						}
+						
+						[self.guilds addObject:newGuild];
+						NSLog(@"Created new guild object: %@", newGuild);
 					}
 					
 					
@@ -380,10 +342,11 @@
 						[channelOfReadstate checkIfRead];
 					}
 					
-					//Now that that's all done,
-					//send a notification that we successfully created our guild objects
 					dispatch_async(dispatch_get_main_queue(), ^{
 						[NSNotificationCenter.defaultCenter postNotificationName:@"READY" object:weakSelf];
+						
+						//Dismiss the 'reconnecting' dialogue box
+						[self.alertView dismissWithClickedButtonIndex:0 animated:YES];
 					});
 				}
 				
@@ -399,18 +362,18 @@
 					
 					//Check if a channel is currently being viewed
 					//and if so, if that channel is the same the message was sent in
-					if(self.selectedChannel != nil
-						 && [channelIdOfMessage isEqualToString:self.selectedChannel.snowflake]){
+					if(self.selectedChannel != nil && [channelIdOfMessage isEqualToString:self.selectedChannel.snowflake]){
+						
+						NSLog(@"The message recieved was sent in the current channel");
 						
 						dispatch_async(dispatch_get_main_queue(), ^{
 							//Send notification with the new message
+							//will be recieved by DCChatViewController
 							[NSNotificationCenter.defaultCenter postNotificationName:@"MESSAGE CREATE" object:weakSelf userInfo:d];
 						});
 						
 						//Update current channel & read state last message
 						[self.selectedChannel setLastMessageId:messageId];
-						
-						NSLog(@"The message recieved was sent in the current channel");
 						
 						//Ack message since we are currently viewing this channel
 						[weakSelf ackMessage:messageId inChannel:weakSelf.selectedChannel];
@@ -430,16 +393,14 @@
 			
 			
 			if(op == 11){
-				self.didRecieveHeartbeatResponse = true;
 				NSLog(@"Got heartbeat response");
+				self.didRecieveHeartbeatResponse = true;
 			}
 			
-			if(op == 9){
+			if(op == 9)
 				dispatch_async(dispatch_get_main_queue(), ^{
-//					if(self.canIdentify)
-						[weakSelf reconnect];
+					[weakSelf reconnect];
 				});
-			}
 		}];
 		
 		[self.websocket open];
@@ -454,22 +415,24 @@
 
 
 - (void)reconnect{
-	[self.alertView dismissWithClickedButtonIndex:0 animated:NO];
+	NSLog(@"Cooldown %f",self.cooldownTimer.fireDate.timeIntervalSinceNow);
 	
+	//Begin new session
 	[self.websocket close];
 	
-	if(self.canIdentify)
+	//If an identify cooldown is in effect, wait for the time needed until sending another IDENTIFY
+	//if not, send immediately
+	if(self.identifyCooldown)
 		[self startCommunicator];
 	else
 		[self performSelector:@selector(startCommunicator)
 							 withObject:nil
 							 afterDelay:self.cooldownTimer.fireDate.timeIntervalSinceNow];
 	
-	NSLog(@"Cooldown %f",self.cooldownTimer.fireDate.timeIntervalSinceNow);
+	self.identifyCooldown = false;
 	
-	self.canIdentify = false;
-	
-	
+	//Displau the 'reconnecting' dialogue box
+	[self.alertView dismissWithClickedButtonIndex:0 animated:NO];
 	self.alertView = [UIAlertView.alloc initWithTitle:@"Reconnecting"
 																						message:@"\n"
 																					 delegate:self
@@ -487,21 +450,23 @@
 
 
 - (void)sendHeartbeat:(NSTimer *)timer{
+	//Check that we've recieved a response since the last heartbeat
 	if(self.didRecieveHeartbeatResponse){
 		[self sendJSON:@{ @"op": @1, @"d": @(self.sequenceNumber)}];
 		NSLog(@"Sent heartbeat");
 		[self setDidRecieveHeartbeatResponse:false];
 	}else{
+		//If we didnt get a response in between heartbeats, we've disconnected from the websocket
+		//send a RESUME to reconnect
 		NSLog(@"Did not get heartbeat response, sending RESUME with sequence %i %@", self.sequenceNumber, self.sessionId);
 		[self sendResume];
 	}
 }
 
-
+//Once the 5 second identify cooldown is over
 - (void)refreshIdentifyCooldown:(NSTimer *)timer{
-	self.canIdentify = true;
+	self.identifyCooldown = true;
 }
-
 
 - (void)sendJSON:(NSDictionary*)dictionary{
 	NSError *writeError = nil;

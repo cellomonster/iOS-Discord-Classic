@@ -211,10 +211,10 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
 	DCMessage* messageAtRowIndex = [self.messages objectAtIndex:indexPath.row];
 	
-	CGSize authorNameSize = [messageAtRowIndex.authorName sizeWithFont:[UIFont boldSystemFontOfSize:17]
+	CGSize authorNameSize = [messageAtRowIndex.authorName sizeWithFont:[UIFont boldSystemFontOfSize:15]
 																									 constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT)
 																											 lineBreakMode:UILineBreakModeWordWrap];
-	CGSize contentSize = [messageAtRowIndex.content sizeWithFont:[UIFont systemFontOfSize:15]
+	CGSize contentSize = [messageAtRowIndex.content sizeWithFont:[UIFont systemFontOfSize:14]
 																						 constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT)
 																								 lineBreakMode:UILineBreakModeWordWrap];
 	
