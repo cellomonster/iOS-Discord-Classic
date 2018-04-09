@@ -11,7 +11,7 @@ Huge thanks to [Ty Brasher](https://twitter.com/TyBrasher) for icon design
 
 ~~Support DM and DM groups~~ Done!
 
-~~Images in chat~~ Functional. Comming Soon
+~~Images in chat~~ Viewable. Cannot yet send images.
 
 Support for iPhone OS 2, 3 & 4
 
