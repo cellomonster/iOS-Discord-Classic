@@ -160,11 +160,9 @@
 					self.channels = NSMutableDictionary.new;
 					
 					NSMutableDictionary* userChannelSettings = NSMutableDictionary.new;
-					for(NSDictionary* guildSettings in [d valueForKey:@"user_guild_settings"]){
-						for(NSDictionary* channelSetting in [guildSettings objectForKey:@"channel_overrides"]){
+					for(NSDictionary* guildSettings in [d valueForKey:@"user_guild_settings"])
+						for(NSDictionary* channelSetting in [guildSettings objectForKey:@"channel_overrides"])
 							[userChannelSettings setValue:@((bool)[channelSetting valueForKey:@"muted"]) forKey:[channelSetting valueForKey:@"channel_id"]];
-						}
-					}
 					
 					//Get user DMs and DM groups
 					//The user's DMs are treated like a guild, where the channels are different DM/groups
@@ -318,7 +316,6 @@
 									newChannel.type = 0;
 									
 									if([userChannelSettings objectForKey:newChannel.snowflake]){
-										NSLog(@"channel %@ is muted", newChannel.name);
 										newChannel.muted = true;
 									}
 									
