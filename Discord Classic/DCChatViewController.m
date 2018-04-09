@@ -223,7 +223,7 @@
 																								 lineBreakMode:UILineBreakModeWordWrap];
 	
 	if(messageAtRowIndex.hasEmbededImage)
-		return authorNameSize.height + contentSize.height + 211;
+		return authorNameSize.height + contentSize.height + 220;
 	return authorNameSize.height + contentSize.height + 11;
 }
 
@@ -235,8 +235,6 @@
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
 	return self.messages.count;
 }
-
-#pragma mark - Table view delegate
 
 
 - (void)keyboardWillShow:(NSNotification *)notification {
