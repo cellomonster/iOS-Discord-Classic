@@ -1,7 +1,7 @@
 # Discord Classic
 An unofficial and bare-bones Discord client for iOS 5 and 6
 
-[Help test it out in the Discord server]
+[Help test it out in the Discord server](https://discord.gg/A93uJh3)
 
 ![icon](https://github.com/Cellomonster/iOS-Discord-Classic/raw/master/Icon%402x.png)
 
