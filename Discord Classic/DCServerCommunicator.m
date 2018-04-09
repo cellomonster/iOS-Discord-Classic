@@ -148,6 +148,8 @@
 				//recieved READY
 				if([t isEqualToString:@"READY"]){
 					
+					NSLog(@"Ready event\n%@", d);
+					
 					//Grab session id (used for RESUME) and user id
 					self.sessionId = [d valueForKey:@"session_id"];
 					self.snowflake = [d valueForKeyPath:@"user.id"];
@@ -156,6 +158,13 @@
 					self.guilds = NSMutableArray.new;
 					//all channels with their ids as keys
 					self.channels = NSMutableDictionary.new;
+					
+					NSMutableDictionary* userChannelSettings = NSMutableDictionary.new;
+					for(NSDictionary* guildSettings in [d valueForKey:@"user_guild_settings"]){
+						for(NSDictionary* channelSetting in [guildSettings objectForKey:@"channel_overrides"]){
+							[userChannelSettings setValue:@((bool)[channelSetting valueForKey:@"muted"]) forKey:[channelSetting valueForKey:@"channel_id"]];
+						}
+					}
 					
 					//Get user DMs and DM groups
 					//The user's DMs are treated like a guild, where the channels are different DM/groups
@@ -307,6 +316,13 @@
 									newChannel.lastMessageId = [jsonChannel valueForKey:@"last_message_id"];
 									newChannel.parentGuild = newGuild;
 									newChannel.type = 0;
+									
+									if([userChannelSettings objectForKey:newChannel.snowflake]){
+										NSLog(@"channel %@ is muted", newChannel.name);
+										newChannel.muted = true;
+									}
+									
+									//check if channel is muted
 									
 									[newGuild.channels addObject:newChannel];
 									[self.channels setObject:newChannel forKey:newChannel.snowflake];

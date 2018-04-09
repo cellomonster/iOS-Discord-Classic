@@ -24,9 +24,10 @@
 @property NSString* lastReadMessageId;
 //Whether or not the chnanel has been read
 @property bool unread;
+
+@property bool muted;
 //Type of channel (voice, text, catagory, etc)
 @property int type;
-
 //Guild which the channel is a child of
 @property DCGuild* parentGuild;
 
