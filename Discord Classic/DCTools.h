@@ -13,4 +13,6 @@
 														 andBlock:(void (^)(NSData *imageData))processImage;
 
 + (NSDictionary*)parseJSON:(NSString*)json;
++ (void)errorAlert:(NSError*)error;
++ (NSData*)checkData:(NSData*)response withError:(NSError*)error;
 @end

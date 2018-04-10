@@ -506,11 +506,14 @@
 	NSError *error = nil;
 	NSHTTPURLResponse *responseCode = nil;
 	
-	NSData *response = [NSURLConnection sendSynchronousRequest:urlRequest
-																					 returningResponse:&responseCode
-																											 error:&error];
+	NSData *response = [DCTools checkData:[NSURLConnection sendSynchronousRequest:urlRequest
+																															returningResponse:&responseCode
+																																					error:&error] withError:error];
 	
-	return [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
+	if(response)
+		return [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
+	else
+		return nil;
 }
 
 
@@ -537,9 +540,14 @@
 		NSError *error = nil;
 		NSHTTPURLResponse *responseCode = nil;
 		
-		NSData *response = [NSURLConnection sendSynchronousRequest:urlRequest returningResponse:&responseCode error:&error];
+		NSData *response = [DCTools checkData:[NSURLConnection sendSynchronousRequest:urlRequest
+																																returningResponse:&responseCode
+																																						error:&error] withError:error];
 		
-		return [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
+		if(response)
+			return [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
+		else
+			return nil;
 	}else{
 		return nil;
 	}

@@ -78,11 +78,16 @@
 		NSError *error;
 		NSHTTPURLResponse *responseCode;
 		
-		NSData *response = [NSURLConnection sendSynchronousRequest:urlRequest returningResponse:&responseCode error:&error];
+		NSData *response = [DCTools checkData:[NSURLConnection sendSynchronousRequest:urlRequest
+																																returningResponse:&responseCode
+																																						error:&error] withError:error];
 		
-		id parsedResponse = [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
+		id parsedResponse;
 		
-#warning TODO: consolidate this attachment handling boiler code 
+		if(response)
+			parsedResponse = [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
+		
+#warning TODO: consolidate this attachment handling boiler code
 		if([parsedResponse isKindOfClass:NSArray.class]){
 			self.jsonMessages = parsedResponse;
 			
@@ -175,7 +180,7 @@
 				});
 			}];
 		}
-
+	
 	
 	[self.messages addObject:newMessage];
 	[self.chatTableView reloadData];

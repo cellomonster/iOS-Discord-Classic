@@ -35,4 +35,25 @@
 	}
 	return nil;
 }
+
++ (void)errorAlert:(NSError*)error{
+	dispatch_async(dispatch_get_main_queue(), ^{
+		UIAlertView *alert = [UIAlertView.alloc
+													initWithTitle:[error.userInfo objectForKey:NSLocalizedDescriptionKey]
+													message: error.debugDescription
+													delegate: nil
+													cancelButtonTitle:@"OK"
+													otherButtonTitles:nil];
+		[alert show];
+	});
+}
+
+
++ (NSData*)checkData:(NSData*)response withError:(NSError*)error{
+	if(!response){
+		[DCTools errorAlert:error];
+		return nil;
+	}
+	return response;
+}
 @end
