@@ -166,8 +166,8 @@
 			self.numberOfMessagesLoaded = 50;
 			[self.chatTableView reloadData];
 			
-//			if(self.viewingPresentTime)
-//				[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height) animated:NO];
+			if(self.viewingPresentTime)
+				[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height) animated:NO];
 		});
 	});
 }
