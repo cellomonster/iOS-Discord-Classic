@@ -15,6 +15,8 @@
 
 @interface DCChatViewController()
 @property NSArray* jsonMessages;
+@property bool viewingPresentTime;
+@property int numberOfMessagesLoaded;
 @end
 
 @implementation DCChatViewController
@@ -41,6 +43,8 @@
 
 
 -(void)viewWillAppear:(BOOL)animated{
+	self.messages = NSMutableArray.new;
+	self.viewingPresentTime = true;
 	NSString* channelNameWithPound;
 	if(self.selectedChannel.type == 0)
 		channelNameWithPound = [@"#" stringByAppendingString:self.selectedChannel.name];
@@ -57,8 +61,7 @@
 }
 
 
-- (void)getMessages{
-	self.messages = NSMutableArray.new;
+- (void)getMessages:(int)numberOfMessages beforeMessage:(DCMessage*)message{
 	
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 		
@@ -67,6 +70,13 @@
 														 @"https://discordapp.com/api/channels/",
 														 self.selectedChannel.snowflake,
 														 @"/messages"]];
+		
+		if(message)
+			getChannelURL = [NSURL URLWithString:
+											 [NSString stringWithFormat:@"%@%@%@%@",
+												@"https://discordapp.com/api/channels/",
+												self.selectedChannel.snowflake,
+												@"/messages?before=",message.snowflake]];
 		
 		NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:getChannelURL
 																															cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
@@ -81,6 +91,7 @@
 		NSData *response = [DCTools checkData:[NSURLConnection sendSynchronousRequest:urlRequest
 																																returningResponse:&responseCode
 																																						error:&error] withError:error];
+
 		
 		id parsedResponse;
 		
@@ -91,11 +102,14 @@
 		if([parsedResponse isKindOfClass:NSArray.class]){
 			self.jsonMessages = parsedResponse;
 			
-			for(NSDictionary* message in [self.jsonMessages reverseObjectEnumerator]){
+			int scrollDown = 0;
+			
+			for(NSDictionary* message in self.jsonMessages){
 				DCMessage* newMessage = DCMessage.new;
 				newMessage.authorName = [message valueForKeyPath:@"author.username"];
 				newMessage.content = [message valueForKey:@"content"];
-				
+				newMessage.snowflake = [message valueForKey:@"id"];
+				NSLog(@"new msg %@ %@", newMessage.snowflake, newMessage.content);
 				NSArray* embeds = [message objectForKey:@"embeds"];
 				if(embeds)
 					for(NSDictionary* embed in embeds){
@@ -126,14 +140,33 @@
 						}];
 					}
 				
-				[self.messages addObject:newMessage];
+				CGSize authorNameSize = [newMessage.authorName sizeWithFont:[UIFont boldSystemFontOfSize:15]
+																												 constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT)
+																														 lineBreakMode:UILineBreakModeWordWrap];
+				CGSize contentSize = [newMessage.content sizeWithFont:[UIFont systemFontOfSize:14]
+																									 constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT)
+																											 lineBreakMode:UILineBreakModeWordWrap];
+				
+				if(newMessage.hasEmbededImage)
+					scrollDown+= 200;
+				scrollDown += authorNameSize.height + contentSize.height + 11;
+				
+				dispatch_async(dispatch_get_main_queue(), ^{
+					[self.messages insertObject:newMessage atIndex:0];
+				});
 			}
+			dispatch_async(dispatch_get_main_queue(), ^{
+				[self.chatTableView setContentOffset:CGPointMake(0, scrollDown) animated:NO];
+				[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentOffset.y - 50) animated:YES];
+			});
 		}
 		dispatch_async(dispatch_get_main_queue(), ^{
+			
+			self.numberOfMessagesLoaded = 50;
 			[self.chatTableView reloadData];
 			
-			CGPoint offset = CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height);
-			[self.chatTableView setContentOffset:offset animated:NO];
+//			if(self.viewingPresentTime)
+//				[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height) animated:NO];
 		});
 	});
 }
@@ -141,7 +174,7 @@
 
 - (void)handleReady {
 	if(self.selectedChannel)
-		[self getMessages];
+		[self getMessages:50 beforeMessage:nil];
 }
 
 #warning TODO: consolidate this attachment handling boiler code
@@ -150,7 +183,7 @@
   DCMessage* newMessage = DCMessage.new;
 	newMessage.authorName = [notification.userInfo valueForKeyPath:@"author.username"];
 	newMessage.content = [notification.userInfo valueForKey:@"content"];
-	NSLog(@"%@", notification.userInfo);
+	
 	NSArray* embeds = [notification.userInfo objectForKey:@"embeds"];
 	if(embeds)
 		for(NSDictionary* embed in embeds){
@@ -185,8 +218,8 @@
 	[self.messages addObject:newMessage];
 	[self.chatTableView reloadData];
 	
-	CGPoint offset = CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height);
-	[self.chatTableView setContentOffset:offset animated:YES];
+	if(self.viewingPresentTime)
+		[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height) animated:YES];
 }
 
 
@@ -232,6 +265,12 @@
 	return authorNameSize.height + contentSize.height + 11;
 }
 
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView{
+	if(scrollView.contentOffset.y == 0)
+		[self getMessages:50 beforeMessage:[self.messages objectAtIndex:0]];
+	
+	self.viewingPresentTime = (scrollView.contentOffset.y == scrollView.contentSize.height - scrollView.height);
+}
 
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
 	return 1;
@@ -260,8 +299,9 @@
 	[self.inputField setWidth:self.toolbar.width - 110];
 	[UIView commitAnimations];
 	
-	CGPoint offset = CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height);
-	[self.chatTableView setContentOffset:offset animated:NO];
+	
+	if(self.viewingPresentTime)
+		[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height) animated:NO];
 }
 
 
@@ -291,8 +331,8 @@
 	
 	[self.inputField setText:@""];
 	
-	CGPoint offset = CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height);
-	[self.chatTableView setContentOffset:offset animated:YES];
+	if(self.viewingPresentTime)
+		[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height) animated:YES];
 }
 
 @end

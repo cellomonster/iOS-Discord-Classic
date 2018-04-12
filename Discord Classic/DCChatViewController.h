@@ -8,9 +8,10 @@
 
 #import <UIKit/UIKit.h>
 #import "DCChannel.h"
+#import "DCMessage.h"
 
 @interface DCChatViewController : UIViewController <UITextFieldDelegate, UITableViewDataSource, UITableViewDelegate>
-- (void)getMessages;
+- (void)getMessages:(int)numberOfMessages beforeMessage:(DCMessage*)message;
 
 @property (weak, nonatomic) IBOutlet UIToolbar *toolbar;
 @property (weak, nonatomic) IBOutlet UITableView *chatTableView;

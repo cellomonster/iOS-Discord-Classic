@@ -148,8 +148,6 @@
 				//recieved READY
 				if([t isEqualToString:@"READY"]){
 					
-					NSLog(@"Ready event\n%@", d);
-					
 					//Grab session id (used for RESUME) and user id
 					self.sessionId = [d valueForKey:@"session_id"];
 					self.snowflake = [d valueForKeyPath:@"user.id"];

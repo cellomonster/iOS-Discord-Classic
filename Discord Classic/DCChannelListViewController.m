@@ -89,7 +89,7 @@
 			DCServerCommunicator.sharedInstance.selectedChannel = self.selectedChannel;
 			
 			dispatch_async(dispatch_get_main_queue(), ^{
-				[chatViewController getMessages];
+				[chatViewController getMessages:50 beforeMessage:nil];
 			});
 		}
 	}
