@@ -155,10 +155,11 @@
 					[self.messages insertObject:newMessage atIndex:0];
 				});
 			}
-			dispatch_async(dispatch_get_main_queue(), ^{
-				[self.chatTableView setContentOffset:CGPointMake(0, scrollDown) animated:NO];
-				[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentOffset.y - 50) animated:YES];
-			});
+			if(!self.viewingPresentTime)
+				dispatch_async(dispatch_get_main_queue(), ^{
+					[self.chatTableView setContentOffset:CGPointMake(0, scrollDown) animated:NO];
+					[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentOffset.y - 50) animated:YES];
+				});
 		}
 		dispatch_async(dispatch_get_main_queue(), ^{
 			
