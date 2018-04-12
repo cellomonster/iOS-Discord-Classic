@@ -510,8 +510,7 @@
 	
 	if(response)
 		return [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
-	else
-		return nil;
+	return nil;
 }
 
 
@@ -544,11 +543,8 @@
 		
 		if(response)
 			return [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
-		else
-			return nil;
-	}else{
-		return nil;
 	}
+	return nil;
 }
 
 @end

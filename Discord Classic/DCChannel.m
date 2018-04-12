@@ -19,8 +19,6 @@
 -(void)checkIfRead{
 	self.unread = (!self.muted && self.lastReadMessageId != (id)NSNull.null && ![self.lastReadMessageId isEqualToString:self.lastMessageId]);
 	
-	NSLog(@"%@, %d", self.name, self.unread);
-	
 	[self.parentGuild checkIfRead];
 }
 

@@ -14,7 +14,6 @@
 #import "DCChatTableCell.h"
 
 @interface DCChatViewController()
-@property NSArray* jsonMessages;
 @property bool viewingPresentTime;
 @property int numberOfMessagesLoaded;
 @end
@@ -45,14 +44,16 @@
 -(void)viewWillAppear:(BOOL)animated{
 	self.messages = NSMutableArray.new;
 	self.viewingPresentTime = true;
-	NSString* channelNameWithPound;
+	
+	NSString* formattedChannelName;
 	if(self.selectedChannel.type == 0)
-		channelNameWithPound = [@"#" stringByAppendingString:self.selectedChannel.name];
+		formattedChannelName = [@"#" stringByAppendingString:self.selectedChannel.name];
 	else if(self.selectedChannel.type == 1)
-		channelNameWithPound = [@"@" stringByAppendingString:self.selectedChannel.name];
+		formattedChannelName = [@"@" stringByAppendingString:self.selectedChannel.name];
 	else
-		channelNameWithPound = self.selectedChannel.name;
-	[self.navigationItem setTitle:channelNameWithPound];
+		formattedChannelName = self.selectedChannel.name;
+	
+	[self.navigationItem setTitle:formattedChannelName];
 }
 
 
@@ -65,20 +66,20 @@
 	
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 		
-		NSURL* getChannelURL = [NSURL URLWithString:
-														[NSString stringWithFormat:@"%@%@%@",
-														 @"https://discordapp.com/api/channels/",
-														 self.selectedChannel.snowflake,
-														 @"/messages"]];
+		//Generate URL from args
+		NSMutableString* getChannelAddress = [[NSString stringWithFormat:
+																					 @"https://discordapp.com/api/channels/%@%@",
+																					 self.selectedChannel.snowflake,
+																					 @"/messages?"] mutableCopy];
 		
+		if(numberOfMessages)
+			[getChannelAddress appendString:[NSString stringWithFormat:@"limit=%i", numberOfMessages]];
+		if(numberOfMessages && message)
+			[getChannelAddress appendString:@"&"];
 		if(message)
-			getChannelURL = [NSURL URLWithString:
-											 [NSString stringWithFormat:@"%@%@%@%@",
-												@"https://discordapp.com/api/channels/",
-												self.selectedChannel.snowflake,
-												@"/messages?before=",message.snowflake]];
+			[getChannelAddress appendString:[NSString stringWithFormat:@"before=%@", message.snowflake]];
 		
-		NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:getChannelURL
+		NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:getChannelAddress]
 																															cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
 																													timeoutInterval:60.0];
 		
@@ -93,52 +94,19 @@
 																																						error:&error] withError:error];
 
 		
-		id parsedResponse;
+		NSArray* parsedResponse = [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];;
 		
-		if(response)
-			parsedResponse = [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
-		
-#warning TODO: consolidate this attachment handling boiler code
-		if([parsedResponse isKindOfClass:NSArray.class]){
-			self.jsonMessages = parsedResponse;
+		if(parsedResponse){
 			
-			int scrollDown = 0;
+			int scrollDownHeight = 0;
 			
-			for(NSDictionary* message in self.jsonMessages){
-				DCMessage* newMessage = DCMessage.new;
-				newMessage.authorName = [message valueForKeyPath:@"author.username"];
-				newMessage.content = [message valueForKey:@"content"];
-				newMessage.snowflake = [message valueForKey:@"id"];
-				NSLog(@"new msg %@ %@", newMessage.snowflake, newMessage.content);
-				NSArray* embeds = [message objectForKey:@"embeds"];
-				if(embeds)
-					for(NSDictionary* embed in embeds){
-						NSString* embedType = [embed valueForKey:@"type"];
-						if([embedType isEqualToString:@"image"]){
-							newMessage.hasEmbededImage = true;
-							NSString* embededImageAddress = [embed valueForKeyPath:@"thumbnail.url"];
+			for(NSDictionary* jsonMessage in parsedResponse){
 							
-							[DCTools processImageDataWithURLString:embededImageAddress andBlock:^(NSData *imageData){
-								newMessage.embededImage = [UIImage imageWithData:imageData];
-								dispatch_async(dispatch_get_main_queue(), ^{
-									[self.chatTableView reloadData];
-								});
-							}];
-						}
-					}
+				DCMessage* newMessage = [self convertJsonMessage:jsonMessage];
 				
-				NSArray* attachments = [message objectForKey:@"attachments"];
-				if(attachments)
-					for(NSDictionary* attachment in attachments){
-						NSString* embededImageAddress = [attachment valueForKey:@"url"];
-						newMessage.hasEmbededImage = true;
-						[DCTools processImageDataWithURLString:embededImageAddress andBlock:^(NSData *imageData){
-							newMessage.embededImage = [UIImage imageWithData:imageData];
-							dispatch_async(dispatch_get_main_queue(), ^{
-								[self.chatTableView reloadData];
-							});
-						}];
-					}
+				dispatch_async(dispatch_get_main_queue(), ^{
+					[self.messages insertObject:newMessage atIndex:0];
+				});
 				
 				CGSize authorNameSize = [newMessage.authorName sizeWithFont:[UIFont boldSystemFontOfSize:15]
 																												 constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT)
@@ -146,23 +114,19 @@
 				CGSize contentSize = [newMessage.content sizeWithFont:[UIFont systemFontOfSize:14]
 																									 constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT)
 																											 lineBreakMode:UILineBreakModeWordWrap];
-				
 				if(newMessage.hasEmbededImage)
-					scrollDown+= 200;
-				scrollDown += authorNameSize.height + contentSize.height + 11;
-				
-				dispatch_async(dispatch_get_main_queue(), ^{
-					[self.messages insertObject:newMessage atIndex:0];
-				});
+					scrollDownHeight+= 200;
+				scrollDownHeight += authorNameSize.height + contentSize.height + 11;
 			}
+			
 			if(!self.viewingPresentTime)
 				dispatch_async(dispatch_get_main_queue(), ^{
-					[self.chatTableView setContentOffset:CGPointMake(0, scrollDown) animated:NO];
+					[self.chatTableView setContentOffset:CGPointMake(0, scrollDownHeight) animated:NO];
 					[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentOffset.y - 50) animated:YES];
 				});
 		}
+		
 		dispatch_async(dispatch_get_main_queue(), ^{
-			
 			self.numberOfMessagesLoaded = 50;
 			[self.chatTableView reloadData];
 			
@@ -173,19 +137,13 @@
 }
 
 
-- (void)handleReady {
-	if(self.selectedChannel)
-		[self getMessages:50 beforeMessage:nil];
-}
-
-#warning TODO: consolidate this attachment handling boiler code
-- (void)handleMessageCreate:(NSNotification*)notification {
+- (DCMessage*)convertJsonMessage:(NSDictionary*)jsonMessage{
+	DCMessage* newMessage = DCMessage.new;
+	newMessage.authorName = [jsonMessage valueForKeyPath:@"author.username"];
+	newMessage.content = [jsonMessage valueForKey:@"content"];
+	newMessage.snowflake = [jsonMessage valueForKey:@"id"];
 	
-  DCMessage* newMessage = DCMessage.new;
-	newMessage.authorName = [notification.userInfo valueForKeyPath:@"author.username"];
-	newMessage.content = [notification.userInfo valueForKey:@"content"];
-	
-	NSArray* embeds = [notification.userInfo objectForKey:@"embeds"];
+	NSArray* embeds = [jsonMessage objectForKey:@"embeds"];
 	if(embeds)
 		for(NSDictionary* embed in embeds){
 			NSString* embedType = [embed valueForKey:@"type"];
@@ -202,7 +160,7 @@
 			}
 		}
 	
-	NSArray* attachments = [notification.userInfo objectForKey:@"attachments"];
+	NSArray* attachments = [jsonMessage objectForKey:@"attachments"];
 	if(attachments)
 		for(NSDictionary* attachment in attachments){
 			NSString* embededImageAddress = [attachment valueForKey:@"url"];
@@ -215,6 +173,17 @@
 			}];
 		}
 	
+	return newMessage;
+}
+
+
+- (void)handleReady {
+	if(self.selectedChannel)
+		[self getMessages:50 beforeMessage:nil];
+}
+
+- (void)handleMessageCreate:(NSNotification*)notification {
+  DCMessage* newMessage = [self convertJsonMessage:notification.userInfo];
 	
 	[self.messages addObject:newMessage];
 	[self.chatTableView reloadData];
@@ -267,7 +236,7 @@
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView{
-	if(scrollView.contentOffset.y == 0)
+	if(scrollView.contentOffset.y == 0 && [self.messages objectAtIndex:0])
 		[self getMessages:50 beforeMessage:[self.messages objectAtIndex:0]];
 	
 	self.viewingPresentTime = (scrollView.contentOffset.y == scrollView.contentSize.height - scrollView.height);

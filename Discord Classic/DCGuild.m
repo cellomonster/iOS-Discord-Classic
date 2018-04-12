@@ -11,7 +11,6 @@
 
 @implementation DCGuild
 
-//Printed when using NSLog
 -(NSString *)description{
 	return [NSString stringWithFormat:@"[Guild] Snowflake: %@, Read: %d, Name: %@, Channels: %@", self.snowflake, self.unread, self.name, self.channels];
 }

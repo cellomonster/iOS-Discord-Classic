@@ -9,15 +9,10 @@
 #import <Foundation/Foundation.h>
 
 @interface DCMessage : NSObject
-//ID/snowflake
 @property NSString* snowflake;
-//author name of the message
 @property NSString* authorName;
-//content
 @property NSString* content;
-//image included in message
 @property UIImage* embededImage;
-//if the message includes an image
 @property bool hasEmbededImage;
 
 -(void)checkIfRead;
