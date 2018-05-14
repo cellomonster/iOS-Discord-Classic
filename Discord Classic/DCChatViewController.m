@@ -179,6 +179,7 @@
 
 - (void)handleReady {
 	if(self.selectedChannel)
+        self.messages = NSMutableArray.new;
 		[self getMessages:50 beforeMessage:nil];
 }
 
@@ -236,7 +237,7 @@
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView{
-	if(scrollView.contentOffset.y == 0 && [self.messages objectAtIndex:0])
+	if(self.messages.count > 0 && scrollView.contentOffset.y == 0)
 		[self getMessages:50 beforeMessage:[self.messages objectAtIndex:0]];
 	
 	self.viewingPresentTime = (scrollView.contentOffset.y == scrollView.contentSize.height - scrollView.height);
