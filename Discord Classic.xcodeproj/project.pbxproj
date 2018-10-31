@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		090C6BD120784DDD00EC552F /* DCMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 090C6BD020784DDD00EC552F /* DCMessage.m */; };
 		091C51E02069D52C0081348C /* DCSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 09D84D0B205F36B90070020A /* DCSettingsViewController.m */; };
 		09260EC720575AE900083813 /* DCGuild.m in Sources */ = {isa = PBXBuildFile; fileRef = 09260EC620575AE900083813 /* DCGuild.m */; };
 		09260ECA20575BB200083813 /* DCChannel.m in Sources */ = {isa = PBXBuildFile; fileRef = 09260EC920575BB200083813 /* DCChannel.m */; };
@@ -41,6 +40,7 @@
 		09C6B997204A261B007EAC26 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 09C6B996204A261B007EAC26 /* Security.framework */; };
 		09C8E28B204C2BFD006A1422 /* DCServerCommunicator.m in Sources */ = {isa = PBXBuildFile; fileRef = 09C8E28A204C2BFD006A1422 /* DCServerCommunicator.m */; };
 		09C8E2ED204C3B64006A1422 /* Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 09C8E2EC204C3B64006A1422 /* Storyboard.storyboard */; };
+		09D776992189427100609134 /* DCMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 09D776982189427100609134 /* DCMessage.m */; };
 		09D84D0C205F36B90070020A /* DCSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 09D84D0B205F36B90070020A /* DCSettingsViewController.m */; };
 		09DD1FA2204F35FD00153EC7 /* DCChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 09DD1FA1204F35FD00153EC7 /* DCChatViewController.m */; };
 		09E183BA205EF64700FE90E8 /* DCViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 09E183B9205EF64700FE90E8 /* DCViewController.m */; };
@@ -74,7 +74,6 @@
 
 /* Begin PBXFileReference section */
 		090C6BCF20784DDD00EC552F /* DCMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCMessage.h; sourceTree = "<group>"; };
-		090C6BD020784DDD00EC552F /* DCMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCMessage.m; sourceTree = "<group>"; };
 		09260EC520575AE900083813 /* DCGuild.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCGuild.h; sourceTree = "<group>"; };
 		09260EC620575AE900083813 /* DCGuild.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCGuild.m; sourceTree = "<group>"; };
 		09260EC820575BB200083813 /* DCChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCChannel.h; sourceTree = "<group>"; };
@@ -116,6 +115,7 @@
 		09C8E289204C2BFD006A1422 /* DCServerCommunicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCServerCommunicator.h; sourceTree = "<group>"; };
 		09C8E28A204C2BFD006A1422 /* DCServerCommunicator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCServerCommunicator.m; sourceTree = "<group>"; };
 		09C8E2EC204C3B64006A1422 /* Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Storyboard.storyboard; path = ../Storyboard.storyboard; sourceTree = "<group>"; };
+		09D776982189427100609134 /* DCMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCMessage.m; sourceTree = "<group>"; };
 		09D84D0A205F36B90070020A /* DCSettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCSettingsViewController.h; sourceTree = "<group>"; };
 		09D84D0B205F36B90070020A /* DCSettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCSettingsViewController.m; sourceTree = "<group>"; };
 		09DD1FA0204F35FD00153EC7 /* DCChatViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCChatViewController.h; sourceTree = "<group>"; };
@@ -226,7 +226,7 @@
 				09260EC820575BB200083813 /* DCChannel.h */,
 				09260EC920575BB200083813 /* DCChannel.m */,
 				090C6BCF20784DDD00EC552F /* DCMessage.h */,
-				090C6BD020784DDD00EC552F /* DCMessage.m */,
+				09D776982189427100609134 /* DCMessage.m */,
 				09C6B92B204A0F54007EAC26 /* Supporting Files */,
 			);
 			path = "Discord Classic";
@@ -393,8 +393,8 @@
 				09FF02F8205EF9DF00BCBA8D /* DCViewController.m in Sources */,
 				09D84D0C205F36B90070020A /* DCSettingsViewController.m in Sources */,
 				09E3ED262069F21200E90DA1 /* DCTools.m in Sources */,
-				090C6BD120784DDD00EC552F /* DCMessage.m in Sources */,
 				09A4EA6F2079266800DECFD6 /* DCChatTableCell.m in Sources */,
+				09D776992189427100609134 /* DCMessage.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -29,15 +29,9 @@
 	
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleReady) name:@"READY" object:nil];
 	
-	[NSNotificationCenter.defaultCenter addObserver:self
-																				 selector:@selector(keyboardWillShow:)
-																						 name:UIKeyboardWillShowNotification
-																					 object:nil];
+	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
 	
-	[NSNotificationCenter.defaultCenter addObserver:self
-																				 selector:@selector(keyboardWillHide:)
-																						 name:UIKeyboardWillHideNotification
-																					 object:nil];
+	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
 }
 
 
@@ -67,10 +61,7 @@
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 		
 		//Generate URL from args
-		NSMutableString* getChannelAddress = [[NSString stringWithFormat:
-																					 @"https://discordapp.com/api/channels/%@%@",
-																					 self.selectedChannel.snowflake,
-																					 @"/messages?"] mutableCopy];
+		NSMutableString* getChannelAddress = [[NSString stringWithFormat: @"https://discordapp.com/api/channels/%@%@", self.selectedChannel.snowflake, @"/messages?"] mutableCopy];
 		
 		if(numberOfMessages)
 			[getChannelAddress appendString:[NSString stringWithFormat:@"limit=%i", numberOfMessages]];
@@ -79,9 +70,7 @@
 		if(message)
 			[getChannelAddress appendString:[NSString stringWithFormat:@"before=%@", message.snowflake]];
 		
-		NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:getChannelAddress]
-																															cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-																													timeoutInterval:60.0];
+		NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:getChannelAddress] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:60.0];
 		
 		[urlRequest addValue:DCServerCommunicator.sharedInstance.token forHTTPHeaderField:@"Authorization"];
 		[urlRequest addValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
@@ -89,9 +78,7 @@
 		NSError *error;
 		NSHTTPURLResponse *responseCode;
 		
-		NSData *response = [DCTools checkData:[NSURLConnection sendSynchronousRequest:urlRequest
-																																returningResponse:&responseCode
-																																						error:&error] withError:error];
+		NSData *response = [DCTools checkData:[NSURLConnection sendSynchronousRequest:urlRequest returningResponse:&responseCode error:&error] withError:error];
 
 		
 		NSArray* parsedResponse = [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];;
@@ -108,14 +95,9 @@
 					[self.messages insertObject:newMessage atIndex:0];
 				});
 				
-				CGSize authorNameSize = [newMessage.authorName sizeWithFont:[UIFont boldSystemFontOfSize:15]
-																												 constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT)
-																														 lineBreakMode:UILineBreakModeWordWrap];
-				CGSize contentSize = [newMessage.content sizeWithFont:[UIFont systemFontOfSize:14]
-																									 constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT)
-																											 lineBreakMode:UILineBreakModeWordWrap];
-				if(newMessage.hasEmbededImage)
-					scrollDownHeight+= 200;
+				CGSize authorNameSize = [newMessage.authorName sizeWithFont:[UIFont boldSystemFontOfSize:15] constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
+				CGSize contentSize = [newMessage.content sizeWithFont:[UIFont systemFontOfSize:14] constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
+				for(int i = 0; i < newMessage.embeddedImages.count; i++) scrollDownHeight+= 210;
 				scrollDownHeight += authorNameSize.height + contentSize.height + 11;
 			}
 			
@@ -142,44 +124,39 @@
 	newMessage.authorName = [jsonMessage valueForKeyPath:@"author.username"];
 	newMessage.content = [jsonMessage valueForKey:@"content"];
 	newMessage.snowflake = [jsonMessage valueForKey:@"id"];
+	newMessage.embeddedImages = NSMutableArray.new;
 	
 	NSArray* embeds = [jsonMessage objectForKey:@"embeds"];
 	if(embeds)
 		for(NSDictionary* embed in embeds){
 			NSString* embedType = [embed valueForKey:@"type"];
-			if([embedType isEqualToString:@"image"]){
-				newMessage.hasEmbededImage = true;
-				NSString* embededImageAddress = [embed valueForKeyPath:@"thumbnail.url"];
-				
-				[DCTools processImageDataWithURLString:embededImageAddress andBlock:^(NSData *imageData){
-					newMessage.embededImage = [UIImage imageWithData:imageData];
+			if([embedType isEqualToString:@"image"])
+				[DCTools processImageDataWithURLString:[embed valueForKeyPath:@"thumbnail.url"] andBlock:^(NSData *imageData){
+					[newMessage.embeddedImages addObject:[UIImage imageWithData:imageData]];
 					dispatch_async(dispatch_get_main_queue(), ^{
 						[self.chatTableView reloadData];
 					});
+					
 				}];
-			}
 		}
 	
 	NSArray* attachments = [jsonMessage objectForKey:@"attachments"];
 	if(attachments)
-		for(NSDictionary* attachment in attachments){
-			NSString* embededImageAddress = [attachment valueForKey:@"url"];
-			newMessage.hasEmbededImage = true;
-			[DCTools processImageDataWithURLString:embededImageAddress andBlock:^(NSData *imageData){
-				newMessage.embededImage = [UIImage imageWithData:imageData];
+		for(NSDictionary* attachment in attachments)
+			[DCTools processImageDataWithURLString:[attachment valueForKey:@"url"] andBlock:^(NSData *imageData){
+				[newMessage.embeddedImages addObject:[UIImage imageWithData:imageData]];
 				dispatch_async(dispatch_get_main_queue(), ^{
 					[self.chatTableView reloadData];
 				});
+				
 			}];
-		}
 	
 	return newMessage;
 }
 
 
 - (void)handleReady {
-	if(self.selectedChannel)
-        self.messages = NSMutableArray.new;
+	if(self.selectedChannel) self.messages = NSMutableArray.new;
 		[self getMessages:50 beforeMessage:nil];
 }
 
@@ -215,8 +192,27 @@
 	contentFrame.size.height += contentLabelHeightDelta;
 	cell.contentLabel.frame = contentFrame;
 	
-	[cell.embededImageView setImage:messageAtRowIndex.embededImage];
-	cell.embededImageView.contentMode = UIViewContentModeScaleAspectFit;
+	for (UIView *subView in cell.subviews) {
+		if ([subView isKindOfClass:[UIImageView class]]) {
+			[subView removeFromSuperview];
+		}
+	}
+	
+	CGSize authorNameSize = [messageAtRowIndex.authorName sizeWithFont:[UIFont boldSystemFontOfSize:15] constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
+	CGSize contentSize = [messageAtRowIndex.content sizeWithFont:[UIFont systemFontOfSize:14] constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
+	
+	int imageViewOffset = authorNameSize.height + contentSize.height + 20;
+	
+	for(UIImage* image in messageAtRowIndex.embeddedImages){
+		UIImageView* imageView = UIImageView.new;
+		[imageView setFrame:CGRectMake(11, imageViewOffset, self.chatTableView.width - 22, 200)];
+		[imageView setImage:image];
+		imageViewOffset += 210;
+		
+		[imageView setContentMode: UIViewContentModeScaleAspectFit];
+		
+		[cell addSubview:imageView];
+	}
 	return cell;
 }
 
@@ -224,16 +220,9 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
 	DCMessage* messageAtRowIndex = [self.messages objectAtIndex:indexPath.row];
 	
-	CGSize authorNameSize = [messageAtRowIndex.authorName sizeWithFont:[UIFont boldSystemFontOfSize:15]
-																									 constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT)
-																											 lineBreakMode:UILineBreakModeWordWrap];
-	CGSize contentSize = [messageAtRowIndex.content sizeWithFont:[UIFont systemFontOfSize:14]
-																						 constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT)
-																								 lineBreakMode:UILineBreakModeWordWrap];
-	
-	if(messageAtRowIndex.hasEmbededImage)
-		return authorNameSize.height + contentSize.height + 220;
-	return authorNameSize.height + contentSize.height + 11;
+	CGSize authorNameSize = [messageAtRowIndex.authorName sizeWithFont:[UIFont boldSystemFontOfSize:15] constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
+	CGSize contentSize = [messageAtRowIndex.content sizeWithFont:[UIFont systemFontOfSize:14] constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
+	return authorNameSize.height + contentSize.height + 11 + messageAtRowIndex.embeddedImages.count * 220;
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView{

@@ -12,8 +12,5 @@
 @property NSString* snowflake;
 @property NSString* authorName;
 @property NSString* content;
-@property UIImage* embededImage;
-@property bool hasEmbededImage;
-
--(void)checkIfRead;
+@property NSMutableArray* embeddedImages;
 @end
