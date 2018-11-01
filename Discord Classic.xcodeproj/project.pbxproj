@@ -368,7 +368,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#!/bin/sh\n\n# Modify this to your device's IP address.\nIP=\"192.168.0.7\"\n\n# Verify that the build is for iOS Device and not a Simulator.\nif [[ \"$NATIVE_ARCH\" != \"i386\" && \"$NATIVE_ARCH\" != \"x86_64\" ]]; then\n# Kill any running instances and remove the app folder.\nssh root@$IP \"killall ${TARGETNAME}; rm -rf /Applications/${WRAPPER_NAME}\"\n# Self sign the build.\nldid -S $BUILT_PRODUCTS_DIR/${WRAPPER_NAME}/$TARGETNAME\n# Copy it over.\nscp -r $BUILT_PRODUCTS_DIR/${WRAPPER_NAME} root@$IP:/Applications/\nssh root@$IP \"su -c uicache mobile\"\nfi";
+			shellScript = "#!/bin/sh\n\n# Modify this to your device's IP address.\nIP=\"192.168.0.14\"\n\n# Verify that the build is for iOS Device and not a Simulator.\nif [[ \"$NATIVE_ARCH\" != \"i386\" && \"$NATIVE_ARCH\" != \"x86_64\" ]]; then\n# Kill any running instances and remove the app folder.\nssh root@$IP \"killall ${TARGETNAME}; rm -rf /Applications/${WRAPPER_NAME}\"\n# Self sign the build.\nldid -S $BUILT_PRODUCTS_DIR/${WRAPPER_NAME}/$TARGETNAME\n# Copy it over.\nscp -r $BUILT_PRODUCTS_DIR/${WRAPPER_NAME} root@$IP:/Applications/\nssh root@$IP \"su -c uicache mobile\"\nfi";
 		};
 		09C6B942204A0F55007EAC26 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
