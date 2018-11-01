@@ -81,9 +81,9 @@
 		NSData *response = [DCTools checkData:[NSURLConnection sendSynchronousRequest:urlRequest returningResponse:&responseCode error:&error] withError:error];
 
 		
-		NSArray* parsedResponse = [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];;
+		NSArray* parsedResponse = [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
 		
-		if(parsedResponse){
+		if(parsedResponse.count > 0){
 			
 			int scrollDownHeight = 0;
 			
@@ -97,7 +97,7 @@
 				
 				CGSize authorNameSize = [newMessage.authorName sizeWithFont:[UIFont boldSystemFontOfSize:15] constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
 				CGSize contentSize = [newMessage.content sizeWithFont:[UIFont systemFontOfSize:14] constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
-				for(int i = 0; i < newMessage.embeddedImages.count; i++) scrollDownHeight+= 210;
+				for(int i = 0; i < newMessage.embeddedImageCount; i++) scrollDownHeight+= 210;
 				scrollDownHeight += authorNameSize.height + contentSize.height + 11;
 			}
 			
@@ -125,31 +125,46 @@
 	newMessage.content = [jsonMessage valueForKey:@"content"];
 	newMessage.snowflake = [jsonMessage valueForKey:@"id"];
 	newMessage.embeddedImages = NSMutableArray.new;
+	newMessage.embeddedImageCount = 0;
 	
 	NSArray* embeds = [jsonMessage objectForKey:@"embeds"];
+	
 	if(embeds)
 		for(NSDictionary* embed in embeds){
 			NSString* embedType = [embed valueForKey:@"type"];
-			if([embedType isEqualToString:@"image"])
+			if([embedType isEqualToString:@"image"]){
+				newMessage.embeddedImageCount++;
+				
 				[DCTools processImageDataWithURLString:[embed valueForKeyPath:@"thumbnail.url"] andBlock:^(NSData *imageData){
-					[newMessage.embeddedImages addObject:[UIImage imageWithData:imageData]];
-					dispatch_async(dispatch_get_main_queue(), ^{
-						[self.chatTableView reloadData];
-					});
+					UIImage *retrievedImage = [UIImage imageWithData:imageData];
+					
+					if(retrievedImage != nil){
+						[newMessage.embeddedImages addObject:retrievedImage];
+						dispatch_async(dispatch_get_main_queue(), ^{
+							[self.chatTableView reloadData];
+						});
+					}
 					
 				}];
+			}
 		}
 	
 	NSArray* attachments = [jsonMessage objectForKey:@"attachments"];
 	if(attachments)
-		for(NSDictionary* attachment in attachments)
+		for(NSDictionary* attachment in attachments){
+			newMessage.embeddedImageCount++;
+			
 			[DCTools processImageDataWithURLString:[attachment valueForKey:@"url"] andBlock:^(NSData *imageData){
-				[newMessage.embeddedImages addObject:[UIImage imageWithData:imageData]];
-				dispatch_async(dispatch_get_main_queue(), ^{
-					[self.chatTableView reloadData];
-				});
+				UIImage *retrievedImage = [UIImage imageWithData:imageData];
 				
+				if(retrievedImage != nil){
+					[newMessage.embeddedImages addObject:retrievedImage];
+					dispatch_async(dispatch_get_main_queue(), ^{
+						[self.chatTableView reloadData];
+					});
+				}
 			}];
+		}
 	
 	return newMessage;
 }
@@ -222,7 +237,7 @@
 	
 	CGSize authorNameSize = [messageAtRowIndex.authorName sizeWithFont:[UIFont boldSystemFontOfSize:15] constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
 	CGSize contentSize = [messageAtRowIndex.content sizeWithFont:[UIFont systemFontOfSize:14] constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
-	return authorNameSize.height + contentSize.height + 11 + messageAtRowIndex.embeddedImages.count * 220;
+	return authorNameSize.height + contentSize.height + 11 + messageAtRowIndex.embeddedImageCount * 220;
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView{

@@ -12,5 +12,6 @@
 @property NSString* snowflake;
 @property NSString* authorName;
 @property NSString* content;
+@property int embeddedImageCount;
 @property NSMutableArray* embeddedImages;
 @end
