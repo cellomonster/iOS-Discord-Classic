@@ -52,14 +52,14 @@
 	
 	self.gatewayURL = @"wss://gateway.discord.gg/?encoding=json&v=6";
 	
-	//To prevent retain cycle
-	__weak typeof(self) weakSelf = self;
-	
 	if(self.token!=nil){
 		
 		//Establish websocket connection with Discord
 		NSURL *websocketUrl = [NSURL URLWithString:self.gatewayURL];
 		self.websocket = [WSWebSocket.alloc initWithURL:websocketUrl protocols:nil];
+		
+		//To prevent retain cycle
+		__weak typeof(self) weakSelf = self;
 		
 		[self.websocket setTextCallback:^(NSString *responseString) {
 			
@@ -75,21 +75,21 @@
 			//revcieved HELLO event
 			if(op == 10){
 				
-				if(self.shouldResume){
+				if(weakSelf.shouldResume){
 					
-					NSLog(@"Sending Resume with sequence number %i, session ID %@", self.sequenceNumber, self.sessionId);
+					NSLog(@"Sending Resume with sequence number %i, session ID %@", weakSelf.sequenceNumber, weakSelf.sessionId);
 					
 					//RESUME
 					[weakSelf sendJSON:@{
 					 @"op":@6,
 					 @"d":@{
-					 @"token":self.token,
-					 @"session_id":self.sessionId,
-					 @"seq":@(self.sequenceNumber),
+					 @"token":weakSelf.token,
+					 @"session_id":weakSelf.sessionId,
+					 @"seq":@(weakSelf.sequenceNumber),
 					 }
 					 }];
 					
-					self.shouldResume = false;
+					weakSelf.shouldResume = false;
 					
 				}else{
 					
@@ -99,7 +99,7 @@
 					[weakSelf sendJSON:@{
 					 @"op":@2,
 					 @"d":@{
-					 @"token":self.token,
+					 @"token":weakSelf.token,
 					 @"properties":@{ @"$browser" : @"peble" },
 					 @"large_threshold":@"50",
 					 }
@@ -107,7 +107,7 @@
 					
 					//Disable ability to identify until reenabled 5 seconds later.
 					//API only allows once identify every 5 seconds
-					self.identifyCooldown = false;
+					weakSelf.identifyCooldown = false;
 					
 					int heartbeatInterval = [[d valueForKey:@"heartbeat_interval"] intValue];
 					
@@ -124,7 +124,7 @@
 																							repeats:YES];
 							
 							//Reenable ability to identify in 5 seconds
-							self.cooldownTimer = [NSTimer scheduledTimerWithTimeInterval:5
+							weakSelf.cooldownTimer = [NSTimer scheduledTimerWithTimeInterval:5
 																																		target:weakSelf
 																																	selector:@selector(refreshIdentifyCooldown:)
 																																	userInfo:nil
@@ -141,21 +141,21 @@
 				
 				//Get event type and sequence number
 				NSString* t = [parsedJsonResponse valueForKey:@"t"];
-				self.sequenceNumber = [[parsedJsonResponse valueForKey:@"s"] integerValue];
+				weakSelf.sequenceNumber = [[parsedJsonResponse valueForKey:@"s"] integerValue];
 				
-				NSLog(@"Got event %@ with sequence number %i", t, self.sequenceNumber);
+				NSLog(@"Got event %@ with sequence number %i", t, weakSelf.sequenceNumber);
 				
 				//recieved READY
 				if([t isEqualToString:@"READY"]){
 					
 					//Grab session id (used for RESUME) and user id
-					self.sessionId = [d valueForKey:@"session_id"];
-					self.snowflake = [d valueForKeyPath:@"user.id"];
+					weakSelf.sessionId = [d valueForKey:@"session_id"];
+					weakSelf.snowflake = [d valueForKeyPath:@"user.id"];
 					
 					//array of all guilds the user is a member of
-					self.guilds = NSMutableArray.new;
+					weakSelf.guilds = NSMutableArray.new;
 					//all channels with their ids as keys
-					self.channels = NSMutableDictionary.new;
+					weakSelf.channels = NSMutableDictionary.new;
 					
 					NSMutableDictionary* userChannelSettings = NSMutableDictionary.new;
 					for(NSDictionary* guildSettings in [d valueForKey:@"user_guild_settings"])
@@ -199,9 +199,9 @@
 						}
 						
 						[privateGuild.channels addObject:newChannel];
-						[self.channels setObject:newChannel forKey:newChannel.snowflake];
+						[weakSelf.channels setObject:newChannel forKey:newChannel.snowflake];
 					}
-					[self.guilds addObject:privateGuild];
+					[weakSelf.guilds addObject:privateGuild];
 					
 					
 					//Get servers (guilds) the user is a member of
@@ -212,7 +212,7 @@
 						if(permissionCalculationEnabled){
 							//Get roles of the current user
 							for(NSDictionary* member in [jsonGuild objectForKey:@"members"])
-								if([[member valueForKeyPath:@"user.id"] isEqualToString:self.snowflake])
+								if([[member valueForKeyPath:@"user.id"] isEqualToString:weakSelf.snowflake])
 									userRoles = [[member valueForKey:@"roles"] mutableCopy];
 							
 							//Get @everyone role
@@ -242,7 +242,7 @@
 							
 							//Make sure jsonChannel is a text cannel
 							//we dont want to include voice channels in the text channel list
-							if([jsonChannel valueForKey:@"type"] == @0){
+							if([[jsonChannel valueForKey:@"type"] isEqual: @0]){
 								
 								//Allow code is used to calculate the permission hirearchy.
 								/*
@@ -288,7 +288,7 @@
 											
 											//Check if
 											NSString* memberId = [permission valueForKey:@"id"];
-											if([memberId isEqualToString:self.snowflake]){
+											if([memberId isEqualToString:weakSelf.snowflake]){
 												int deny = [[permission valueForKey:@"deny"] intValue];
 												int allow = [[permission valueForKey:@"allow"] intValue];
 												
@@ -320,12 +320,12 @@
 									//check if channel is muted
 									
 									[newGuild.channels addObject:newChannel];
-									[self.channels setObject:newChannel forKey:newChannel.snowflake];
+									[weakSelf.channels setObject:newChannel forKey:newChannel.snowflake];
 								}
 							}
 						}
 						
-						[self.guilds addObject:newGuild];
+						[weakSelf.guilds addObject:newGuild];
 					}
 					
 					
@@ -339,7 +339,7 @@
 						NSString* readstateMessageId = [readstate valueForKey:@"last_message_id"];
 						
 						//Get the channel with the ID of readStateChannelId
-						DCChannel* channelOfReadstate = [self.channels objectForKey:readstateChannelId];
+						DCChannel* channelOfReadstate = [weakSelf.channels objectForKey:readstateChannelId];
 						
 						channelOfReadstate.lastReadMessageId = readstateMessageId;
 						[channelOfReadstate checkIfRead];
@@ -349,7 +349,7 @@
 						[NSNotificationCenter.defaultCenter postNotificationName:@"READY" object:weakSelf];
 						
 						//Dismiss the 'reconnecting' dialogue box
-						[self.alertView dismissWithClickedButtonIndex:0 animated:YES];
+						[weakSelf.alertView dismissWithClickedButtonIndex:0 animated:YES];
 					});
 				}
 				
@@ -365,7 +365,7 @@
 					
 					//Check if a channel is currently being viewed
 					//and if so, if that channel is the same the message was sent in
-					if(self.selectedChannel != nil && [channelIdOfMessage isEqualToString:self.selectedChannel.snowflake]){
+					if(weakSelf.selectedChannel != nil && [channelIdOfMessage isEqualToString:weakSelf.selectedChannel.snowflake]){
 						
 						dispatch_async(dispatch_get_main_queue(), ^{
 							//Send notification with the new message
@@ -374,12 +374,12 @@
 						});
 						
 						//Update current channel & read state last message
-						[self.selectedChannel setLastMessageId:messageId];
+						[weakSelf.selectedChannel setLastMessageId:messageId];
 						
 						//Ack message since we are currently viewing this channel
 						[weakSelf ackMessage:messageId inChannel:weakSelf.selectedChannel];
 					}else{
-						DCChannel* channelOfMessage = [self.channels objectForKey:channelIdOfMessage];
+						DCChannel* channelOfMessage = [weakSelf.channels objectForKey:channelIdOfMessage];
 						channelOfMessage.lastMessageId = messageId;
 						
 						[channelOfMessage checkIfRead];
@@ -394,7 +394,7 @@
 			
 			if(op == 11){
 				NSLog(@"Got heartbeat response");
-				self.didRecieveHeartbeatResponse = true;
+				weakSelf.didRecieveHeartbeatResponse = true;
 			}
 			
 			if(op == 9)
@@ -403,7 +403,7 @@
 				});
 		}];
 		
-		[self.websocket open];
+		[weakSelf.websocket open];
 	}
 }
 

@@ -101,7 +101,7 @@
                                 </cells>
                             </tableViewSection>
                             <tableViewSection headerTitle="Beta Features" id="Ges-Ze-Ymy">
-                                <string key="footerTitle">Hides channels you shouldn't be able to see in the channel list, but incorrectly hides channels you exclusively have access to as an admin/server owner incorrectly. TL;DR: basic feature not fully baked yet.</string>
+                                <string key="footerTitle">Hides channels you shouldn't be able to see in the channel list, but also hides channels you exclusively have access to as an admin/server owner incorrectly. Blame lazy dev.</string>
                                 <cells>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" textLabel="7dc-aN-TaA" style="IBUITableViewCellStyleDefault" id="gqy-Qz-5of">
                                         <rect key="frame" x="0.0" y="207" width="320" height="46"/>
