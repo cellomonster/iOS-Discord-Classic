@@ -19,7 +19,9 @@
 @property NSString* gatewayURL;
 @property NSMutableArray* guilds;
 @property NSMutableDictionary* channels;
+@property NSMutableDictionary* loadedUsers;
 @property DCChannel* selectedChannel;
+@property DCGuild* selectedGuild;
 
 + (DCServerCommunicator *)sharedInstance;
 - (void)startCommunicator;
@@ -27,6 +29,4 @@
 - (void)reconnect;
 - (void)sendHeartbeat:(NSTimer *)timer;
 - (void)sendJSON:(NSDictionary*)dictionary;
-- (NSDictionary*)sendMessage:(NSString*)message inChannel:(DCChannel*)channel;
-- (NSDictionary*)ackMessage:(NSString*)messageId inChannel:(DCChannel*)channel;
 @end

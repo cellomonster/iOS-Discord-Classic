@@ -23,8 +23,6 @@
 - (void)viewDidLoad{
 	[super viewDidLoad];
 	
-	[self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"Background.tiff"]]];
-	
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleMessageAck) name:@"MESSAGE ACK" object:nil];
 }
 
@@ -69,7 +67,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
 	self.selectedChannel = [self.selectedGuild.channels objectAtIndex:indexPath.row];
 	
-	[DCServerCommunicator.sharedInstance ackMessage:self.selectedChannel.lastMessageId inChannel:self.selectedChannel];
+	[self.selectedChannel ackMessage:self.selectedChannel.lastMessageId];
 	
 	[self.selectedChannel checkIfRead];
 	

@@ -48,7 +48,6 @@
 	//Init and grab user settings
 	self.didRecieveHeartbeatResponse = true;
 	self.token = [NSUserDefaults.standardUserDefaults stringForKey:@"token"];
-	bool permissionCalculationEnabled = [NSUserDefaults.standardUserDefaults boolForKey:@"perm calc"];
 	
 	self.gatewayURL = @"wss://gateway.discord.gg/?encoding=json&v=6";
 	
@@ -156,6 +155,7 @@
 					weakSelf.guilds = NSMutableArray.new;
 					//all channels with their ids as keys
 					weakSelf.channels = NSMutableDictionary.new;
+					weakSelf.loadedUsers = NSMutableDictionary.new;
 					
 					NSMutableDictionary* userChannelSettings = NSMutableDictionary.new;
 					for(NSDictionary* guildSettings in [d valueForKey:@"user_guild_settings"])
@@ -208,18 +208,16 @@
 					for(NSDictionary* jsonGuild in [d valueForKey:@"guilds"]){
 						
 						NSMutableArray* userRoles;
-						
-						if(permissionCalculationEnabled){
-							//Get roles of the current user
-							for(NSDictionary* member in [jsonGuild objectForKey:@"members"])
-								if([[member valueForKeyPath:@"user.id"] isEqualToString:weakSelf.snowflake])
-									userRoles = [[member valueForKey:@"roles"] mutableCopy];
 							
-							//Get @everyone role
-							for(NSDictionary* guildRole in [jsonGuild objectForKey:@"roles"])
-								if([[guildRole valueForKey:@"name"] isEqualToString:@"@everyone"])
-									[userRoles addObject:[guildRole valueForKey:@"id"]];
-						}
+						//Get roles of the current user
+						for(NSDictionary* member in [jsonGuild objectForKey:@"members"])
+							if([[member valueForKeyPath:@"user.id"] isEqualToString:weakSelf.snowflake])
+								userRoles = [[member valueForKey:@"roles"] mutableCopy];
+							
+						//Get @everyone role
+						for(NSDictionary* guildRole in [jsonGuild objectForKey:@"roles"])
+							if([[guildRole valueForKey:@"name"] isEqualToString:@"@everyone"])
+								[userRoles addObject:[guildRole valueForKey:@"id"]];
 						
 						DCGuild* newGuild = DCGuild.new;
 						newGuild.name = [jsonGuild valueForKey:@"name"];
@@ -258,47 +256,44 @@
 								 */
 								int allowCode = 0;
 								
-								if(permissionCalculationEnabled){
+								//Calculate permissions
+								for(NSDictionary* permission in [jsonChannel objectForKey:@"permission_overwrites"]){
 									
-									//Calculate permissions
-									for(NSDictionary* permission in [jsonChannel objectForKey:@"permission_overwrites"]){
+									
+									
+									//Type of permission can either be role or member
+									NSString* type = [permission valueForKey:@"type"];
+									
+									if([type isEqualToString:@"role"]){
 										
-										
-										
-										//Type of permission can either be role or member
-										NSString* type = [permission valueForKey:@"type"];
-										
-										if([type isEqualToString:@"role"]){
+										//Check if this channel dictates permissions over any roles the user has
+										if([userRoles containsObject:[permission valueForKey:@"id"]]){
+											int deny = [[permission valueForKey:@"deny"] intValue];
+											int allow = [[permission valueForKey:@"allow"] intValue];
 											
-											//Check if this channel dictates permissions over any roles the user has
-											if([userRoles containsObject:[permission valueForKey:@"id"]]){
-												int deny = [[permission valueForKey:@"deny"] intValue];
-												int allow = [[permission valueForKey:@"allow"] intValue];
-												
-												if((deny & 1024) == 1024 && allowCode < 1)
-													allowCode = 1;
-												
-												if(((allow & 1024) == 1024) && allowCode < 2)
-													allowCode = 2;
-											}
+											if((deny & 1024) == 1024 && allowCode < 1)
+												allowCode = 1;
+											
+											if(((allow & 1024) == 1024) && allowCode < 2)
+												allowCode = 2;
 										}
+									}
+									
+									
+									if([type isEqualToString:@"member"]){
 										
-										
-										if([type isEqualToString:@"member"]){
+										//Check if
+										NSString* memberId = [permission valueForKey:@"id"];
+										if([memberId isEqualToString:weakSelf.snowflake]){
+											int deny = [[permission valueForKey:@"deny"] intValue];
+											int allow = [[permission valueForKey:@"allow"] intValue];
 											
-											//Check if
-											NSString* memberId = [permission valueForKey:@"id"];
-											if([memberId isEqualToString:weakSelf.snowflake]){
-												int deny = [[permission valueForKey:@"deny"] intValue];
-												int allow = [[permission valueForKey:@"allow"] intValue];
-												
-												if((deny & 1024) == 1024 && allowCode < 3)
-													allowCode = 3;
-												
-												if((allow & 1024) == 1024){
-													allowCode = 4;
-													break;
-												}
+											if((deny & 1024) == 1024 && allowCode < 3)
+												allowCode = 3;
+											
+											if((allow & 1024) == 1024){
+												allowCode = 4;
+												break;
 											}
 										}
 									}
@@ -377,7 +372,7 @@
 						[weakSelf.selectedChannel setLastMessageId:messageId];
 						
 						//Ack message since we are currently viewing this channel
-						[weakSelf ackMessage:messageId inChannel:weakSelf.selectedChannel];
+						[weakSelf.selectedChannel ackMessage:messageId];
 					}else{
 						DCChannel* channelOfMessage = [weakSelf.channels objectForKey:channelIdOfMessage];
 						channelOfMessage.lastMessageId = messageId;
@@ -426,19 +421,13 @@
 	if(self.identifyCooldown)
 		[self startCommunicator];
 	else
-		[self performSelector:@selector(startCommunicator)
-							 withObject:nil
-							 afterDelay:self.cooldownTimer.fireDate.timeIntervalSinceNow];
+		[self performSelector:@selector(startCommunicator) withObject:nil afterDelay:self.cooldownTimer.fireDate.timeIntervalSinceNow];
 	
 	self.identifyCooldown = false;
 	
 	//Displau the 'reconnecting' dialogue box
 	[self.alertView dismissWithClickedButtonIndex:0 animated:NO];
-	self.alertView = [UIAlertView.alloc initWithTitle:@"Reconnecting"
-																						message:@"\n"
-																					 delegate:self
-																	cancelButtonTitle:nil
-																	otherButtonTitles:nil];
+	self.alertView = [UIAlertView.alloc initWithTitle:@"Reconnecting" message:@"\n" delegate:self cancelButtonTitle:nil otherButtonTitles:nil];
 	
 	UIActivityIndicatorView *spinner = [UIActivityIndicatorView.alloc initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
 	spinner.center = CGPointMake(139.5, 75.5);
@@ -472,79 +461,36 @@
 - (void)sendJSON:(NSDictionary*)dictionary{
 	NSError *writeError = nil;
 	
-	NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dictionary
-																										 options:NSJSONWritingPrettyPrinted
-																											 error:&writeError];
+	NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dictionary options:NSJSONWritingPrettyPrinted error:&writeError];
 	
 	NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 	[self.websocket sendText:jsonString];
 }
 
-
-- (NSDictionary*)sendMessage:(NSString*)message inChannel:(DCChannel*)channel{
-	
-	NSURL* channelURL = [NSURL URLWithString:
-											 [NSString stringWithFormat:@"%@%@%@",
-												@"https://discordapp.com/api/channels/",
-												channel.snowflake,
-												@"/messages"]];
-	
-	NSMutableURLRequest *urlRequest=[NSMutableURLRequest requestWithURL:channelURL
-																													cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-																											timeoutInterval:5];
-	
-	NSString* messageString = [NSString stringWithFormat:@"{\"content\":\"%@\"}", message];
-	
-	[urlRequest setHTTPBody:[NSData dataWithBytes:[messageString UTF8String] length:[messageString length]]];
-	[urlRequest addValue:DCServerCommunicator.sharedInstance.token forHTTPHeaderField:@"Authorization"];
-	[urlRequest addValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-	[urlRequest setHTTPMethod:@"POST"];
-	
-	
-	NSError *error = nil;
-	NSHTTPURLResponse *responseCode = nil;
-	
-	NSData *response = [DCTools checkData:[NSURLConnection sendSynchronousRequest:urlRequest
-																															returningResponse:&responseCode
-																																					error:&error] withError:error];
-	
-	if(response)
-		return [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
-	return nil;
-}
-
-
-- (NSDictionary*)ackMessage:(NSString*)messageId inChannel:(DCChannel*)channel{
-	
-	if(messageId != (id)NSNull.null){
-		channel.lastReadMessageId = messageId;
-		
-		NSURL* channelURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@%@%@%@",
-																							@"https://discordapp.com/api/channels/",
-																							channel.snowflake, @"/messages/",
-																							messageId,
-																							@"/ack"]];
-		
-		NSMutableURLRequest *urlRequest=[NSMutableURLRequest requestWithURL:channelURL
-																														cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-																												timeoutInterval:5];
-		
-		[urlRequest addValue:DCServerCommunicator.sharedInstance.token forHTTPHeaderField:@"Authorization"];
-		[urlRequest addValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-		[urlRequest setHTTPMethod:@"POST"];
-		
-		
-		NSError *error = nil;
-		NSHTTPURLResponse *responseCode = nil;
-		
-		NSData *response = [DCTools checkData:[NSURLConnection sendSynchronousRequest:urlRequest
-																																returningResponse:&responseCode
-																																						error:&error] withError:error];
-		
-		if(response)
-			return [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
-	}
-	return nil;
-}
+//- (NSDictionary*)sendImage:(UIImage*)image inChannel:(DCChannel*)channel{
+//	
+//	NSURL* channelURL = [NSURL URLWithString: [NSString stringWithFormat:@"https://discordapp.com/api/channels/%@/messages", channel.snowflake]];
+//	
+//	NSMutableURLRequest *urlRequest=[NSMutableURLRequest requestWithURL:channelURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:5];
+//	
+//	NSString* payload = [NSString stringWithFormat:@"{\"content\":\".\", \"file\":\"%@\"}", [UIImageJPEGRepresentation(image, 1.0) base64EncodedString]];
+//	
+//	[urlRequest setHTTPBody:[NSData dataWithBytes:[payload UTF8String] length:[payload length]]];
+//	[urlRequest addValue:DCServerCommunicator.sharedInstance.token forHTTPHeaderField:@"Authorization"];
+//	[urlRequest addValue:@"multipart/form-data" forHTTPHeaderField:@"Content-Type"];
+//	
+//	
+//	[urlRequest setHTTPMethod:@"POST"];
+//	
+//	
+//	NSError *error = nil;
+//	NSHTTPURLResponse *responseCode = nil;
+//	
+//	NSData *response = [DCTools checkData:[NSURLConnection sendSynchronousRequest:urlRequest returningResponse:&responseCode error:&error] withError:error];
+//	
+//	if(response)
+//		return [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
+//	return nil;
+//}
 
 @end

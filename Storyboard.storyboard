@@ -100,32 +100,6 @@
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
-                            <tableViewSection headerTitle="Beta Features" id="Ges-Ze-Ymy">
-                                <string key="footerTitle">Hides channels you shouldn't be able to see in the channel list, but also hides channels you exclusively have access to as an admin/server owner incorrectly. Blame lazy dev.</string>
-                                <cells>
-                                    <tableViewCell contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" textLabel="7dc-aN-TaA" style="IBUITableViewCellStyleDefault" id="gqy-Qz-5of">
-                                        <rect key="frame" x="0.0" y="207" width="320" height="46"/>
-                                        <autoresizingMask key="autoresizingMask"/>
-                                        <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                                            <rect key="frame" x="10" y="1" width="300" height="43"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                            <subviews>
-                                                <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" text="Perm Calculation" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="7dc-aN-TaA">
-                                                    <rect key="frame" x="10" y="0.0" width="280" height="43"/>
-                                                    <autoresizingMask key="autoresizingMask"/>
-                                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
-                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                                    <color key="highlightedColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                                                </label>
-                                            </subviews>
-                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                                        </view>
-                                        <connections>
-                                            <outlet property="accessoryView" destination="stB-TJ-wYf" id="iv8-bh-sC2"/>
-                                        </connections>
-                                    </tableViewCell>
-                                </cells>
-                            </tableViewSection>
                         </sections>
                         <connections>
                             <outlet property="dataSource" destination="Y2n-LQ-P1S" id="i1p-jz-ZfG"/>
@@ -209,24 +183,14 @@
                                     <outlet property="delegate" destination="SPS-Go-Xtj" id="zAV-aN-J65"/>
                                 </connections>
                             </tableView>
-                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="blackOpaque" id="naG-kY-gaA">
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="blackTranslucent" id="naG-kY-gaA">
                                 <rect key="frame" x="0.0" y="372" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <items>
-                                    <barButtonItem style="done" systemItem="reply" id="hOJ-rH-NxW">
-                                        <connections>
-                                            <action selector="sendMessage:" destination="SPS-Go-Xtj" id="15L-05-dcG"/>
-                                        </connections>
-                                    </barButtonItem>
-                                    <barButtonItem systemItem="stop" id="KXL-Qp-1og">
-                                        <connections>
-                                            <action selector="hideKeyboard:" destination="SPS-Go-Xtj" id="im0-77-IyX"/>
-                                        </connections>
-                                    </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="yc5-WU-LaV"/>
                                     <barButtonItem id="Gi1-fu-TDp">
                                         <textField key="customView" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Message" minimumFontSize="17" clearButtonMode="whileEditing" id="2TA-Zy-0gC">
-                                            <rect key="frame" x="6" y="7" width="308" height="31"/>
+                                            <rect key="frame" x="10" y="7" width="247" height="31"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                             <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
@@ -235,6 +199,13 @@
                                             </connections>
                                         </textField>
                                     </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="OiU-r5-KgZ"/>
+                                    <barButtonItem style="done" systemItem="reply" id="hOJ-rH-NxW">
+                                        <connections>
+                                            <action selector="sendMessage:" destination="SPS-Go-Xtj" id="15L-05-dcG"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="mma-r9-5xO"/>
                                 </items>
                             </toolbar>
                         </subviews>
@@ -268,8 +239,6 @@
         <class className="DCChatViewController" superclassName="UIViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/DCChatViewController.h"/>
             <relationships>
-                <relationship kind="action" name="hideKeyboard:"/>
-                <relationship kind="action" name="sendMessage:"/>
                 <relationship kind="outlet" name="chatTableView" candidateClass="UITableView"/>
                 <relationship kind="outlet" name="inputField" candidateClass="UITextField"/>
                 <relationship kind="outlet" name="toolbar" candidateClass="UIToolbar"/>

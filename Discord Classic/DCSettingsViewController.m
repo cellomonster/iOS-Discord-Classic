@@ -22,16 +22,10 @@
 	
 	if(token)
 		[self.tokenInputField setText:token];
-	
-	bool permissionCalculationEnabled = [NSUserDefaults.standardUserDefaults boolForKey:@"perm calc"];
-	
-	if([NSUserDefaults.standardUserDefaults.dictionaryRepresentation.allKeys containsObject:@"perm calc"])
-		[self.permissionCalculationToggle setOn:permissionCalculationEnabled animated:NO];
 }
 
 - (void)viewWillDisappear:(BOOL)animated{
 	[NSUserDefaults.standardUserDefaults setObject:self.tokenInputField.text forKey:@"token"];
-	[NSUserDefaults.standardUserDefaults setBool:self.permissionCalculationToggle.on forKey:@"perm calc"];
 	
 	[DCServerCommunicator.sharedInstance reconnect];
 }

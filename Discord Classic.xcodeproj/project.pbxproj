@@ -15,6 +15,7 @@
 		09685287204D9D590089DE45 /* DCChannelListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 09685286204D9D590089DE45 /* DCChannelListViewController.m */; };
 		09A2A3122072674000F3D98C /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 09A2A3112072674000F3D98C /* Icon@2x.png */; };
 		09A2A3142072674500F3D98C /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 09A2A3132072674500F3D98C /* Icon.png */; };
+		09A3B6D321A0604500C2411F /* DCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 09A3B6D221A0604400C2411F /* DCUser.m */; };
 		09A4EA672079220E00DECFD6 /* DCChatTableCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 09A4EA662079220E00DECFD6 /* DCChatTableCell.xib */; };
 		09A4EA6F2079266800DECFD6 /* DCChatTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 09A4EA6E2079266800DECFD6 /* DCChatTableCell.m */; };
 		09C6B925204A0F54007EAC26 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 09C6B924204A0F54007EAC26 /* UIKit.framework */; };
@@ -47,7 +48,6 @@
 		09E183BD205EF65000FE90E8 /* DCGuildListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 09E183BC205EF65000FE90E8 /* DCGuildListViewController.m */; };
 		09E2DB7C20789C9700267A62 /* UINavigationBarTexture.png in Resources */ = {isa = PBXBuildFile; fileRef = 09E2DB7A20789C9700267A62 /* UINavigationBarTexture.png */; };
 		09E2DB7D20789C9700267A62 /* UINavigationBarTexture@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 09E2DB7B20789C9700267A62 /* UINavigationBarTexture@2x.png */; };
-		09E2DB8520789F4100267A62 /* Background.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 09E2DB8420789F4100267A62 /* Background.tiff */; };
 		09E3ED262069F21200E90DA1 /* DCTools.m in Sources */ = {isa = PBXBuildFile; fileRef = 09E3ED252069F21200E90DA1 /* DCTools.m */; };
 		09E3ED272069F21200E90DA1 /* DCTools.m in Sources */ = {isa = PBXBuildFile; fileRef = 09E3ED252069F21200E90DA1 /* DCTools.m */; };
 		09E3ED282069F62200E90DA1 /* Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 09C8E2EC204C3B64006A1422 /* Storyboard.storyboard */; };
@@ -84,6 +84,8 @@
 		09685286204D9D590089DE45 /* DCChannelListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCChannelListViewController.m; sourceTree = "<group>"; };
 		09A2A3112072674000F3D98C /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };
 		09A2A3132072674500F3D98C /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		09A3B6D121A0604400C2411F /* DCUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCUser.h; sourceTree = "<group>"; };
+		09A3B6D221A0604400C2411F /* DCUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCUser.m; sourceTree = "<group>"; };
 		09A4EA65207921E500DECFD6 /* Discord ClassicTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Discord ClassicTests.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		09A4EA662079220E00DECFD6 /* DCChatTableCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = DCChatTableCell.xib; path = ../DCChatTableCell.xib; sourceTree = "<group>"; };
 		09A4EA6D2079266800DECFD6 /* DCChatTableCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCChatTableCell.h; sourceTree = "<group>"; };
@@ -126,7 +128,6 @@
 		09E183BC205EF65000FE90E8 /* DCGuildListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCGuildListViewController.m; sourceTree = "<group>"; };
 		09E2DB7A20789C9700267A62 /* UINavigationBarTexture.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = UINavigationBarTexture.png; sourceTree = "<group>"; };
 		09E2DB7B20789C9700267A62 /* UINavigationBarTexture@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "UINavigationBarTexture@2x.png"; sourceTree = "<group>"; };
-		09E2DB8420789F4100267A62 /* Background.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Background.tiff; sourceTree = "<group>"; };
 		09E3ED242069F21200E90DA1 /* DCTools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCTools.h; sourceTree = "<group>"; };
 		09E3ED252069F21200E90DA1 /* DCTools.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCTools.m; sourceTree = "<group>"; };
 		09FF0300205EFB8800BCBA8D /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
@@ -161,10 +162,18 @@
 		095284622055EFDA00760073 /* Etc */ = {
 			isa = PBXGroup;
 			children = (
+				09A3B6C4219FBACF00C2411F /* Encoding */,
 				0952845F2055EFCF00760073 /* TRMalleableFrameView.h */,
 				095284602055EFD000760073 /* TRMalleableFrameView.m */,
 			);
 			name = Etc;
+			sourceTree = "<group>";
+		};
+		09A3B6C4219FBACF00C2411F /* Encoding */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Encoding;
 			sourceTree = "<group>";
 		};
 		09C6B915204A0F54007EAC26 = {
@@ -175,7 +184,6 @@
 				09FF0300205EFB8800BCBA8D /* Default-568h@2x.png */,
 				09E2DB7A20789C9700267A62 /* UINavigationBarTexture.png */,
 				09E2DB7B20789C9700267A62 /* UINavigationBarTexture@2x.png */,
-				09E2DB8420789F4100267A62 /* Background.tiff */,
 				095284622055EFDA00760073 /* Etc */,
 				09C6B97D204A1782007EAC26 /* Websocket */,
 				09C6B92A204A0F54007EAC26 /* Discord Classic */,
@@ -227,6 +235,8 @@
 				09260EC920575BB200083813 /* DCChannel.m */,
 				090C6BCF20784DDD00EC552F /* DCMessage.h */,
 				09D776982189427100609134 /* DCMessage.m */,
+				09A3B6D121A0604400C2411F /* DCUser.h */,
+				09A3B6D221A0604400C2411F /* DCUser.m */,
 				09C6B92B204A0F54007EAC26 /* Supporting Files */,
 			);
 			path = "Discord Classic";
@@ -341,7 +351,6 @@
 				09A2A3142072674500F3D98C /* Icon.png in Resources */,
 				09E2DB7C20789C9700267A62 /* UINavigationBarTexture.png in Resources */,
 				09E2DB7D20789C9700267A62 /* UINavigationBarTexture@2x.png in Resources */,
-				09E2DB8520789F4100267A62 /* Background.tiff in Resources */,
 				09A4EA672079220E00DECFD6 /* DCChatTableCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -409,6 +418,7 @@
 				09E3ED262069F21200E90DA1 /* DCTools.m in Sources */,
 				09A4EA6F2079266800DECFD6 /* DCChatTableCell.m in Sources */,
 				09D776992189427100609134 /* DCMessage.m in Sources */,
+				09A3B6D321A0604500C2411F /* DCUser.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

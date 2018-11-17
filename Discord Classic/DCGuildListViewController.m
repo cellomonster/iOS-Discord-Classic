@@ -12,10 +12,6 @@
 #import "DCGuild.h"
 #import "DCTools.h"
 
-@interface DCGuildListViewController ()
-@property DCGuild* selectedGuild;
-@end
-
 @implementation DCGuildListViewController
 
 - (void)viewDidLoad{
@@ -24,8 +20,6 @@
 	//Go to settings if no token is set
 	if(!DCServerCommunicator.sharedInstance.token)
 		[self performSegueWithIdentifier:@"to Settings" sender:self];
-	
-	[self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"Background.tiff"]]];
 	
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleReady) name:@"READY" object:nil];
 	
@@ -71,7 +65,10 @@
 
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-	self.selectedGuild = [DCServerCommunicator.sharedInstance.guilds objectAtIndex:indexPath.row];
+	if([DCServerCommunicator.sharedInstance.guilds objectAtIndex:indexPath.row] != DCServerCommunicator.sharedInstance.selectedGuild){
+		DCServerCommunicator.sharedInstance.loadedUsers = NSMutableDictionary.new;
+		DCServerCommunicator.sharedInstance.selectedGuild = [DCServerCommunicator.sharedInstance.guilds objectAtIndex:indexPath.row];
+	}
 	[self performSegueWithIdentifier:@"Guilds to Channels" sender:self];
 }
 
@@ -82,7 +79,7 @@
 		DCChannelListViewController *channelListViewController = [segue destinationViewController];
 		
 		if ([channelListViewController isKindOfClass:DCChannelListViewController.class])
-			channelListViewController.selectedGuild = self.selectedGuild;
+			channelListViewController.selectedGuild = DCServerCommunicator.sharedInstance.selectedGuild;
 	}
 }
 

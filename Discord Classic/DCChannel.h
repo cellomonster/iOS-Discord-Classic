@@ -24,4 +24,6 @@
 @property DCGuild* parentGuild;
 
 -(void)checkIfRead;
+- (NSDictionary*)sendMessage:(NSString*)message;
+- (NSDictionary*)ackMessage:(NSString*)message;
 @end

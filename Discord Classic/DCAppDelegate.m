@@ -19,6 +19,8 @@
 	self.shouldReload = false;
 	
 	[UINavigationBar.appearance setBackgroundImage:[UIImage imageNamed:@"UINavigationBarTexture"] forBarMetrics:UIBarMetricsDefault];
+	[DCServerCommunicator.sharedInstance startCommunicator];
+	
 	return YES;
 }
 

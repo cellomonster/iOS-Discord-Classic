@@ -12,6 +12,7 @@
 #import "DCMessage.h"
 #import "DCTools.h"
 #import "DCChatTableCell.h"
+#import "DCUser.h"
 
 @interface DCChatViewController()
 @property bool viewingPresentTime;
@@ -22,8 +23,6 @@
 
 - (void)viewDidLoad{
 	[super viewDidLoad];
-	
-	[self.chatTableView setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"Background.tiff"]]];
 	
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleMessageCreate:) name:@"MESSAGE CREATE" object:nil];
 	
@@ -95,8 +94,8 @@
 					[self.messages insertObject:newMessage atIndex:0];
 				});
 				
-				CGSize authorNameSize = [newMessage.authorName sizeWithFont:[UIFont boldSystemFontOfSize:15] constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
-				CGSize contentSize = [newMessage.content sizeWithFont:[UIFont systemFontOfSize:14] constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
+				CGSize authorNameSize = [newMessage.author.username sizeWithFont:[UIFont boldSystemFontOfSize:15] constrainedToSize:CGSizeMake(self.chatTableView.width - 69, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
+				CGSize contentSize = [newMessage.content sizeWithFont:[UIFont systemFontOfSize:14] constrainedToSize:CGSizeMake(self.chatTableView.width - 69, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
 				for(int i = 0; i < newMessage.embeddedImageCount; i++) scrollDownHeight+= 210;
 				scrollDownHeight += authorNameSize.height + contentSize.height + 11;
 			}
@@ -121,7 +120,36 @@
 
 - (DCMessage*)convertJsonMessage:(NSDictionary*)jsonMessage{
 	DCMessage* newMessage = DCMessage.new;
-	newMessage.authorName = [jsonMessage valueForKeyPath:@"author.username"];
+	if(![DCServerCommunicator.sharedInstance.loadedUsers objectForKey:[jsonMessage valueForKeyPath:@"author.id"]]){
+		
+		NSLog(@"user for message does not exist, creating one");
+		DCUser* newUser = DCUser.new;
+		newUser.username = [jsonMessage valueForKeyPath:@"author.username"];
+		newUser.snowflake = [jsonMessage valueForKeyPath:@"author.id"];
+		
+		NSString* avatarURL = [NSString stringWithFormat:@"https://cdn.discordapp.com/avatars/%@/%@.png", newUser.snowflake, [jsonMessage valueForKeyPath:@"author.avatar"]];
+		
+		NSLog(@"%@", avatarURL);
+		
+		[DCTools processImageDataWithURLString:avatarURL andBlock:^(NSData *imageData){
+			UIImage *retrievedImage = [UIImage imageWithData:imageData];
+			
+			NSLog(@"loaded pfp!");
+			
+			if(retrievedImage != nil){
+				newUser.profileImage = retrievedImage;
+				dispatch_async(dispatch_get_main_queue(), ^{
+					[self.chatTableView reloadData];
+				});
+			}
+			
+		}];
+		
+		[DCServerCommunicator.sharedInstance.loadedUsers setValue:newUser forKey:newUser.snowflake];
+	}
+	
+	newMessage.author = [DCServerCommunicator.sharedInstance.loadedUsers valueForKey:[jsonMessage valueForKeyPath:@"author.id"]];
+	
 	newMessage.content = [jsonMessage valueForKey:@"content"];
 	newMessage.snowflake = [jsonMessage valueForKey:@"id"];
 	newMessage.embeddedImages = NSMutableArray.new;
@@ -169,7 +197,6 @@
 	return newMessage;
 }
 
-
 - (void)handleReady {
 	if(self.selectedChannel) self.messages = NSMutableArray.new;
 		[self getMessages:50 beforeMessage:nil];
@@ -194,9 +221,11 @@
 	
 	DCMessage* messageAtRowIndex = [self.messages objectAtIndex:indexPath.row];
 	
-	[cell.authorLabel setText:messageAtRowIndex.authorName];
+	[cell.authorLabel setText:messageAtRowIndex.author.username];
 	
 	[cell.contentLabel setText:messageAtRowIndex.content];
+	
+	[cell.profileImage setImage:messageAtRowIndex.author.profileImage];
 	
 	CGRect contentLabelBounds = cell.contentLabel.bounds;
 	contentLabelBounds.size.height = CGFLOAT_MAX;
@@ -213,8 +242,8 @@
 		}
 	}
 	
-	CGSize authorNameSize = [messageAtRowIndex.authorName sizeWithFont:[UIFont boldSystemFontOfSize:15] constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
-	CGSize contentSize = [messageAtRowIndex.content sizeWithFont:[UIFont systemFontOfSize:14] constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
+	CGSize authorNameSize = [messageAtRowIndex.author.username sizeWithFont:[UIFont boldSystemFontOfSize:15] constrainedToSize:CGSizeMake(self.chatTableView.width - 69, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
+	CGSize contentSize = [messageAtRowIndex.content sizeWithFont:[UIFont systemFontOfSize:14] constrainedToSize:CGSizeMake(self.chatTableView.width - 69, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
 	
 	int imageViewOffset = authorNameSize.height + contentSize.height + 20;
 	
@@ -235,8 +264,8 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
 	DCMessage* messageAtRowIndex = [self.messages objectAtIndex:indexPath.row];
 	
-	CGSize authorNameSize = [messageAtRowIndex.authorName sizeWithFont:[UIFont boldSystemFontOfSize:15] constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
-	CGSize contentSize = [messageAtRowIndex.content sizeWithFont:[UIFont systemFontOfSize:14] constrainedToSize:CGSizeMake(self.chatTableView.width - 22, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
+	CGSize authorNameSize = [messageAtRowIndex.author.username sizeWithFont:[UIFont boldSystemFontOfSize:15] constrainedToSize:CGSizeMake(self.chatTableView.width - 69, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
+	CGSize contentSize = [messageAtRowIndex.content sizeWithFont:[UIFont systemFontOfSize:14] constrainedToSize:CGSizeMake(self.chatTableView.width - 69, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
 	return authorNameSize.height + contentSize.height + 11 + messageAtRowIndex.embeddedImageCount * 220;
 }
 
@@ -271,7 +300,6 @@
 	[UIView setAnimationBeginsFromCurrentState:YES];
 	[self.chatTableView setHeight:self.view.height - keyboardHeight - self.toolbar.height];
 	[self.toolbar setY:self.view.height - keyboardHeight - self.toolbar.height];
-	[self.inputField setWidth:self.toolbar.width - 110];
 	[UIView commitAnimations];
 	
 	
@@ -291,7 +319,6 @@
 	[UIView setAnimationBeginsFromCurrentState:YES];
 	[self.chatTableView setHeight:self.view.height - self.toolbar.height];
 	[self.toolbar setY:self.view.height - self.toolbar.height];
-	[self.inputField setWidth:self.toolbar.width - 12];
 	[UIView commitAnimations];
 }
 
@@ -302,7 +329,7 @@
 
 
 - (IBAction)sendMessage:(id)sender {
-	[DCServerCommunicator.sharedInstance sendMessage:self.inputField.text inChannel:self.selectedChannel];
+	[self.selectedChannel sendMessage:self.inputField.text];
 	
 	[self.inputField setText:@""];
 	
@@ -310,4 +337,34 @@
 		[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height) animated:YES];
 }
 
+//- (IBAction)chooseImage:(id)sender {
+//	UIImagePickerController *picker = UIImagePickerController.new;
+//	
+//	picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+//	
+//	picker.allowsEditing = YES;
+//	
+//	[picker setDelegate:self];
+//	
+//	[self presentModalViewController:picker animated:YES];
+//}
+//
+//- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+//	
+//	[picker dismissModalViewControllerAnimated:YES];
+//	
+//	UIImage* originalImage = nil;
+//	originalImage = [info objectForKey:UIImagePickerControllerEditedImage];
+//	
+//	if(originalImage==nil)
+//		originalImage = [info objectForKey:UIImagePickerControllerOriginalImage];
+//	
+//	if(originalImage==nil)
+//		originalImage = [info objectForKey:UIImagePickerControllerCropRect];
+//	
+//	[DCServerCommunicator.sharedInstance sendImage:originalImage inChannel:self.selectedChannel];
+//	
+//	if(self.viewingPresentTime)
+//		[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height) animated:YES];
+//}
 @end

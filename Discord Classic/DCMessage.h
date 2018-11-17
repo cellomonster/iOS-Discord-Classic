@@ -7,10 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "DCUser.h"
 
 @interface DCMessage : NSObject
 @property NSString* snowflake;
-@property NSString* authorName;
+@property DCUser* author;
 @property NSString* content;
 @property int embeddedImageCount;
 @property NSMutableArray* embeddedImages;
