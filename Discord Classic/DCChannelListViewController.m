@@ -65,11 +65,11 @@
 
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-	self.selectedChannel = [self.selectedGuild.channels objectAtIndex:indexPath.row];
+	DCServerCommunicator.sharedInstance.selectedChannel = [self.selectedGuild.channels objectAtIndex:indexPath.row];
 	
-	[self.selectedChannel ackMessage:self.selectedChannel.lastMessageId];
+	[DCServerCommunicator.sharedInstance.selectedChannel ackMessage:DCServerCommunicator.sharedInstance.selectedChannel.lastMessageId];
 	
-	[self.selectedChannel checkIfRead];
+	[DCServerCommunicator.sharedInstance.selectedChannel checkIfRead];
 	
 	[[self.tableView cellForRowAtIndexPath:indexPath] setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
 	
@@ -83,10 +83,8 @@
 		
 		if ([chatViewController isKindOfClass:DCChatViewController.class]){
 			
-			chatViewController.selectedChannel = self.selectedChannel;
-			DCServerCommunicator.sharedInstance.selectedChannel = self.selectedChannel;
-			
 			dispatch_async(dispatch_get_main_queue(), ^{
+				chatViewController.messages = NSMutableArray.new;
 				[chatViewController getMessages:50 beforeMessage:nil];
 			});
 		}

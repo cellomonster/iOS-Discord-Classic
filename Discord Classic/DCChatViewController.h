@@ -17,6 +17,5 @@
 @property (weak, nonatomic) IBOutlet UITableView *chatTableView;
 @property (weak, nonatomic) IBOutlet UITextField *inputField;
 
-@property DCChannel* selectedChannel;
 @property NSMutableArray* messages;
 @end

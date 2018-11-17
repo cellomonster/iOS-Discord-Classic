@@ -36,6 +36,12 @@
 	if (sharedInstance == nil) {
 		//Initialize if a sharedInstance does not yet exist
 		sharedInstance = DCServerCommunicator.new;
+		sharedInstance.guilds = NSMutableArray.new;
+		sharedInstance.channels = NSMutableDictionary.new;
+		sharedInstance.loadedUsers = NSMutableDictionary.new;
+		sharedInstance.gatewayURL = @"wss://gateway.discord.gg/?encoding=json&v=6";
+		sharedInstance.token = [NSUserDefaults.standardUserDefaults stringForKey:@"token"];
+		sharedInstance.didRecieveHeartbeatResponse = true;
 		sharedInstance.identifyCooldown = true;
 	}
 	
@@ -44,12 +50,6 @@
 
 
 - (void)startCommunicator{
-	
-	//Init and grab user settings
-	self.didRecieveHeartbeatResponse = true;
-	self.token = [NSUserDefaults.standardUserDefaults stringForKey:@"token"];
-	
-	self.gatewayURL = @"wss://gateway.discord.gg/?encoding=json&v=6";
 	
 	if(self.token!=nil){
 		
@@ -82,9 +82,9 @@
 					[weakSelf sendJSON:@{
 					 @"op":@6,
 					 @"d":@{
-					 @"token":weakSelf.token,
-					 @"session_id":weakSelf.sessionId,
-					 @"seq":@(weakSelf.sequenceNumber),
+						@"token":weakSelf.token,
+						@"session_id":weakSelf.sessionId,
+						@"seq":@(weakSelf.sequenceNumber),
 					 }
 					 }];
 					
@@ -98,9 +98,9 @@
 					[weakSelf sendJSON:@{
 					 @"op":@2,
 					 @"d":@{
-					 @"token":weakSelf.token,
-					 @"properties":@{ @"$browser" : @"peble" },
-					 @"large_threshold":@"50",
+						@"token":weakSelf.token,
+						@"properties":@{ @"$browser" : @"peble" },
+						@"large_threshold":@"50",
 					 }
 					 }];
 					
@@ -116,18 +116,10 @@
 						dispatch_once(&once, ^ {
 							
 							//Begin heartbeat cycle if not already begun
-							[NSTimer scheduledTimerWithTimeInterval:heartbeatInterval/1000
-																							 target:weakSelf
-																						 selector:@selector(sendHeartbeat:)
-																						 userInfo:nil
-																							repeats:YES];
+							[NSTimer scheduledTimerWithTimeInterval:heartbeatInterval/1000 target:weakSelf selector:@selector(sendHeartbeat:) userInfo:nil repeats:YES];
 							
 							//Reenable ability to identify in 5 seconds
-							weakSelf.cooldownTimer = [NSTimer scheduledTimerWithTimeInterval:5
-																																		target:weakSelf
-																																	selector:@selector(refreshIdentifyCooldown:)
-																																	userInfo:nil
-																																	 repeats:NO];
+							weakSelf.cooldownTimer = [NSTimer scheduledTimerWithTimeInterval:5 target:weakSelf selector:@selector(refreshIdentifyCooldown:) userInfo:nil repeats:NO];
 						});
 					});
 					
@@ -150,12 +142,6 @@
 					//Grab session id (used for RESUME) and user id
 					weakSelf.sessionId = [d valueForKey:@"session_id"];
 					weakSelf.snowflake = [d valueForKeyPath:@"user.id"];
-					
-					//array of all guilds the user is a member of
-					weakSelf.guilds = NSMutableArray.new;
-					//all channels with their ids as keys
-					weakSelf.channels = NSMutableDictionary.new;
-					weakSelf.loadedUsers = NSMutableDictionary.new;
 					
 					NSMutableDictionary* userChannelSettings = NSMutableDictionary.new;
 					for(NSDictionary* guildSettings in [d valueForKey:@"user_guild_settings"])

@@ -15,4 +15,5 @@
 @property NSString* content;
 @property int embeddedImageCount;
 @property NSMutableArray* embeddedImages;
+@property int contentHeight;
 @end

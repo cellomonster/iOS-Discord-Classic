@@ -17,11 +17,13 @@
 @property WSWebSocket* websocket;
 @property NSString* token;
 @property NSString* gatewayURL;
+
 @property NSMutableArray* guilds;
 @property NSMutableDictionary* channels;
 @property NSMutableDictionary* loadedUsers;
-@property DCChannel* selectedChannel;
+
 @property DCGuild* selectedGuild;
+@property DCChannel* selectedChannel;
 
 + (DCServerCommunicator *)sharedInstance;
 - (void)startCommunicator;

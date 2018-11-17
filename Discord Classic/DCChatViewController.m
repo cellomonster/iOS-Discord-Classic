@@ -13,10 +13,12 @@
 #import "DCTools.h"
 #import "DCChatTableCell.h"
 #import "DCUser.h"
+#import "DCImageViewController.h"
 
 @interface DCChatViewController()
 @property bool viewingPresentTime;
 @property int numberOfMessagesLoaded;
+@property UIImage* selectedImage;
 @end
 
 @implementation DCChatViewController
@@ -25,6 +27,8 @@
 	[super viewDidLoad];
 	
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleMessageCreate:) name:@"MESSAGE CREATE" object:nil];
+	
+	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(reloadData) name:@"RELOAD CHAT DATA" object:nil];
 	
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleReady) name:@"READY" object:nil];
 	
@@ -35,183 +39,57 @@
 
 
 -(void)viewWillAppear:(BOOL)animated{
-	self.messages = NSMutableArray.new;
 	self.viewingPresentTime = true;
 	
 	NSString* formattedChannelName;
-	if(self.selectedChannel.type == 0)
-		formattedChannelName = [@"#" stringByAppendingString:self.selectedChannel.name];
-	else if(self.selectedChannel.type == 1)
-		formattedChannelName = [@"@" stringByAppendingString:self.selectedChannel.name];
+	if(DCServerCommunicator.sharedInstance.selectedChannel.type == 0)
+		formattedChannelName = [@"#" stringByAppendingString:DCServerCommunicator.sharedInstance.selectedChannel.name];
+	else if(DCServerCommunicator.sharedInstance.selectedChannel.type == 1)
+		formattedChannelName = [@"@" stringByAppendingString:DCServerCommunicator.sharedInstance.selectedChannel.name];
 	else
-		formattedChannelName = self.selectedChannel.name;
+		formattedChannelName = DCServerCommunicator.sharedInstance.selectedChannel.name;
 	
 	[self.navigationItem setTitle:formattedChannelName];
 }
 
-
-- (void)viewWillDisappear:(BOOL)animated{
-	DCServerCommunicator.sharedInstance.selectedChannel = nil;
-}
-
-
-- (void)getMessages:(int)numberOfMessages beforeMessage:(DCMessage*)message{
-	
-	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-		
-		//Generate URL from args
-		NSMutableString* getChannelAddress = [[NSString stringWithFormat: @"https://discordapp.com/api/channels/%@%@", self.selectedChannel.snowflake, @"/messages?"] mutableCopy];
-		
-		if(numberOfMessages)
-			[getChannelAddress appendString:[NSString stringWithFormat:@"limit=%i", numberOfMessages]];
-		if(numberOfMessages && message)
-			[getChannelAddress appendString:@"&"];
-		if(message)
-			[getChannelAddress appendString:[NSString stringWithFormat:@"before=%@", message.snowflake]];
-		
-		NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:getChannelAddress] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:60.0];
-		
-		[urlRequest addValue:DCServerCommunicator.sharedInstance.token forHTTPHeaderField:@"Authorization"];
-		[urlRequest addValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-		
-		NSError *error;
-		NSHTTPURLResponse *responseCode;
-		
-		NSData *response = [DCTools checkData:[NSURLConnection sendSynchronousRequest:urlRequest returningResponse:&responseCode error:&error] withError:error];
-
-		
-		NSArray* parsedResponse = [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
-		
-		if(parsedResponse.count > 0){
-			
-			int scrollDownHeight = 0;
-			
-			for(NSDictionary* jsonMessage in parsedResponse){
-							
-				DCMessage* newMessage = [self convertJsonMessage:jsonMessage];
-				
-				dispatch_async(dispatch_get_main_queue(), ^{
-					[self.messages insertObject:newMessage atIndex:0];
-				});
-				
-				CGSize authorNameSize = [newMessage.author.username sizeWithFont:[UIFont boldSystemFontOfSize:15] constrainedToSize:CGSizeMake(self.chatTableView.width - 69, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
-				CGSize contentSize = [newMessage.content sizeWithFont:[UIFont systemFontOfSize:14] constrainedToSize:CGSizeMake(self.chatTableView.width - 69, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
-				for(int i = 0; i < newMessage.embeddedImageCount; i++) scrollDownHeight+= 210;
-				scrollDownHeight += authorNameSize.height + contentSize.height + 11;
-			}
-			
-			if(!self.viewingPresentTime)
-				dispatch_async(dispatch_get_main_queue(), ^{
-					[self.chatTableView setContentOffset:CGPointMake(0, scrollDownHeight) animated:NO];
-					[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentOffset.y - 50) animated:YES];
-				});
-		}
-		
-		dispatch_async(dispatch_get_main_queue(), ^{
-			self.numberOfMessagesLoaded = 50;
-			[self.chatTableView reloadData];
-			
-			if(self.viewingPresentTime)
-				[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height) animated:NO];
-		});
-	});
-}
-
-
-- (DCMessage*)convertJsonMessage:(NSDictionary*)jsonMessage{
-	DCMessage* newMessage = DCMessage.new;
-	if(![DCServerCommunicator.sharedInstance.loadedUsers objectForKey:[jsonMessage valueForKeyPath:@"author.id"]]){
-		
-		NSLog(@"user for message does not exist, creating one");
-		DCUser* newUser = DCUser.new;
-		newUser.username = [jsonMessage valueForKeyPath:@"author.username"];
-		newUser.snowflake = [jsonMessage valueForKeyPath:@"author.id"];
-		
-		NSString* avatarURL = [NSString stringWithFormat:@"https://cdn.discordapp.com/avatars/%@/%@.png", newUser.snowflake, [jsonMessage valueForKeyPath:@"author.avatar"]];
-		
-		NSLog(@"%@", avatarURL);
-		
-		[DCTools processImageDataWithURLString:avatarURL andBlock:^(NSData *imageData){
-			UIImage *retrievedImage = [UIImage imageWithData:imageData];
-			
-			NSLog(@"loaded pfp!");
-			
-			if(retrievedImage != nil){
-				newUser.profileImage = retrievedImage;
-				dispatch_async(dispatch_get_main_queue(), ^{
-					[self.chatTableView reloadData];
-				});
-			}
-			
-		}];
-		
-		[DCServerCommunicator.sharedInstance.loadedUsers setValue:newUser forKey:newUser.snowflake];
-	}
-	
-	newMessage.author = [DCServerCommunicator.sharedInstance.loadedUsers valueForKey:[jsonMessage valueForKeyPath:@"author.id"]];
-	
-	newMessage.content = [jsonMessage valueForKey:@"content"];
-	newMessage.snowflake = [jsonMessage valueForKey:@"id"];
-	newMessage.embeddedImages = NSMutableArray.new;
-	newMessage.embeddedImageCount = 0;
-	
-	NSArray* embeds = [jsonMessage objectForKey:@"embeds"];
-	
-	if(embeds)
-		for(NSDictionary* embed in embeds){
-			NSString* embedType = [embed valueForKey:@"type"];
-			if([embedType isEqualToString:@"image"]){
-				newMessage.embeddedImageCount++;
-				
-				[DCTools processImageDataWithURLString:[embed valueForKeyPath:@"thumbnail.url"] andBlock:^(NSData *imageData){
-					UIImage *retrievedImage = [UIImage imageWithData:imageData];
-					
-					if(retrievedImage != nil){
-						[newMessage.embeddedImages addObject:retrievedImage];
-						dispatch_async(dispatch_get_main_queue(), ^{
-							[self.chatTableView reloadData];
-						});
-					}
-					
-				}];
-			}
-		}
-	
-	NSArray* attachments = [jsonMessage objectForKey:@"attachments"];
-	if(attachments)
-		for(NSDictionary* attachment in attachments){
-			newMessage.embeddedImageCount++;
-			
-			[DCTools processImageDataWithURLString:[attachment valueForKey:@"url"] andBlock:^(NSData *imageData){
-				UIImage *retrievedImage = [UIImage imageWithData:imageData];
-				
-				if(retrievedImage != nil){
-					[newMessage.embeddedImages addObject:retrievedImage];
-					dispatch_async(dispatch_get_main_queue(), ^{
-						[self.chatTableView reloadData];
-					});
-				}
-			}];
-		}
-	
-	return newMessage;
-}
-
 - (void)handleReady {
-	if(self.selectedChannel) self.messages = NSMutableArray.new;
-		[self getMessages:50 beforeMessage:nil];
+	if(DCServerCommunicator.sharedInstance.selectedChannel)
+		self.messages = NSMutableArray.new;
+	
+	[self getMessages:50 beforeMessage:nil];
+	
+	[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height) animated:NO];
+}
+
+- (void)reloadData {
+	[self.chatTableView reloadData];
 }
 
 - (void)handleMessageCreate:(NSNotification*)notification {
-  DCMessage* newMessage = [self convertJsonMessage:notification.userInfo];
+  DCMessage* newMessage = [DCTools convertJsonMessage:notification.userInfo];
 	
 	[self.messages addObject:newMessage];
 	[self.chatTableView reloadData];
 	
 	if(self.viewingPresentTime)
-		[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height) animated:YES];
+		[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height) animated:NO];
 }
 
+- (void)getMessages:(int)numberOfMessages beforeMessage:(DCMessage*)message{
+	
+	NSMutableArray* newMessages = [DCServerCommunicator.sharedInstance.selectedChannel getMessages:numberOfMessages beforeMessage:message];
+	
+	NSRange range = NSMakeRange(0, [newMessages count]);
+	NSIndexSet *indexSet = [NSIndexSet indexSetWithIndexesInRange:range];
+	[self.messages insertObjects:newMessages atIndexes:indexSet];
+	[self.chatTableView reloadData];
+	
+	int scrollOffset = -self.chatTableView.height;
+	for(DCMessage* newMessage in newMessages)
+		scrollOffset += newMessage.contentHeight + newMessage.embeddedImageCount * 220;
+	
+	[self.chatTableView setContentOffset:CGPointMake(0, scrollOffset) animated:NO];
+}
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
 	//static NSString *guildCellIdentifier = @"Channel Cell";
@@ -242,10 +120,7 @@
 		}
 	}
 	
-	CGSize authorNameSize = [messageAtRowIndex.author.username sizeWithFont:[UIFont boldSystemFontOfSize:15] constrainedToSize:CGSizeMake(self.chatTableView.width - 69, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
-	CGSize contentSize = [messageAtRowIndex.content sizeWithFont:[UIFont systemFontOfSize:14] constrainedToSize:CGSizeMake(self.chatTableView.width - 69, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
-	
-	int imageViewOffset = authorNameSize.height + contentSize.height + 20;
+	int imageViewOffset = messageAtRowIndex.contentHeight + 20;
 	
 	for(UIImage* image in messageAtRowIndex.embeddedImages){
 		UIImageView* imageView = UIImageView.new;
@@ -254,6 +129,11 @@
 		imageViewOffset += 210;
 		
 		[imageView setContentMode: UIViewContentModeScaleAspectFit];
+		
+		UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tappedImage:)];
+		singleTap.numberOfTapsRequired = 1;
+    imageView.userInteractionEnabled = YES;
+		[imageView addGestureRecognizer:singleTap];
 		
 		[cell addSubview:imageView];
 	}
@@ -264,9 +144,7 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
 	DCMessage* messageAtRowIndex = [self.messages objectAtIndex:indexPath.row];
 	
-	CGSize authorNameSize = [messageAtRowIndex.author.username sizeWithFont:[UIFont boldSystemFontOfSize:15] constrainedToSize:CGSizeMake(self.chatTableView.width - 69, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
-	CGSize contentSize = [messageAtRowIndex.content sizeWithFont:[UIFont systemFontOfSize:14] constrainedToSize:CGSizeMake(self.chatTableView.width - 69, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
-	return authorNameSize.height + contentSize.height + 11 + messageAtRowIndex.embeddedImageCount * 220;
+	return messageAtRowIndex.contentHeight + messageAtRowIndex.embeddedImageCount * 220;
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView{
@@ -329,13 +207,32 @@
 
 
 - (IBAction)sendMessage:(id)sender {
-	[self.selectedChannel sendMessage:self.inputField.text];
+	[DCServerCommunicator.sharedInstance.selectedChannel sendMessage:self.inputField.text];
 	
 	[self.inputField setText:@""];
 	
 	if(self.viewingPresentTime)
 		[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height) animated:YES];
 }
+
+- (void)tappedImage:(UITapGestureRecognizer *)sender {
+	self.selectedImage = ((UIImageView*)sender.view).image;
+	[self performSegueWithIdentifier:@"Chat to Gallery" sender:self];
+}
+
+-(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender{
+	if ([segue.identifier isEqualToString:@"Chat to Gallery"]){
+		
+		DCImageViewController	*imageViewController = [segue destinationViewController];
+		
+		if ([imageViewController isKindOfClass:DCImageViewController.class]){
+			dispatch_async(dispatch_get_main_queue(), ^{
+				[imageViewController.imageView setImage:self.selectedImage];
+			});
+		}
+	}
+}
+
 
 //- (IBAction)chooseImage:(id)sender {
 //	UIImagePickerController *picker = UIImagePickerController.new;
@@ -362,7 +259,7 @@
 //	if(originalImage==nil)
 //		originalImage = [info objectForKey:UIImagePickerControllerCropRect];
 //	
-//	[DCServerCommunicator.sharedInstance sendImage:originalImage inChannel:self.selectedChannel];
+//	[DCServerCommunicator.sharedInstance sendImage:originalImage inChannel:DCServerCommunicator.sharedInstance.selectedChannel];
 //	
 //	if(self.viewingPresentTime)
 //		[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height) animated:YES];

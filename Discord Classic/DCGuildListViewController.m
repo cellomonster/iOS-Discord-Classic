@@ -38,6 +38,9 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
 	
 	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Guild Cell"];
+	if (cell == nil)
+		cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"Guild Cell"];
+	
 	
 	DCGuild* guildAtRowIndex = [DCServerCommunicator.sharedInstance.guilds objectAtIndex:indexPath.row];
 	
@@ -47,7 +50,6 @@
 		[cell setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
 	
 	[cell.textLabel setText:guildAtRowIndex.name];
-	
 	[cell.imageView setImage:guildAtRowIndex.icon];
 	
 	return cell;

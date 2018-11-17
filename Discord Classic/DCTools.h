@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "DCMessage.h"
 
 @interface DCTools : NSObject
 + (void)processImageDataWithURLString:(NSString *)urlString
@@ -15,4 +16,5 @@
 + (NSDictionary*)parseJSON:(NSString*)json;
 + (void)errorAlert:(NSError*)error;
 + (NSData*)checkData:(NSData*)response withError:(NSError*)error;
++ (DCMessage*)convertJsonMessage:(NSDictionary*)jsonMessage;
 @end

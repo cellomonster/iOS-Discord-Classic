@@ -12,6 +12,7 @@
 
 #import <Foundation/Foundation.h>
 #import "DCGuild.h"
+#import "DCMessage.h"
 
 @interface DCChannel : NSObject
 @property NSString* snowflake;
@@ -26,4 +27,6 @@
 -(void)checkIfRead;
 - (NSDictionary*)sendMessage:(NSString*)message;
 - (NSDictionary*)ackMessage:(NSString*)message;
+
+- (NSMutableArray*)getMessages:(int)numberOfMessages beforeMessage:(DCMessage*)message;
 @end

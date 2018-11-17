@@ -73,4 +73,42 @@
 }
 
 
+
+
+
+
+- (NSMutableArray*)getMessages:(int)numberOfMessages beforeMessage:(DCMessage*)message{
+	
+	NSMutableArray* messages = NSMutableArray.new;
+	
+	//Generate URL from args
+	NSMutableString* getChannelAddress = [[NSString stringWithFormat: @"https://discordapp.com/api/channels/%@%@", self.snowflake, @"/messages?"] mutableCopy];
+	
+	if(numberOfMessages)
+		[getChannelAddress appendString:[NSString stringWithFormat:@"limit=%i", numberOfMessages]];
+	if(numberOfMessages && message)
+		[getChannelAddress appendString:@"&"];
+	if(message)
+		[getChannelAddress appendString:[NSString stringWithFormat:@"before=%@", message.snowflake]];
+	
+	NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:getChannelAddress] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:60.0];
+	
+	[urlRequest addValue:DCServerCommunicator.sharedInstance.token forHTTPHeaderField:@"Authorization"];
+	[urlRequest addValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+	
+	NSError *error;
+	NSHTTPURLResponse *responseCode;
+	NSData *response = [DCTools checkData:[NSURLConnection sendSynchronousRequest:urlRequest returningResponse:&responseCode error:&error] withError:error];
+	
+	NSArray* parsedResponse = [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
+	
+	
+	if(parsedResponse.count > 0)
+		for(NSDictionary* jsonMessage in parsedResponse)
+			[messages insertObject:[DCTools convertJsonMessage:jsonMessage] atIndex:0];
+	
+	return messages;
+}
+
+
 @end
