@@ -8,8 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
-@interface DCImageViewController : UIViewController
+@interface DCImageViewController : UIViewController <UIScrollViewDelegate>
 
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
+@property (strong, nonatomic) IBOutlet UIScrollView *scrollView;
 
 @end

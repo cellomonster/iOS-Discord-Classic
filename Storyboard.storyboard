@@ -188,9 +188,14 @@
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <items>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="yc5-WU-LaV"/>
+                                    <barButtonItem systemItem="camera" id="wbf-C7-8cs">
+                                        <connections>
+                                            <action selector="chooseImage:" destination="SPS-Go-Xtj" id="3py-Nt-FUC"/>
+                                        </connections>
+                                    </barButtonItem>
                                     <barButtonItem id="Gi1-fu-TDp">
                                         <textField key="customView" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Message" minimumFontSize="17" clearButtonMode="whileEditing" id="2TA-Zy-0gC">
-                                            <rect key="frame" x="10" y="7" width="247" height="31"/>
+                                            <rect key="frame" x="60" y="7" width="197" height="31"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                             <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
@@ -237,18 +242,26 @@
         <scene sceneID="f9C-bg-NlD">
             <objects>
                 <viewController id="0VP-ma-Jbw" customClass="DCImageViewController" sceneMemberID="viewController">
-                    <imageView key="view" userInteractionEnabled="NO" contentMode="scaleAspectFit" id="Dof-fT-ibC">
+                    <scrollView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" bounces="NO" maximumZoomScale="5" id="XoO-x7-iW7">
                         <rect key="frame" x="0.0" y="64" width="320" height="416"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" red="0.70196080207824707" green="0.70196080207824707" blue="0.70196080207824707" alpha="1" colorSpace="calibratedRGB"/>
-                    </imageView>
-                    <navigationItem key="navigationItem" id="nWY-s0-Hcu">
-                        <barButtonItem key="rightBarButtonItem" systemItem="action" id="5x5-4y-QaV"/>
-                    </navigationItem>
+                        <subviews>
+                            <imageView multipleTouchEnabled="YES" contentMode="scaleAspectFit" id="E2G-gw-5Pm">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="416"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <connections>
+                            <outlet property="delegate" destination="0VP-ma-Jbw" id="eZv-Jf-loH"/>
+                        </connections>
+                    </scrollView>
+                    <navigationItem key="navigationItem" id="nWY-s0-Hcu"/>
                     <simulatedStatusBarMetrics key="simulatedStatusBarMetrics" statusBarStyle="blackTranslucent"/>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" barStyle="blackOpaque" prompted="NO"/>
                     <connections>
-                        <outlet property="imageView" destination="Dof-fT-ibC" id="qpX-kI-VTw"/>
+                        <outlet property="imageView" destination="E2G-gw-5Pm" id="1Aw-wO-tRX"/>
+                        <outlet property="scrollView" destination="XoO-x7-iW7" id="NSm-n8-vMe"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="a7p-Nr-Niu" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -263,6 +276,7 @@
         <class className="DCChatViewController" superclassName="UIViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/DCChatViewController.h"/>
             <relationships>
+                <relationship kind="action" name="chooseImage:"/>
                 <relationship kind="action" name="hideKeyboard:"/>
                 <relationship kind="action" name="sendMessage:"/>
                 <relationship kind="outlet" name="chatTableView" candidateClass="UITableView"/>
@@ -277,6 +291,7 @@
             <source key="sourceIdentifier" type="project" relativePath="./Classes/DCImageViewController.h"/>
             <relationships>
                 <relationship kind="outlet" name="imageView" candidateClass="UIImageView"/>
+                <relationship kind="outlet" name="scrollView" candidateClass="UIScrollView"/>
             </relationships>
         </class>
         <class className="DCSettingsViewController" superclassName="UITableViewController">

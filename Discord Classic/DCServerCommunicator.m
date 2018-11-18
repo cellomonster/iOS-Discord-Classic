@@ -36,13 +36,8 @@
 	if (sharedInstance == nil) {
 		//Initialize if a sharedInstance does not yet exist
 		sharedInstance = DCServerCommunicator.new;
-		sharedInstance.guilds = NSMutableArray.new;
-		sharedInstance.channels = NSMutableDictionary.new;
-		sharedInstance.loadedUsers = NSMutableDictionary.new;
 		sharedInstance.gatewayURL = @"wss://gateway.discord.gg/?encoding=json&v=6";
 		sharedInstance.token = [NSUserDefaults.standardUserDefaults stringForKey:@"token"];
-		sharedInstance.didRecieveHeartbeatResponse = true;
-		sharedInstance.identifyCooldown = true;
 	}
 	
 	return sharedInstance;
@@ -107,6 +102,12 @@
 					//Disable ability to identify until reenabled 5 seconds later.
 					//API only allows once identify every 5 seconds
 					weakSelf.identifyCooldown = false;
+					
+					weakSelf.guilds = NSMutableArray.new;
+					weakSelf.channels = NSMutableDictionary.new;
+					weakSelf.loadedUsers = NSMutableDictionary.new;
+					weakSelf.didRecieveHeartbeatResponse = true;
+					weakSelf.identifyCooldown = true;
 					
 					int heartbeatInterval = [[d valueForKey:@"heartbeat_interval"] intValue];
 					

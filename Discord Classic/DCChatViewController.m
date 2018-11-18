@@ -234,34 +234,32 @@
 }
 
 
-//- (IBAction)chooseImage:(id)sender {
-//	UIImagePickerController *picker = UIImagePickerController.new;
-//	
-//	picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-//	
-//	picker.allowsEditing = YES;
-//	
-//	[picker setDelegate:self];
-//	
-//	[self presentModalViewController:picker animated:YES];
-//}
-//
-//- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
-//	
-//	[picker dismissModalViewControllerAnimated:YES];
-//	
-//	UIImage* originalImage = nil;
-//	originalImage = [info objectForKey:UIImagePickerControllerEditedImage];
-//	
-//	if(originalImage==nil)
-//		originalImage = [info objectForKey:UIImagePickerControllerOriginalImage];
-//	
-//	if(originalImage==nil)
-//		originalImage = [info objectForKey:UIImagePickerControllerCropRect];
-//	
-//	[DCServerCommunicator.sharedInstance sendImage:originalImage inChannel:DCServerCommunicator.sharedInstance.selectedChannel];
-//	
-//	if(self.viewingPresentTime)
-//		[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height) animated:YES];
-//}
+- (IBAction)chooseImage:(id)sender {
+	UIImagePickerController *picker = UIImagePickerController.new;
+	
+	picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+	
+	[picker setDelegate:self];
+	
+	[self presentModalViewController:picker animated:YES];
+}
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+	
+	[picker dismissModalViewControllerAnimated:YES];
+	
+	UIImage* originalImage = nil;
+	originalImage = [info objectForKey:UIImagePickerControllerEditedImage];
+	
+	if(originalImage==nil)
+		originalImage = [info objectForKey:UIImagePickerControllerOriginalImage];
+	
+	if(originalImage==nil)
+		originalImage = [info objectForKey:UIImagePickerControllerCropRect];
+	
+	NSLog(@"%@",[DCServerCommunicator.sharedInstance.selectedChannel sendImage:originalImage]);
+	
+	if(self.viewingPresentTime)
+		[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height) animated:YES];
+}
 @end

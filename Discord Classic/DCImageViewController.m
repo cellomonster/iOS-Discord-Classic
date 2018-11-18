@@ -19,13 +19,13 @@
 	// Do any additional setup after loading the view.
 }
 
-- (void)didReceiveMemoryWarning{
-	[super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+-(UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView{
+	return self.imageView;
 }
 
 - (void)viewDidUnload {
 	[self setImageView:nil];
+    [self setScrollView:nil];
 	[super viewDidUnload];
 }
 @end

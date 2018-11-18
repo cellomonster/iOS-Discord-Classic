@@ -27,6 +27,6 @@
 -(void)checkIfRead;
 - (NSDictionary*)sendMessage:(NSString*)message;
 - (NSDictionary*)ackMessage:(NSString*)message;
-
+- (NSDictionary*)sendImage:(UIImage*)image;
 - (NSMutableArray*)getMessages:(int)numberOfMessages beforeMessage:(DCMessage*)message;
 @end

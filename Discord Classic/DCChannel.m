@@ -23,6 +23,8 @@
 	[self.parentGuild checkIfRead];
 }
 
+
+
 - (NSDictionary*)sendMessage:(NSString*)message {
 	
 	NSURL* channelURL = [NSURL URLWithString: [NSString stringWithFormat:@"https://discordapp.com/api/channels/%@/messages", self.snowflake]];
@@ -46,6 +48,47 @@
 		return [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
 	return nil;
 }
+
+
+
+- (NSDictionary*)sendImage:(UIImage*)image {
+	
+	NSURL* channelURL = [NSURL URLWithString: [NSString stringWithFormat:@"https://discordapp.com/api/channels/%@/messages", self.snowflake]];
+	
+	NSMutableURLRequest *urlRequest=[NSMutableURLRequest requestWithURL:channelURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:5];
+	
+	
+	NSString *boundary = @"---------------------------14737809831466499882746641449";
+	
+	NSString *contentType = [NSString stringWithFormat:@"multipart/form-data; boundary=%@", boundary];
+	[urlRequest addValue:contentType forHTTPHeaderField: @"Content-Type"];
+	[urlRequest addValue:DCServerCommunicator.sharedInstance.token forHTTPHeaderField:@"Authorization"];
+	
+	NSMutableData *postbody = NSMutableData.new;
+	[postbody appendData:[[NSString stringWithFormat:@"\r\n--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+	[postbody appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"file\"; filename=\"upload.jpg\"\r\n"] dataUsingEncoding:NSUTF8StringEncoding]];
+	[postbody appendData:[@"Content-Type: image/jpeg\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+	[postbody appendData:[NSData dataWithData:UIImageJPEGRepresentation(image, 0.8f)]];
+	[postbody appendData:[[NSString stringWithFormat:@"\r\n--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+	[postbody appendData:[@"Content-Disposition: form-data; name=\"content\"\r\n\r\n " dataUsingEncoding:NSUTF8StringEncoding]];
+	[postbody appendData:[[NSString stringWithFormat:@"\r\n--%@--", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+	
+	[urlRequest setHTTPBody:postbody];
+	
+	[urlRequest setHTTPMethod:@"POST"];
+	
+	
+	NSError *error = nil;
+	NSHTTPURLResponse *responseCode = nil;
+	
+	NSData *response = [DCTools checkData:[NSURLConnection sendSynchronousRequest:urlRequest returningResponse:&responseCode error:&error] withError:error];
+	
+	if(response)
+		return [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
+	return nil;
+}
+
+
 
 - (NSDictionary*)ackMessage:(NSString*)messageId{
 	
@@ -71,9 +114,6 @@
 	}
 	return nil;
 }
-
-
-
 
 
 
