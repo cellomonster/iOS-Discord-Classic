@@ -10,8 +10,13 @@
 #import "DCServerCommunicator.h"
 #import "DCTools.h"
 
-@implementation DCChannel
+@interface DCChannel()
 
+@property NSURLConnection *connection;
+
+@end
+
+@implementation DCChannel
 
 -(NSString *)description{
 	return [NSString stringWithFormat:@"[Channel] Snowflake: %@, Type: %i, Read: %d, Name: %@", self.snowflake, self.type, self.unread, self.name];
@@ -19,105 +24,93 @@
 
 -(void)checkIfRead{
 	self.unread = (!self.muted && self.lastReadMessageId != (id)NSNull.null && ![self.lastReadMessageId isEqualToString:self.lastMessageId]);
-	
 	[self.parentGuild checkIfRead];
 }
 
-
-
-- (NSDictionary*)sendMessage:(NSString*)message {
-	
-	NSURL* channelURL = [NSURL URLWithString: [NSString stringWithFormat:@"https://discordapp.com/api/channels/%@/messages", self.snowflake]];
-	
-	NSMutableURLRequest *urlRequest=[NSMutableURLRequest requestWithURL:channelURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:5];
-	
-	NSString* messageString = [NSString stringWithFormat:@"{\"content\":\"%@\"}", message];
-	
-	[urlRequest setHTTPBody:[NSData dataWithBytes:[messageString UTF8String] length:[messageString length]]];
-	[urlRequest addValue:DCServerCommunicator.sharedInstance.token forHTTPHeaderField:@"Authorization"];
-	[urlRequest addValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-	[urlRequest setHTTPMethod:@"POST"];
-	
-	
-	NSError *error = nil;
-	NSHTTPURLResponse *responseCode = nil;
-	
-	NSData *response = [DCTools checkData:[NSURLConnection sendSynchronousRequest:urlRequest returningResponse:&responseCode error:&error] withError:error];
-	
-	if(response)
-		return [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
-	return nil;
-}
-
-
-
-- (NSDictionary*)sendImage:(UIImage*)image {
-	
-	NSURL* channelURL = [NSURL URLWithString: [NSString stringWithFormat:@"https://discordapp.com/api/channels/%@/messages", self.snowflake]];
-	
-	NSMutableURLRequest *urlRequest=[NSMutableURLRequest requestWithURL:channelURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:5];
-	
-	
-	NSString *boundary = @"---------------------------14737809831466499882746641449";
-	
-	NSString *contentType = [NSString stringWithFormat:@"multipart/form-data; boundary=%@", boundary];
-	[urlRequest addValue:contentType forHTTPHeaderField: @"Content-Type"];
-	[urlRequest addValue:DCServerCommunicator.sharedInstance.token forHTTPHeaderField:@"Authorization"];
-	
-	NSMutableData *postbody = NSMutableData.new;
-	[postbody appendData:[[NSString stringWithFormat:@"\r\n--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
-	[postbody appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"file\"; filename=\"upload.jpg\"\r\n"] dataUsingEncoding:NSUTF8StringEncoding]];
-	[postbody appendData:[@"Content-Type: image/jpeg\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
-	[postbody appendData:[NSData dataWithData:UIImageJPEGRepresentation(image, 0.8f)]];
-	[postbody appendData:[[NSString stringWithFormat:@"\r\n--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
-	[postbody appendData:[@"Content-Disposition: form-data; name=\"content\"\r\n\r\n " dataUsingEncoding:NSUTF8StringEncoding]];
-	[postbody appendData:[[NSString stringWithFormat:@"\r\n--%@--", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
-	
-	[urlRequest setHTTPBody:postbody];
-	
-	[urlRequest setHTTPMethod:@"POST"];
-	
-	
-	NSError *error = nil;
-	NSHTTPURLResponse *responseCode = nil;
-	
-	NSData *response = [DCTools checkData:[NSURLConnection sendSynchronousRequest:urlRequest returningResponse:&responseCode error:&error] withError:error];
-	
-	if(response)
-		return [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
-	return nil;
-}
-
-
-
-- (NSDictionary*)ackMessage:(NSString*)messageId{
-	
-	if(messageId != (id)NSNull.null){
-		self.lastReadMessageId = messageId;
+- (void)sendMessage:(NSString*)message {
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+		NSURL* channelURL = [NSURL URLWithString: [NSString stringWithFormat:@"https://discordapp.com/api/channels/%@/messages", self.snowflake]];
 		
-		NSURL* channelURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://discordapp.com/api/channels/%@/messages/%@/ack", self.snowflake, messageId]];
+		NSMutableURLRequest *urlRequest=[NSMutableURLRequest requestWithURL:channelURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:1];
 		
-		NSMutableURLRequest *urlRequest=[NSMutableURLRequest requestWithURL:channelURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:5];
+		NSString* messageString = [NSString stringWithFormat:@"{\"content\":\"%@\"}", message];
 		
+		[urlRequest setHTTPMethod:@"POST"];
+		
+		[urlRequest setHTTPBody:[NSData dataWithBytes:[messageString UTF8String] length:[messageString length]]];
 		[urlRequest addValue:DCServerCommunicator.sharedInstance.token forHTTPHeaderField:@"Authorization"];
 		[urlRequest addValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-		[urlRequest setHTTPMethod:@"POST"];
 		
 		
 		NSError *error = nil;
 		NSHTTPURLResponse *responseCode = nil;
 		
-		NSData *response = [DCTools checkData:[NSURLConnection sendSynchronousRequest:urlRequest returningResponse:&responseCode error:&error] withError:error];
-		
-		if(response)
-			return [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
-	}
-	return nil;
+		[DCTools checkData:[NSURLConnection sendSynchronousRequest:urlRequest returningResponse:&responseCode error:&error] withError:error];
+	});
 }
 
 
 
-- (NSMutableArray*)getMessages:(int)numberOfMessages beforeMessage:(DCMessage*)message{
+- (void)sendImage:(UIImage*)image {
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+		NSURL* channelURL = [NSURL URLWithString: [NSString stringWithFormat:@"https://discordapp.com/api/channels/%@/messages", self.snowflake]];
+		
+		NSMutableURLRequest *urlRequest=[NSMutableURLRequest requestWithURL:channelURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:10];
+		
+		[urlRequest setHTTPMethod:@"POST"];
+		
+		NSString *boundary = @"---------------------------14737809831466499882746641449";
+		
+		NSString *contentType = [NSString stringWithFormat:@"multipart/form-data; boundary=%@", boundary];
+		[urlRequest addValue:contentType forHTTPHeaderField: @"Content-Type"];
+		[urlRequest addValue:DCServerCommunicator.sharedInstance.token forHTTPHeaderField:@"Authorization"];
+		
+		NSMutableData *postbody = NSMutableData.new;
+		[postbody appendData:[[NSString stringWithFormat:@"\r\n--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+		[postbody appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"file\"; filename=\"upload.jpg\"\r\n"] dataUsingEncoding:NSUTF8StringEncoding]];
+		[postbody appendData:[@"Content-Type: image/jpeg\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+		[postbody appendData:[NSData dataWithData:UIImageJPEGRepresentation(image, 0.9f)]];
+		[postbody appendData:[[NSString stringWithFormat:@"\r\n--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+		[postbody appendData:[@"Content-Disposition: form-data; name=\"content\"\r\n\r\n " dataUsingEncoding:NSUTF8StringEncoding]];
+		[postbody appendData:[[NSString stringWithFormat:@"\r\n--%@--", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+		
+		[urlRequest setHTTPBody:postbody];
+		
+		
+		NSError *error = nil;
+		NSHTTPURLResponse *responseCode = nil;
+		
+		[DCTools checkData:[NSURLConnection sendSynchronousRequest:urlRequest returningResponse:&responseCode error:&error] withError:error];
+	});
+}
+
+
+
+- (void)ackMessage:(NSString*)messageId{
+	self.lastReadMessageId = messageId;
+	
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+	
+		NSURL* channelURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://discordapp.com/api/channels/%@/messages/%@/ack", self.snowflake, messageId]];
+		
+		NSMutableURLRequest *urlRequest=[NSMutableURLRequest requestWithURL:channelURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:1];
+		
+		[urlRequest setHTTPMethod:@"POST"];
+		
+		[urlRequest addValue:DCServerCommunicator.sharedInstance.token forHTTPHeaderField:@"Authorization"];
+		[urlRequest addValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+		
+		
+		NSError *error = nil;
+		NSHTTPURLResponse *responseCode = nil;
+		
+		[DCTools checkData:[NSURLConnection sendSynchronousRequest:urlRequest returningResponse:&responseCode error:&error] withError:error];
+	});
+}
+
+
+
+- (NSArray*)getMessages:(int)numberOfMessages beforeMessage:(DCMessage*)message{
 	
 	NSMutableArray* messages = NSMutableArray.new;
 	
@@ -131,7 +124,7 @@
 	if(message)
 		[getChannelAddress appendString:[NSString stringWithFormat:@"before=%@", message.snowflake]];
 	
-	NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:getChannelAddress] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:60.0];
+	NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:getChannelAddress] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:2];
 	
 	[urlRequest addValue:DCServerCommunicator.sharedInstance.token forHTTPHeaderField:@"Authorization"];
 	[urlRequest addValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
@@ -140,14 +133,20 @@
 	NSHTTPURLResponse *responseCode;
 	NSData *response = [DCTools checkData:[NSURLConnection sendSynchronousRequest:urlRequest returningResponse:&responseCode error:&error] withError:error];
 	
-	NSArray* parsedResponse = [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
+	if(response){
+		NSArray* parsedResponse = [NSJSONSerialization JSONObjectWithData:response options:0 error:&error];
+		
+		if(parsedResponse.count > 0)
+			for(NSDictionary* jsonMessage in parsedResponse)
+				[messages insertObject:[DCTools convertJsonMessage:jsonMessage] atIndex:0];
+		
+		if(messages.count > 0)
+			return messages;
+		
+		[DCTools alert:@"No messages!" withMessage:@"No further messages could be found"];
+	}
 	
-	
-	if(parsedResponse.count > 0)
-		for(NSDictionary* jsonMessage in parsedResponse)
-			[messages insertObject:[DCTools convertJsonMessage:jsonMessage] atIndex:0];
-	
-	return messages;
+	return nil;
 }
 
 

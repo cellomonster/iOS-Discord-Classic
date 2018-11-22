@@ -14,7 +14,7 @@
 #import "DCGuild.h"
 #import "DCMessage.h"
 
-@interface DCChannel : NSObject
+@interface DCChannel : NSObject <NSURLConnectionDelegate>
 @property NSString* snowflake;
 @property NSString* name;
 @property NSString* lastMessageId;
@@ -25,8 +25,8 @@
 @property DCGuild* parentGuild;
 
 -(void)checkIfRead;
-- (NSDictionary*)sendMessage:(NSString*)message;
-- (NSDictionary*)ackMessage:(NSString*)message;
-- (NSDictionary*)sendImage:(UIImage*)image;
-- (NSMutableArray*)getMessages:(int)numberOfMessages beforeMessage:(DCMessage*)message;
+- (void)sendMessage:(NSString*)message;
+- (void)ackMessage:(NSString*)message;
+- (void)sendImage:(UIImage*)image;
+- (NSArray*)getMessages:(int)numberOfMessages beforeMessage:(DCMessage*)message;
 @end

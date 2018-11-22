@@ -14,6 +14,7 @@
 #import "DCChatTableCell.h"
 #import "DCUser.h"
 #import "DCImageViewController.h"
+#import "TRMalleableFrameView.h"
 
 @interface DCChatViewController()
 @property bool viewingPresentTime;
@@ -35,21 +36,6 @@
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
 	
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
-}
-
-
--(void)viewWillAppear:(BOOL)animated{
-	self.viewingPresentTime = true;
-	
-	NSString* formattedChannelName;
-	if(DCServerCommunicator.sharedInstance.selectedChannel.type == 0)
-		formattedChannelName = [@"#" stringByAppendingString:DCServerCommunicator.sharedInstance.selectedChannel.name];
-	else if(DCServerCommunicator.sharedInstance.selectedChannel.type == 1)
-		formattedChannelName = [@"@" stringByAppendingString:DCServerCommunicator.sharedInstance.selectedChannel.name];
-	else
-		formattedChannelName = DCServerCommunicator.sharedInstance.selectedChannel.name;
-	
-	[self.navigationItem setTitle:formattedChannelName];
 }
 
 - (void)handleReady {
@@ -76,19 +62,21 @@
 }
 
 - (void)getMessages:(int)numberOfMessages beforeMessage:(DCMessage*)message{
+	NSArray* newMessages = [DCServerCommunicator.sharedInstance.selectedChannel getMessages:numberOfMessages beforeMessage:message];
 	
-	NSMutableArray* newMessages = [DCServerCommunicator.sharedInstance.selectedChannel getMessages:numberOfMessages beforeMessage:message];
-	
-	NSRange range = NSMakeRange(0, [newMessages count]);
-	NSIndexSet *indexSet = [NSIndexSet indexSetWithIndexesInRange:range];
-	[self.messages insertObjects:newMessages atIndexes:indexSet];
-	[self.chatTableView reloadData];
-	
-	int scrollOffset = -self.chatTableView.height;
-	for(DCMessage* newMessage in newMessages)
-		scrollOffset += newMessage.contentHeight + newMessage.embeddedImageCount * 220;
-	
-	[self.chatTableView setContentOffset:CGPointMake(0, scrollOffset) animated:NO];
+	if(newMessages){
+		NSRange range = NSMakeRange(0, [newMessages count]);
+		NSIndexSet *indexSet = [NSIndexSet indexSetWithIndexesInRange:range];
+		[self.messages insertObjects:newMessages atIndexes:indexSet];
+		
+		[self.chatTableView reloadData];
+		
+		int scrollOffset = -self.chatTableView.height;
+		for(DCMessage* newMessage in newMessages)
+			scrollOffset += newMessage.contentHeight + newMessage.embeddedImageCount * 220;
+		
+		[self.chatTableView setContentOffset:CGPointMake(0, scrollOffset) animated:NO];
+	}
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -101,18 +89,9 @@
 	
 	[cell.authorLabel setText:messageAtRowIndex.author.username];
 	
-	[cell.contentLabel setText:messageAtRowIndex.content];
+	[cell.contentView setText:messageAtRowIndex.content];
 	
 	[cell.profileImage setImage:messageAtRowIndex.author.profileImage];
-	
-	CGRect contentLabelBounds = cell.contentLabel.bounds;
-	contentLabelBounds.size.height = CGFLOAT_MAX;
-	CGRect minimumTextRect = [cell.contentLabel textRectForBounds:contentLabelBounds limitedToNumberOfLines:0];
-	
-	CGFloat contentLabelHeightDelta = minimumTextRect.size.height - cell.contentLabel.height;
-	CGRect contentFrame = cell.contentLabel.frame;
-	contentFrame.size.height += contentLabelHeightDelta;
-	cell.contentLabel.frame = contentFrame;
 	
 	for (UIView *subView in cell.subviews) {
 		if ([subView isKindOfClass:[UIImageView class]]) {
@@ -120,7 +99,11 @@
 		}
 	}
 	
-	int imageViewOffset = messageAtRowIndex.contentHeight + 20;
+	[cell.contentView setScrollEnabled:NO];
+	
+	[cell.contentView setFrame:CGRectMake(47, 17, UIScreen.mainScreen.bounds.size.width-47,[cell.contentView sizeThatFits:CGSizeMake(cell.contentView.width, MAXFLOAT)].height)];
+	
+	int imageViewOffset = cell.contentView.height + 37;
 	
 	for(UIImage* image in messageAtRowIndex.embeddedImages){
 		UIImageView* imageView = UIImageView.new;
@@ -257,9 +240,6 @@
 	if(originalImage==nil)
 		originalImage = [info objectForKey:UIImagePickerControllerCropRect];
 	
-	NSLog(@"%@",[DCServerCommunicator.sharedInstance.selectedChannel sendImage:originalImage]);
-	
-	if(self.viewingPresentTime)
-		[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height) animated:YES];
+	[DCServerCommunicator.sharedInstance.selectedChannel sendImage:originalImage];
 }
 @end

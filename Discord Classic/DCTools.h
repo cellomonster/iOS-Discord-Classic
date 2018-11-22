@@ -14,7 +14,7 @@
 														 andBlock:(void (^)(NSData *imageData))processImage;
 
 + (NSDictionary*)parseJSON:(NSString*)json;
-+ (void)errorAlert:(NSError*)error;
++ (void)alert:(NSString*)title withMessage:(NSString*)message;
 + (NSData*)checkData:(NSData*)response withError:(NSError*)error;
 + (DCMessage*)convertJsonMessage:(NSDictionary*)jsonMessage;
 @end

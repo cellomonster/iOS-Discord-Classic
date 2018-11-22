@@ -83,10 +83,19 @@
 		
 		if ([chatViewController isKindOfClass:DCChatViewController.class]){
 			
-			dispatch_async(dispatch_get_main_queue(), ^{
-				chatViewController.messages = NSMutableArray.new;
-				[chatViewController getMessages:50 beforeMessage:nil];
-			});
+			chatViewController.messages = NSMutableArray.new;
+			
+			NSString* formattedChannelName;
+			if(DCServerCommunicator.sharedInstance.selectedChannel.type == 0)
+				formattedChannelName = [@"#" stringByAppendingString:DCServerCommunicator.sharedInstance.selectedChannel.name];
+			else if(DCServerCommunicator.sharedInstance.selectedChannel.type == 1)
+				formattedChannelName = [@"@" stringByAppendingString:DCServerCommunicator.sharedInstance.selectedChannel.name];
+			else
+				formattedChannelName = DCServerCommunicator.sharedInstance.selectedChannel.name;
+			
+			[chatViewController.navigationItem setTitle:formattedChannelName];
+
+			[chatViewController getMessages:50 beforeMessage:nil];
 		}
 	}
 }

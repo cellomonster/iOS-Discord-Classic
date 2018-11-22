@@ -10,4 +10,6 @@
 
 @implementation DCChatTableCell
 
+-(void)layoutSubviews{
+}
 @end

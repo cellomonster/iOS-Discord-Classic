@@ -11,5 +11,7 @@
 @interface DCChatTableCell : UITableViewCell
 @property (strong, nonatomic) IBOutlet UILabel *authorLabel;
 @property (weak, nonatomic) IBOutlet UIImageView *profileImage;
-@property (strong, nonatomic) IBOutlet UILabel *contentLabel;
+@property (strong, nonatomic) IBOutlet UITextView *contentView;
+
+-(void)layoutSubviews;
 @end

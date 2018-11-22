@@ -39,11 +39,11 @@
 	return nil;
 }
 
-+ (void)errorAlert:(NSError*)error{
++ (void)alert:(NSString*)title withMessage:(NSString*)message{
 	dispatch_async(dispatch_get_main_queue(), ^{
 		UIAlertView *alert = [UIAlertView.alloc
-													initWithTitle:[error.userInfo objectForKey:NSLocalizedDescriptionKey]
-													message: error.debugDescription
+													initWithTitle: title
+													message: message
 													delegate: nil
 													cancelButtonTitle:@"OK"
 													otherButtonTitles:nil];
@@ -53,9 +53,13 @@
 
 
 
-
-
-
++ (NSData*)checkData:(NSData*)response withError:(NSError*)error{
+	if(!response){
+		[DCTools alert:error.localizedDescription withMessage:error.localizedRecoverySuggestion];
+		return nil;
+	}
+	return response;
+}
 
 + (DCMessage*)convertJsonMessage:(NSDictionary*)jsonMessage{
 	DCMessage* newMessage = DCMessage.new;
@@ -132,13 +136,5 @@
 	newMessage.contentHeight = authorNameSize.height + contentSize.height + 10;
 	
 	return newMessage;
-}
-
-+ (NSData*)checkData:(NSData*)response withError:(NSError*)error{
-	if(!response){
-		[DCTools errorAlert:error];
-		return nil;
-	}
-	return response;
 }
 @end
