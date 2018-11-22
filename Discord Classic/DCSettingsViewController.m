@@ -22,8 +22,16 @@
 
 - (void)viewWillDisappear:(BOOL)animated{
 	[NSUserDefaults.standardUserDefaults setObject:self.tokenInputField.text forKey:@"token"];
-	DCServerCommunicator.sharedInstance.token = self.tokenInputField.text;
 	
-	[DCServerCommunicator.sharedInstance reconnect];
+	if(![DCServerCommunicator.sharedInstance.token isEqual:[NSUserDefaults.standardUserDefaults valueForKey:@"token"]]){
+		DCServerCommunicator.sharedInstance.token = self.tokenInputField.text;
+		[DCServerCommunicator.sharedInstance reconnect];
+		
+	}
 }
+
+- (IBAction)openTutorial:(id)sender {
+	[UIApplication.sharedApplication openURL:[NSURL URLWithString:@"https://www.youtube.com/watch?v=NWB3fGafJwk"]];
+}
+
 @end
