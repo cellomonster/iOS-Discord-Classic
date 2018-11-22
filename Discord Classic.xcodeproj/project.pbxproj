@@ -7,12 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		091C51E02069D52C0081348C /* DCSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 09D84D0B205F36B90070020A /* DCSettingsViewController.m */; };
 		09260EC720575AE900083813 /* DCGuild.m in Sources */ = {isa = PBXBuildFile; fileRef = 09260EC620575AE900083813 /* DCGuild.m */; };
 		09260ECA20575BB200083813 /* DCChannel.m in Sources */ = {isa = PBXBuildFile; fileRef = 09260EC920575BB200083813 /* DCChannel.m */; };
-		092E590A206A753C007C8831 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 09C6B930204A0F54007EAC26 /* main.m */; };
 		095284612055EFD000760073 /* TRMalleableFrameView.m in Sources */ = {isa = PBXBuildFile; fileRef = 095284602055EFD000760073 /* TRMalleableFrameView.m */; };
 		09685287204D9D590089DE45 /* DCChannelListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 09685286204D9D590089DE45 /* DCChannelListViewController.m */; };
+		096DD77521A6E62200C7A3B1 /* DCWelcomeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 096DD77421A6E62200C7A3B1 /* DCWelcomeViewController.m */; };
 		09A2A3122072674000F3D98C /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 09A2A3112072674000F3D98C /* Icon@2x.png */; };
 		09A2A3142072674500F3D98C /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 09A2A3132072674500F3D98C /* Icon.png */; };
 		09A3B6D321A0604500C2411F /* DCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 09A3B6D221A0604400C2411F /* DCUser.m */; };
@@ -25,14 +24,6 @@
 		09C6B92F204A0F54007EAC26 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 09C6B92D204A0F54007EAC26 /* InfoPlist.strings */; };
 		09C6B931204A0F54007EAC26 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 09C6B930204A0F54007EAC26 /* main.m */; };
 		09C6B935204A0F54007EAC26 /* DCAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 09C6B934204A0F54007EAC26 /* DCAppDelegate.m */; };
-		09C6B946204A0F55007EAC26 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 09C6B945204A0F55007EAC26 /* SenTestingKit.framework */; };
-		09C6B947204A0F55007EAC26 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 09C6B924204A0F54007EAC26 /* UIKit.framework */; };
-		09C6B948204A0F55007EAC26 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 09C6B926204A0F54007EAC26 /* Foundation.framework */; };
-		09C6B989204A17AF007EAC26 /* NSString+Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = 09C6B97F204A17AF007EAC26 /* NSString+Base64.m */; };
-		09C6B98A204A17AF007EAC26 /* WSFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 09C6B981204A17AF007EAC26 /* WSFrame.m */; };
-		09C6B98B204A17AF007EAC26 /* WSMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 09C6B983204A17AF007EAC26 /* WSMessage.m */; };
-		09C6B98C204A17AF007EAC26 /* WSMessageProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = 09C6B985204A17AF007EAC26 /* WSMessageProcessor.m */; };
-		09C6B98D204A17AF007EAC26 /* WSWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 09C6B988204A17AF007EAC26 /* WSWebSocket.m */; };
 		09C6B98F204A2568007EAC26 /* WSWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 09C6B988204A17AF007EAC26 /* WSWebSocket.m */; };
 		09C6B990204A256E007EAC26 /* NSString+Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = 09C6B97F204A17AF007EAC26 /* NSString+Base64.m */; };
 		09C6B991204A256E007EAC26 /* WSFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 09C6B981204A17AF007EAC26 /* WSFrame.m */; };
@@ -45,33 +36,17 @@
 		09D776992189427100609134 /* DCMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 09D776982189427100609134 /* DCMessage.m */; };
 		09D84D0C205F36B90070020A /* DCSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 09D84D0B205F36B90070020A /* DCSettingsViewController.m */; };
 		09DD1FA2204F35FD00153EC7 /* DCChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 09DD1FA1204F35FD00153EC7 /* DCChatViewController.m */; };
-		09E183BA205EF64700FE90E8 /* DCViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 09E183B9205EF64700FE90E8 /* DCViewController.m */; };
-		09E183BD205EF65000FE90E8 /* DCGuildListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 09E183BC205EF65000FE90E8 /* DCGuildListViewController.m */; };
 		09E2DB7C20789C9700267A62 /* UINavigationBarTexture.png in Resources */ = {isa = PBXBuildFile; fileRef = 09E2DB7A20789C9700267A62 /* UINavigationBarTexture.png */; };
 		09E2DB7D20789C9700267A62 /* UINavigationBarTexture@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 09E2DB7B20789C9700267A62 /* UINavigationBarTexture@2x.png */; };
 		09E3ED262069F21200E90DA1 /* DCTools.m in Sources */ = {isa = PBXBuildFile; fileRef = 09E3ED252069F21200E90DA1 /* DCTools.m */; };
-		09E3ED272069F21200E90DA1 /* DCTools.m in Sources */ = {isa = PBXBuildFile; fileRef = 09E3ED252069F21200E90DA1 /* DCTools.m */; };
-		09E3ED282069F62200E90DA1 /* Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 09C8E2EC204C3B64006A1422 /* Storyboard.storyboard */; };
+		09F4C6EF21A6EBD40018F312 /* BButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 09F4C6E821A6EBD40018F312 /* BButton.m */; };
+		09F4C6F021A6EBD40018F312 /* NSString+FontAwesome.m in Sources */ = {isa = PBXBuildFile; fileRef = 09F4C6EA21A6EBD40018F312 /* NSString+FontAwesome.m */; };
+		09F4C6F121A6EBD40018F312 /* FontAwesome.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 09F4C6EC21A6EBD40018F312 /* FontAwesome.ttf */; };
+		09F4C6F221A6EBD40018F312 /* UIColor+BButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 09F4C6EE21A6EBD40018F312 /* UIColor+BButton.m */; };
 		09FF02F7205EF9DD00BCBA8D /* DCGuildListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 09E183BC205EF65000FE90E8 /* DCGuildListViewController.m */; };
 		09FF02F8205EF9DF00BCBA8D /* DCViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 09E183B9205EF64700FE90E8 /* DCViewController.m */; };
-		09FF02F9205EF9EB00BCBA8D /* DCAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 09C6B934204A0F54007EAC26 /* DCAppDelegate.m */; };
-		09FF02FA205EF9EB00BCBA8D /* DCChannelListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 09685286204D9D590089DE45 /* DCChannelListViewController.m */; };
-		09FF02FB205EF9EB00BCBA8D /* DCChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 09DD1FA1204F35FD00153EC7 /* DCChatViewController.m */; };
-		09FF02FC205EF9EB00BCBA8D /* DCServerCommunicator.m in Sources */ = {isa = PBXBuildFile; fileRef = 09C8E28A204C2BFD006A1422 /* DCServerCommunicator.m */; };
-		09FF02FE205EF9EB00BCBA8D /* DCGuild.m in Sources */ = {isa = PBXBuildFile; fileRef = 09260EC620575AE900083813 /* DCGuild.m */; };
-		09FF02FF205EF9EB00BCBA8D /* DCChannel.m in Sources */ = {isa = PBXBuildFile; fileRef = 09260EC920575BB200083813 /* DCChannel.m */; };
 		09FF0301205EFB8800BCBA8D /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 09FF0300205EFB8800BCBA8D /* Default-568h@2x.png */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		09C6B949204A0F55007EAC26 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 09C6B917204A0F54007EAC26 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 09C6B91F204A0F54007EAC26;
-			remoteInfo = "Discord Classic";
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		090C6BCF20784DDD00EC552F /* DCMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCMessage.h; sourceTree = "<group>"; };
@@ -83,11 +58,12 @@
 		095284602055EFD000760073 /* TRMalleableFrameView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TRMalleableFrameView.m; path = "Discord Classic/TRMalleableFrameView.m"; sourceTree = "<group>"; };
 		09685285204D9D590089DE45 /* DCChannelListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCChannelListViewController.h; sourceTree = "<group>"; };
 		09685286204D9D590089DE45 /* DCChannelListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCChannelListViewController.m; sourceTree = "<group>"; };
+		096DD77321A6E62200C7A3B1 /* DCWelcomeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCWelcomeViewController.h; sourceTree = "<group>"; };
+		096DD77421A6E62200C7A3B1 /* DCWelcomeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCWelcomeViewController.m; sourceTree = "<group>"; };
 		09A2A3112072674000F3D98C /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };
 		09A2A3132072674500F3D98C /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
 		09A3B6D121A0604400C2411F /* DCUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCUser.h; sourceTree = "<group>"; };
 		09A3B6D221A0604400C2411F /* DCUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCUser.m; sourceTree = "<group>"; };
-		09A4EA65207921E500DECFD6 /* Discord ClassicTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Discord ClassicTests.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		09A4EA662079220E00DECFD6 /* DCChatTableCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = DCChatTableCell.xib; path = ../DCChatTableCell.xib; sourceTree = "<group>"; };
 		09A4EA6D2079266800DECFD6 /* DCChatTableCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCChatTableCell.h; sourceTree = "<group>"; };
 		09A4EA6E2079266800DECFD6 /* DCChatTableCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCChatTableCell.m; sourceTree = "<group>"; };
@@ -133,6 +109,13 @@
 		09E2DB7B20789C9700267A62 /* UINavigationBarTexture@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "UINavigationBarTexture@2x.png"; sourceTree = "<group>"; };
 		09E3ED242069F21200E90DA1 /* DCTools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCTools.h; sourceTree = "<group>"; };
 		09E3ED252069F21200E90DA1 /* DCTools.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCTools.m; sourceTree = "<group>"; };
+		09F4C6E721A6EBD40018F312 /* BButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BButton.h; sourceTree = "<group>"; };
+		09F4C6E821A6EBD40018F312 /* BButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BButton.m; sourceTree = "<group>"; };
+		09F4C6E921A6EBD40018F312 /* NSString+FontAwesome.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+FontAwesome.h"; sourceTree = "<group>"; };
+		09F4C6EA21A6EBD40018F312 /* NSString+FontAwesome.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+FontAwesome.m"; sourceTree = "<group>"; };
+		09F4C6EC21A6EBD40018F312 /* FontAwesome.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = FontAwesome.ttf; sourceTree = "<group>"; };
+		09F4C6ED21A6EBD40018F312 /* UIColor+BButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+BButton.h"; sourceTree = "<group>"; };
+		09F4C6EE21A6EBD40018F312 /* UIColor+BButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+BButton.m"; sourceTree = "<group>"; };
 		09FF0300205EFB8800BCBA8D /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -149,34 +132,26 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		09C6B940204A0F55007EAC26 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				09C6B946204A0F55007EAC26 /* SenTestingKit.framework in Frameworks */,
-				09C6B947204A0F55007EAC26 /* UIKit.framework in Frameworks */,
-				09C6B948204A0F55007EAC26 /* Foundation.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		095284622055EFDA00760073 /* Etc */ = {
 			isa = PBXGroup;
 			children = (
-				09A3B6C4219FBACF00C2411F /* Encoding */,
-				0952845F2055EFCF00760073 /* TRMalleableFrameView.h */,
-				095284602055EFD000760073 /* TRMalleableFrameView.m */,
+				096DD77621A6EB1800C7A3B1 /* UI */,
+				09C6B97D204A1782007EAC26 /* Websocket */,
 			);
 			name = Etc;
 			sourceTree = "<group>";
 		};
-		09A3B6C4219FBACF00C2411F /* Encoding */ = {
+		096DD77621A6EB1800C7A3B1 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				09F4C6E621A6EBD40018F312 /* BButton */,
+				0952845F2055EFCF00760073 /* TRMalleableFrameView.h */,
+				095284602055EFD000760073 /* TRMalleableFrameView.m */,
 			);
-			path = Encoding;
+			name = UI;
 			sourceTree = "<group>";
 		};
 		09C6B915204A0F54007EAC26 = {
@@ -188,11 +163,9 @@
 				09E2DB7A20789C9700267A62 /* UINavigationBarTexture.png */,
 				09E2DB7B20789C9700267A62 /* UINavigationBarTexture@2x.png */,
 				095284622055EFDA00760073 /* Etc */,
-				09C6B97D204A1782007EAC26 /* Websocket */,
 				09C6B92A204A0F54007EAC26 /* Discord Classic */,
 				09C6B923204A0F54007EAC26 /* Frameworks */,
 				09C0F691204E4823000C8EA6 /* Discord.app */,
-				09A4EA65207921E500DECFD6 /* Discord ClassicTests.octest */,
 			);
 			sourceTree = "<group>";
 		};
@@ -225,6 +198,8 @@
 				09D84D0A205F36B90070020A /* DCSettingsViewController.h */,
 				09D84D0B205F36B90070020A /* DCSettingsViewController.m */,
 				09C8E2EC204C3B64006A1422 /* Storyboard.storyboard */,
+				096DD77321A6E62200C7A3B1 /* DCWelcomeViewController.h */,
+				096DD77421A6E62200C7A3B1 /* DCWelcomeViewController.m */,
 				09C344B521A0B984005F8CEE /* DCImageViewController.h */,
 				09C344B621A0B984005F8CEE /* DCImageViewController.m */,
 				09A4EA6D2079266800DECFD6 /* DCChatTableCell.h */,
@@ -276,6 +251,28 @@
 			name = Websocket;
 			sourceTree = "<group>";
 		};
+		09F4C6E621A6EBD40018F312 /* BButton */ = {
+			isa = PBXGroup;
+			children = (
+				09F4C6E721A6EBD40018F312 /* BButton.h */,
+				09F4C6E821A6EBD40018F312 /* BButton.m */,
+				09F4C6E921A6EBD40018F312 /* NSString+FontAwesome.h */,
+				09F4C6EA21A6EBD40018F312 /* NSString+FontAwesome.m */,
+				09F4C6EB21A6EBD40018F312 /* resources */,
+				09F4C6ED21A6EBD40018F312 /* UIColor+BButton.h */,
+				09F4C6EE21A6EBD40018F312 /* UIColor+BButton.m */,
+			);
+			path = BButton;
+			sourceTree = "<group>";
+		};
+		09F4C6EB21A6EBD40018F312 /* resources */ = {
+			isa = PBXGroup;
+			children = (
+				09F4C6EC21A6EBD40018F312 /* FontAwesome.ttf */,
+			);
+			path = resources;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -296,25 +293,6 @@
 			productName = "Discord Classic";
 			productReference = 09C0F691204E4823000C8EA6 /* Discord.app */;
 			productType = "com.apple.product-type.application";
-		};
-		09C6B943204A0F55007EAC26 /* Discord ClassicTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 09C6B959204A0F55007EAC26 /* Build configuration list for PBXNativeTarget "Discord ClassicTests" */;
-			buildPhases = (
-				09C6B93F204A0F55007EAC26 /* Sources */,
-				09C6B940204A0F55007EAC26 /* Frameworks */,
-				09C6B941204A0F55007EAC26 /* Resources */,
-				09C6B942204A0F55007EAC26 /* ShellScript */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				09C6B94A204A0F55007EAC26 /* PBXTargetDependency */,
-			);
-			name = "Discord ClassicTests";
-			productName = "Discord ClassicTests";
-			productReference = 09A4EA65207921E500DECFD6 /* Discord ClassicTests.octest */;
-			productType = "com.apple.product-type.bundle";
 		};
 /* End PBXNativeTarget section */
 
@@ -339,7 +317,6 @@
 			projectRoot = "";
 			targets = (
 				09C6B91F204A0F54007EAC26 /* Discord */,
-				09C6B943204A0F55007EAC26 /* Discord ClassicTests */,
 			);
 		};
 /* End PBXProject section */
@@ -357,14 +334,7 @@
 				09E2DB7C20789C9700267A62 /* UINavigationBarTexture.png in Resources */,
 				09E2DB7D20789C9700267A62 /* UINavigationBarTexture@2x.png in Resources */,
 				09A4EA672079220E00DECFD6 /* DCChatTableCell.xib in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		09C6B941204A0F55007EAC26 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				09E3ED282069F62200E90DA1 /* Storyboard.storyboard in Resources */,
+				09F4C6F121A6EBD40018F312 /* FontAwesome.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -383,19 +353,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "";
-		};
-		09C6B942204A0F55007EAC26 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -425,41 +382,14 @@
 				09D776992189427100609134 /* DCMessage.m in Sources */,
 				09A3B6D321A0604500C2411F /* DCUser.m in Sources */,
 				09C344B721A0B984005F8CEE /* DCImageViewController.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		09C6B93F204A0F55007EAC26 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				09C6B989204A17AF007EAC26 /* NSString+Base64.m in Sources */,
-				09C6B98A204A17AF007EAC26 /* WSFrame.m in Sources */,
-				09C6B98B204A17AF007EAC26 /* WSMessage.m in Sources */,
-				09C6B98C204A17AF007EAC26 /* WSMessageProcessor.m in Sources */,
-				09C6B98D204A17AF007EAC26 /* WSWebSocket.m in Sources */,
-				09E183BA205EF64700FE90E8 /* DCViewController.m in Sources */,
-				09E183BD205EF65000FE90E8 /* DCGuildListViewController.m in Sources */,
-				09FF02F9205EF9EB00BCBA8D /* DCAppDelegate.m in Sources */,
-				09FF02FA205EF9EB00BCBA8D /* DCChannelListViewController.m in Sources */,
-				09FF02FB205EF9EB00BCBA8D /* DCChatViewController.m in Sources */,
-				09FF02FC205EF9EB00BCBA8D /* DCServerCommunicator.m in Sources */,
-				09FF02FE205EF9EB00BCBA8D /* DCGuild.m in Sources */,
-				09FF02FF205EF9EB00BCBA8D /* DCChannel.m in Sources */,
-				091C51E02069D52C0081348C /* DCSettingsViewController.m in Sources */,
-				09E3ED272069F21200E90DA1 /* DCTools.m in Sources */,
-				092E590A206A753C007C8831 /* main.m in Sources */,
+				096DD77521A6E62200C7A3B1 /* DCWelcomeViewController.m in Sources */,
+				09F4C6EF21A6EBD40018F312 /* BButton.m in Sources */,
+				09F4C6F021A6EBD40018F312 /* NSString+FontAwesome.m in Sources */,
+				09F4C6F221A6EBD40018F312 /* UIColor+BButton.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		09C6B94A204A0F55007EAC26 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 09C6B91F204A0F54007EAC26 /* Discord */;
-			targetProxy = 09C6B949204A0F55007EAC26 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		09C6B92D204A0F54007EAC26 /* InfoPlist.strings */ = {
@@ -564,40 +494,6 @@
 			};
 			name = Release;
 		};
-		09C6B95A204A0F55007EAC26 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Discord Classic.app/Discord Classic";
-				FRAMEWORK_SEARCH_PATHS = (
-					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
-					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Discord Classic/Discord Classic-Prefix.pch";
-				INFOPLIST_FILE = "Discord ClassicTests/Discord ClassicTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Debug;
-		};
-		09C6B95B204A0F55007EAC26 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Discord Classic.app/Discord Classic";
-				FRAMEWORK_SEARCH_PATHS = (
-					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
-					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Discord Classic/Discord Classic-Prefix.pch";
-				INFOPLIST_FILE = "Discord ClassicTests/Discord ClassicTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -615,15 +511,6 @@
 			buildConfigurations = (
 				09C6B957204A0F55007EAC26 /* Debug */,
 				09C6B958204A0F55007EAC26 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		09C6B959204A0F55007EAC26 /* Build configuration list for PBXNativeTarget "Discord ClassicTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				09C6B95A204A0F55007EAC26 /* Debug */,
-				09C6B95B204A0F55007EAC26 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

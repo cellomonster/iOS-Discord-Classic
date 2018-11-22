@@ -25,6 +25,8 @@
 @property DCGuild* selectedGuild;
 @property DCChannel* selectedChannel;
 
+@property bool didAuthenticate;
+
 + (DCServerCommunicator *)sharedInstance;
 - (void)startCommunicator;
 - (void)sendResume;

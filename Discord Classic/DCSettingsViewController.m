@@ -9,10 +9,6 @@
 #import "DCSettingsViewController.h"
 #import "DCServerCommunicator.h"
 
-@interface DCSettingsViewController ()
-@property (strong, nonatomic) IBOutlet UISwitch *permissionCalculationToggle;
-@end
-
 @implementation DCSettingsViewController
 
 - (void)viewDidLoad{
@@ -26,6 +22,7 @@
 
 - (void)viewWillDisappear:(BOOL)animated{
 	[NSUserDefaults.standardUserDefaults setObject:self.tokenInputField.text forKey:@"token"];
+	DCServerCommunicator.sharedInstance.token = self.tokenInputField.text;
 	
 	[DCServerCommunicator.sharedInstance reconnect];
 }

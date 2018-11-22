@@ -11,6 +11,7 @@
 #import "DCServerCommunicator.h"
 #import "DCGuild.h"
 #import "DCChannel.h"
+#import "TRMalleableFrameView.h"
 
 @interface DCChannelListViewController ()
 @property int selectedChannelIndex;

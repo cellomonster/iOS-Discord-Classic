@@ -54,6 +54,8 @@
 
 - (void)startCommunicator{
 	
+	self.didAuthenticate = false;
+	
 	if(self.token!=nil){
 		
 		//Establish websocket connection with Discord
@@ -153,6 +155,9 @@
 					
 					//recieved READY
 					if([t isEqualToString:@"READY"]){
+						
+						weakSelf.didAuthenticate = true;
+						NSLog(@"Did authenticate!");
 						
 						//Grab session id (used for RESUME) and user id
 						weakSelf.sessionId = [d valueForKey:@"session_id"];

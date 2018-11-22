@@ -71,11 +71,13 @@
 		
 		[self.chatTableView reloadData];
 		
-		int scrollOffset = -self.chatTableView.height;
+		int scrollOffset = 0;
 		for(DCMessage* newMessage in newMessages)
 			scrollOffset += newMessage.contentHeight + newMessage.embeddedImageCount * 220;
 		
-		[self.chatTableView setContentOffset:CGPointMake(0, scrollOffset) animated:NO];
+		dispatch_async(dispatch_get_main_queue(), ^{
+			[self.chatTableView setContentOffset:CGPointMake(0, scrollOffset) animated:NO];
+		});
 	}
 }
 
@@ -183,22 +185,19 @@
 	[UIView commitAnimations];
 }
 
-
-- (IBAction)hideKeyboard:(id)sender {
-	[self.inputField resignFirstResponder];
-}
-
-
 - (IBAction)sendMessage:(id)sender {
-	[DCServerCommunicator.sharedInstance.selectedChannel sendMessage:self.inputField.text];
-	
-	[self.inputField setText:@""];
+	if(![self.inputField.text isEqual: @""]){
+		[DCServerCommunicator.sharedInstance.selectedChannel sendMessage:self.inputField.text];
+		[self.inputField setText:@""];
+	}else
+		[self.inputField resignFirstResponder];
 	
 	if(self.viewingPresentTime)
 		[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height) animated:YES];
 }
 
 - (void)tappedImage:(UITapGestureRecognizer *)sender {
+	[self.inputField resignFirstResponder];
 	self.selectedImage = ((UIImageView*)sender.view).image;
 	[self performSegueWithIdentifier:@"Chat to Gallery" sender:self];
 }
@@ -218,6 +217,9 @@
 
 
 - (IBAction)chooseImage:(id)sender {
+	
+	[self.inputField resignFirstResponder];
+	
 	UIImagePickerController *picker = UIImagePickerController.new;
 	
 	picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
@@ -231,8 +233,7 @@
 	
 	[picker dismissModalViewControllerAnimated:YES];
 	
-	UIImage* originalImage = nil;
-	originalImage = [info objectForKey:UIImagePickerControllerEditedImage];
+	UIImage* originalImage = [info objectForKey:UIImagePickerControllerEditedImage];
 	
 	if(originalImage==nil)
 		originalImage = [info objectForKey:UIImagePickerControllerOriginalImage];

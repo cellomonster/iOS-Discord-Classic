@@ -16,10 +16,15 @@
 @implementation DCAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOption{
+	self.window.backgroundColor = [UIColor clearColor];
+	self.window.opaque = NO;
+	
 	self.shouldReload = false;
 	
 	[UINavigationBar.appearance setBackgroundImage:[UIImage imageNamed:@"UINavigationBarTexture"] forBarMetrics:UIBarMetricsDefault];
-	[DCServerCommunicator.sharedInstance startCommunicator];
+	
+	if(DCServerCommunicator.sharedInstance.token.length)
+		[DCServerCommunicator.sharedInstance startCommunicator];
 	
 	return YES;
 }
@@ -32,7 +37,7 @@
 
 - (void)applicationDidEnterBackground:(UIApplication *)application{
 	NSLog(@"Did enter background");
-	self.shouldReload = true;
+	self.shouldReload = DCServerCommunicator.sharedInstance.didAuthenticate;
 }
 
 
@@ -43,7 +48,7 @@
 
 - (void)applicationDidBecomeActive:(UIApplication *)application{
 	NSLog(@"Did become active");
-	if(self.shouldReload && [NSUserDefaults.standardUserDefaults stringForKey:@"token"]){
+	if(self.shouldReload){
 		[DCServerCommunicator.sharedInstance sendResume];
 	}
 }

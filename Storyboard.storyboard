@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="3084" systemVersion="13E28" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" initialViewController="I1M-Vv-1nm">
     <dependencies>
-        <deployment version="1280" defaultVersion="1536" identifier="iOS"/>
+        <deployment version="1280" defaultVersion="1552" identifier="iOS"/>
         <development version="4400" identifier="xcode"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="2083"/>
     </dependencies>
@@ -20,7 +20,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="WEX-yh-NfH" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-549" y="-87"/>
+            <point key="canvasLocation" x="-833" y="-87"/>
         </scene>
         <!--Guild List View Controller - Servers-->
         <scene sceneID="QJ3-kn-Swx">
@@ -62,17 +62,71 @@
                         <barButtonItem key="rightBarButtonItem" title="Settings" id="k7y-lt-VZG">
                             <color key="tintColor" red="0.20000000298023224" green="0.20000000298023224" blue="0.20000000298023224" alpha="1" colorSpace="calibratedRGB"/>
                             <connections>
-                                <segue destination="Y2n-LQ-P1S" kind="push" identifier="to Settings" id="eK8-oh-eVS"/>
+                                <segue destination="Y2n-LQ-P1S" kind="push" identifier="to Settings" id="W4u-fo-sXa"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
                     <connections>
                         <segue destination="ePA-Lj-l3w" kind="push" identifier="Guilds to Channels" id="teg-2p-u4Z"/>
+                        <segue destination="Cmn-2b-Kfo" kind="modal" identifier="Guilds to Login" id="d4A-Bc-b8q"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ody-1s-L6W" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-126" y="-87"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="K7k-Y3-A2B">
+            <objects>
+                <viewController id="Cmn-2b-Kfo" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="BiL-Wq-jau">
+                        <rect key="frame" x="0.0" y="20" width="320" height="460"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="pbh-Y4-5HL" userLabel="Login Button" customClass="BButton">
+                                <rect key="frame" x="64" y="239" width="193" height="44"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                <color key="backgroundColor" red="0.1228475765" green="0.1228475765" blue="0.1228475765" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                <state key="normal" title="Login">
+                                    <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <state key="highlighted">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="type">
+                                        <integer key="value" value="9"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </button>
+                            <button userInteractionEnabled="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="BtQ-rO-IGV" userLabel="Text Background">
+                                <rect key="frame" x="64" y="178" width="193" height="44"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                <color key="backgroundColor" red="0.1228475765" green="0.1228475765" blue="0.1228475765" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                <state key="normal">
+                                    <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <state key="highlighted">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                            </button>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" minimumFontSize="17" id="AMr-rR-RdT">
+                                <rect key="frame" x="64" y="184" width="193" height="30"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                        </subviews>
+                        <color key="backgroundColor" red="0.1228475765" green="0.1228475765" blue="0.1228475765" alpha="1" colorSpace="calibratedRGB"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="aFs-Iw-A4I" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="544" y="-1222"/>
         </scene>
         <!--Settings View Controller - Settings-->
         <scene sceneID="qbG-hh-URF">
@@ -83,9 +137,9 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                         <sections>
-                            <tableViewSection headerTitle="Token" footerTitle="Be sure that there are no extraneous characters (quotation marks or spaces) in the token you give." id="rjG-ap-esH">
+                            <tableViewSection headerTitle="Token" footerTitle="" id="rjG-ap-esH">
                                 <cells>
-                                    <tableViewCell contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="OlX-dT-XQh">
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" shouldIndentWhileEditing="NO" id="OlX-dT-XQh">
                                         <rect key="frame" x="0.0" y="46" width="320" height="46"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
@@ -113,7 +167,6 @@
                     </tableView>
                     <navigationItem key="navigationItem" title="Settings" id="p8A-x4-fml"/>
                     <connections>
-                        <outlet property="permissionCalculationToggle" destination="stB-TJ-wYf" id="WXJ-xS-7Rb"/>
                         <outlet property="tokenInputField" destination="Zt4-z2-sPh" id="jb8-r8-DKM"/>
                     </connections>
                 </tableViewController>
@@ -285,12 +338,17 @@
         </scene>
     </scenes>
     <classes>
+        <class className="BButton" superclassName="UIButton">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/BButton.h"/>
+        </class>
         <class className="DCChannelListViewController" superclassName="UITableViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/DCChannelListViewController.h"/>
         </class>
         <class className="DCChatViewController" superclassName="UIViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/DCChatViewController.h"/>
             <relationships>
+                <relationship kind="action" name="chooseImage:"/>
+                <relationship kind="action" name="sendMessage:"/>
                 <relationship kind="outlet" name="chatTableView" candidateClass="UITableView"/>
                 <relationship kind="outlet" name="inputField" candidateClass="UITextField"/>
                 <relationship kind="outlet" name="toolbar" candidateClass="UIToolbar"/>
@@ -302,6 +360,7 @@
         <class className="DCImageViewController" superclassName="UIViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/DCImageViewController.h"/>
             <relationships>
+                <relationship kind="action" name="presentShareSheet:"/>
                 <relationship kind="outlet" name="imageView" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="scrollView" candidateClass="UIScrollView"/>
             </relationships>
@@ -309,7 +368,6 @@
         <class className="DCSettingsViewController" superclassName="UITableViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/DCSettingsViewController.h"/>
             <relationships>
-                <relationship kind="outlet" name="permissionCalculationToggle" candidateClass="UISwitch"/>
                 <relationship kind="outlet" name="tokenInputField" candidateClass="UITextField"/>
             </relationships>
         </class>
