@@ -10,7 +10,6 @@
 
 @implementation DCUser
 
-
 -(NSString *)description{
 	return [NSString stringWithFormat:@"[User] Snowflake: %@, Username: %@", self.snowflake, self.username];
 }

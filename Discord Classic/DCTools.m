@@ -51,8 +51,6 @@
 	});
 }
 
-
-
 + (NSData*)checkData:(NSData*)response withError:(NSError*)error{
 	if(!response){
 		[DCTools alert:error.localizedDescription withMessage:error.localizedRecoverySuggestion];
@@ -61,29 +59,35 @@
 	return response;
 }
 
++ (DCUser*)convertJsonUser:(NSDictionary*)jsonUser cache:(bool)cache{
+	DCUser* newUser = DCUser.new;
+	newUser.username = [jsonUser valueForKey:@"username"];
+	newUser.snowflake = [jsonUser valueForKey:@"id"];
+	
+	NSString* avatarURL = [NSString stringWithFormat:@"https://cdn.discordapp.com/avatars/%@/%@.png", newUser.snowflake, [jsonUser valueForKey:@"avatar"]];
+	
+	[DCTools processImageDataWithURLString:avatarURL andBlock:^(NSData *imageData){
+		UIImage *retrievedImage = [UIImage imageWithData:imageData];
+		
+		if(retrievedImage != nil){
+			newUser.profileImage = retrievedImage;
+			[NSNotificationCenter.defaultCenter postNotificationName:@"RELOAD CHAT DATA" object:nil];
+		}
+		
+	}];
+	
+	if(cache)
+		[DCServerCommunicator.sharedInstance.loadedUsers setValue:newUser forKey:newUser.snowflake];
+	
+	return newUser;
+}
+
 + (DCMessage*)convertJsonMessage:(NSDictionary*)jsonMessage{
 	DCMessage* newMessage = DCMessage.new;
 	NSString* authorId = [jsonMessage valueForKeyPath:@"author.id"];
 	
-	if(![DCServerCommunicator.sharedInstance.loadedUsers objectForKey:authorId]){
-		DCUser* newUser = DCUser.new;
-		newUser.username = [jsonMessage valueForKeyPath:@"author.username"];
-		newUser.snowflake = [jsonMessage valueForKeyPath:@"author.id"];
-		
-		NSString* avatarURL = [NSString stringWithFormat:@"https://cdn.discordapp.com/avatars/%@/%@.png", newUser.snowflake, [jsonMessage valueForKeyPath:@"author.avatar"]];
-		
-		[DCTools processImageDataWithURLString:avatarURL andBlock:^(NSData *imageData){
-			UIImage *retrievedImage = [UIImage imageWithData:imageData];
-			
-			if(retrievedImage != nil){
-				newUser.profileImage = retrievedImage;
-				[NSNotificationCenter.defaultCenter postNotificationName:@"RELOAD CHAT DATA" object:nil];
-			}
-			
-		}];
-		
-		[DCServerCommunicator.sharedInstance.loadedUsers setValue:newUser forKey:newUser.snowflake];
-	}
+	if(![DCServerCommunicator.sharedInstance.loadedUsers objectForKey:authorId])
+		[DCTools convertJsonUser:[jsonMessage valueForKeyPath:@"author"] cache:true];
 	
 	newMessage.author = [DCServerCommunicator.sharedInstance.loadedUsers valueForKey:authorId];
 	
@@ -126,6 +130,42 @@
 				}
 			}];
 		}
+	
+	
+	NSArray* mentions = [jsonMessage objectForKey:@"mentions"];
+	
+	if(mentions.count){
+		
+		for(NSDictionary* mention in mentions){
+			if(![DCServerCommunicator.sharedInstance.loadedUsers valueForKey:[mention valueForKey:@"id"]]){
+				[DCTools convertJsonUser:mention cache:true];
+			}
+		}
+		
+		NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"\\<@(.*?)\\>" options:NSRegularExpressionCaseInsensitive error:NULL];
+		
+		NSTextCheckingResult *embededMention = [regex firstMatchInString:newMessage.content options:0 range:NSMakeRange(0, newMessage.content.length)];
+		
+		while(embededMention){
+			//NSCharacterSet *charactersToRemove = [[NSCharacterSet alphanumericCharacterSet] invertedSet];
+			
+			NSCharacterSet *charactersToRemove = [NSCharacterSet.alphanumericCharacterSet invertedSet];
+			NSString *mentionSnowflake = [[[newMessage.content substringWithRange:embededMention.range] componentsSeparatedByCharactersInSet:charactersToRemove] componentsJoinedByString:@""];
+			
+			NSLog(@"%@", mentionSnowflake);
+			
+			DCUser *user = [DCServerCommunicator.sharedInstance.loadedUsers valueForKey:mentionSnowflake];
+			
+			NSString* username = @"@MENTION";
+			
+			if(user)
+				username = [NSString stringWithFormat:@"@%@", user.username];
+			
+			newMessage.content = [newMessage.content stringByReplacingCharactersInRange:embededMention.range withString:username];
+			
+			embededMention = [regex firstMatchInString:newMessage.content options:0 range:NSMakeRange(0, newMessage.content.length)];
+		}
+	}
 	
 	
 	float contentWidth = [UIScreen mainScreen].bounds.size.width - 66;

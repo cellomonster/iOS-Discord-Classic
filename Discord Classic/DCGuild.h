@@ -24,5 +24,7 @@
 //Whether or not the guild has any unread child channels
 @property bool unread;
 
+@property NSMutableDictionary* members;
+
 -(void)checkIfRead;
 @end
