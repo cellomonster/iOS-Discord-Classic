@@ -20,6 +20,7 @@
 @property bool viewingPresentTime;
 @property int numberOfMessagesLoaded;
 @property UIImage* selectedImage;
+@property UIRefreshControl *refreshControl;
 @end
 
 @implementation DCChatViewController
@@ -36,6 +37,14 @@
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
 	
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+	
+	
+	self.refreshControl = UIRefreshControl.new;
+	self.refreshControl.attributedTitle = [[NSAttributedString alloc] initWithString:@"Earlier messages"];
+	
+	[self.chatTableView addSubview:self.refreshControl];
+	
+	[self.refreshControl addTarget:self action:@selector(get50MoreMessages:) forControlEvents:UIControlEventValueChanged];
 }
 
 - (void)handleReady {
@@ -71,12 +80,14 @@
 		
 		[self.chatTableView reloadData];
 		
-		int scrollOffset = 0;
-		for(DCMessage* newMessage in newMessages)
-			scrollOffset += newMessage.contentHeight + newMessage.embeddedImageCount * 220;
-		
 		dispatch_async(dispatch_get_main_queue(), ^{
+			int scrollOffset = 0;
+			for(DCMessage* newMessage in newMessages)
+				scrollOffset += newMessage.contentHeight + newMessage.embeddedImageCount * 220;
+			
 			[self.chatTableView setContentOffset:CGPointMake(0, scrollOffset) animated:NO];
+			
+			[self.refreshControl endRefreshing];
 		});
 	}
 }
@@ -133,8 +144,6 @@
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView{
-	if(self.messages.count > 0 && scrollView.contentOffset.y == 0)
-		[self getMessages:50 beforeMessage:[self.messages objectAtIndex:0]];
 	
 	self.viewingPresentTime = (scrollView.contentOffset.y == scrollView.contentSize.height - scrollView.height);
 }
@@ -242,5 +251,9 @@
 		originalImage = [info objectForKey:UIImagePickerControllerCropRect];
 	
 	[DCServerCommunicator.sharedInstance.selectedChannel sendImage:originalImage];
+}
+
+-(void)get50MoreMessages:(UIRefreshControl *)control {
+	[self getMessages:50 beforeMessage:[self.messages objectAtIndex:0]];
 }
 @end
