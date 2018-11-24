@@ -167,7 +167,7 @@
 	}
 	
 	
-	float contentWidth = [UIScreen mainScreen].bounds.size.width - 66;
+	float contentWidth = UIScreen.mainScreen.bounds.size.width - 63;
 	
 	CGSize authorNameSize = [newMessage.author.username sizeWithFont:[UIFont boldSystemFontOfSize:15] constrainedToSize:CGSizeMake(contentWidth, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];
 	CGSize contentSize = [newMessage.content sizeWithFont:[UIFont systemFontOfSize:14] constrainedToSize:CGSizeMake(contentWidth, MAXFLOAT) lineBreakMode:UILineBreakModeWordWrap];

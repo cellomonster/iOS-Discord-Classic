@@ -84,5 +84,8 @@
 			channelListViewController.selectedGuild = DCServerCommunicator.sharedInstance.selectedGuild;
 	}
 }
+- (IBAction)reconnect:(id)sender {
+	[DCServerCommunicator.sharedInstance reconnect];
+}
 
 @end

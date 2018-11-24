@@ -39,7 +39,9 @@
 		sharedInstance.gatewayURL = @"wss://gateway.discord.gg/?encoding=json&v=6";
 		sharedInstance.token = [NSUserDefaults.standardUserDefaults stringForKey:@"token"];
 		
-		sharedInstance.alertView = [UIAlertView.alloc initWithTitle:@"Reconnecting" message:@"\n" delegate:self cancelButtonTitle:nil otherButtonTitles:nil];
+		
+		
+		sharedInstance.alertView = [UIAlertView.alloc initWithTitle:@"Connecting" message:@"\n" delegate:self cancelButtonTitle:nil otherButtonTitles:nil];
 		
 		UIActivityIndicatorView *spinner = [UIActivityIndicatorView.alloc initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
 		[spinner setCenter:CGPointMake(139.5, 75.5)];
@@ -83,6 +85,10 @@
 					
 					if(weakSelf.shouldResume){
 						
+						dispatch_async(dispatch_get_main_queue(), ^{
+							[weakSelf.alertView setTitle:@"Resuming"];
+						});
+						
 						NSLog(@"Sending Resume with sequence number %i, session ID %@", weakSelf.sequenceNumber, weakSelf.sessionId);
 						
 						//RESUME
@@ -100,6 +106,10 @@
 					}else{
 						
 						NSLog(@"Sending Identify");
+						
+						dispatch_async(dispatch_get_main_queue(), ^{
+							[weakSelf.alertView setTitle:@"Authenticating"];
+						});
 						
 						//IDENTIFY
 						[weakSelf sendJSON:@{
@@ -119,7 +129,6 @@
 						weakSelf.channels = NSMutableDictionary.new;
 						weakSelf.loadedUsers = NSMutableDictionary.new;
 						weakSelf.didRecieveHeartbeatResponse = true;
-						weakSelf.identifyCooldown = true;
 						
 						int heartbeatInterval = [[d valueForKey:@"heartbeat_interval"] intValue];
 						
@@ -132,10 +141,10 @@
 								
 								//Begin heartbeat cycle if not already begun
 								[NSTimer scheduledTimerWithTimeInterval:heartbeatInterval/1000 target:weakSelf selector:@selector(sendHeartbeat:) userInfo:nil repeats:YES];
-								
-								//Reenable ability to identify in 5 seconds
-								weakSelf.cooldownTimer = [NSTimer scheduledTimerWithTimeInterval:5 target:weakSelf selector:@selector(refreshIdentifyCooldown:) userInfo:nil repeats:NO];
 							});
+							
+							//Reenable ability to identify in 5 seconds
+							weakSelf.cooldownTimer = [NSTimer scheduledTimerWithTimeInterval:5 target:weakSelf selector:@selector(refreshIdentifyCooldown:) userInfo:nil repeats:NO];
 						});
 						
 					}
@@ -354,6 +363,11 @@
 						});
 					}
 					
+					if([t isEqualToString:@"RESUMED"])
+						dispatch_async(dispatch_get_main_queue(), ^{
+							[weakSelf.alertView dismissWithClickedButtonIndex:0 animated:YES];
+						});
+					
 					
 					if([t isEqualToString:@"MESSAGE_ACK"])
 						[NSNotificationCenter.defaultCenter postNotificationName:@"MESSAGE ACK" object:weakSelf];
@@ -421,9 +435,10 @@
 
 
 - (void)reconnect{
-	NSLog(@"Identify cooldown %f",self.cooldownTimer.fireDate.timeIntervalSinceNow);
-	if(!self.alertView.isVisible)
-		[self.alertView show];
+	
+	[self.alertView show];
+	
+	NSLog(@"Identify cooldown %s", self.identifyCooldown ? "true" : "false");
 	
 	//Begin new session
 	[self.websocket close];
@@ -431,9 +446,14 @@
 	//If an identify cooldown is in effect, wait for the time needed until sending another IDENTIFY
 	//if not, send immediately
 	if(self.identifyCooldown){
+		NSLog(@"No cooldown in effect. Authenticating...");
 		[self startCommunicator];
-	}else
-		[self performSelector:@selector(startCommunicator) withObject:nil afterDelay:self.cooldownTimer.fireDate.timeIntervalSinceNow];
+	}else{
+		double timeRemaining = self.cooldownTimer.fireDate.timeIntervalSinceNow;
+		NSLog(@"Cooldown in effect. Time left %f", timeRemaining);
+		[self.alertView setTitle:@"Waiting for auth cooldown..."];
+		[self performSelector:@selector(startCommunicator) withObject:nil afterDelay:timeRemaining + 1];
+	}
 	
 	self.identifyCooldown = false;
 }
@@ -464,6 +484,7 @@
 //Once the 5 second identify cooldown is over
 - (void)refreshIdentifyCooldown:(NSTimer *)timer{
 	self.identifyCooldown = true;
+	NSLog(@"Authentication cooldown ended");
 }
 
 - (void)sendJSON:(NSDictionary*)dictionary{

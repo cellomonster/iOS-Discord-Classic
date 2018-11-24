@@ -48,12 +48,14 @@
 }
 
 - (void)handleReady {
-	if(DCServerCommunicator.sharedInstance.selectedChannel)
+	
+	if(DCServerCommunicator.sharedInstance.selectedChannel){
 		self.messages = NSMutableArray.new;
 	
-	[self getMessages:50 beforeMessage:nil];
+		[self getMessages:50 beforeMessage:nil];
+	}
 	
-	[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height) animated:NO];
+	//[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height) animated:NO];
 }
 
 - (void)reloadData {
@@ -81,15 +83,15 @@
 		[self.chatTableView reloadData];
 		
 		dispatch_async(dispatch_get_main_queue(), ^{
-			int scrollOffset = 0;
+			int scrollOffset = -self.chatTableView.height;
 			for(DCMessage* newMessage in newMessages)
 				scrollOffset += newMessage.contentHeight + newMessage.embeddedImageCount * 220;
 			
 			[self.chatTableView setContentOffset:CGPointMake(0, scrollOffset) animated:NO];
-			
-			[self.refreshControl endRefreshing];
 		});
 	}
+	
+	[self.refreshControl endRefreshing];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -102,7 +104,11 @@
 	
 	[cell.authorLabel setText:messageAtRowIndex.author.username];
 	
+	[cell setHeight:messageAtRowIndex.contentHeight + messageAtRowIndex.embeddedImageCount * 220];
+	
 	[cell.contentView setText:messageAtRowIndex.content];
+	
+	[cell.contentView setHeight:[cell.contentView sizeThatFits:CGSizeMake(cell.contentView.width, MAXFLOAT)].height];
 	
 	[cell.profileImage setImage:messageAtRowIndex.author.profileImage];
 	
@@ -112,9 +118,7 @@
 		}
 	}
 	
-	[cell.contentView setScrollEnabled:NO];
-	
-	[cell.contentView setFrame:CGRectMake(47, 17, UIScreen.mainScreen.bounds.size.width-47,[cell.contentView sizeThatFits:CGSizeMake(cell.contentView.width, MAXFLOAT)].height)];
+	//[cell.contentView setScrollEnabled:NO];
 	
 	int imageViewOffset = cell.contentView.height + 37;
 	
@@ -144,7 +148,6 @@
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView{
-	
 	self.viewingPresentTime = (scrollView.contentOffset.y == scrollView.contentSize.height - scrollView.height);
 }
 
