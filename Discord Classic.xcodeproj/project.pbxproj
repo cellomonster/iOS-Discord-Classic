@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		091D28CA21A9D75700C60BEC /* DCInfoPageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 091D28C921A9D75700C60BEC /* DCInfoPageViewController.m */; };
 		09260EC720575AE900083813 /* DCGuild.m in Sources */ = {isa = PBXBuildFile; fileRef = 09260EC620575AE900083813 /* DCGuild.m */; };
 		09260ECA20575BB200083813 /* DCChannel.m in Sources */ = {isa = PBXBuildFile; fileRef = 09260EC920575BB200083813 /* DCChannel.m */; };
 		095284612055EFD000760073 /* TRMalleableFrameView.m in Sources */ = {isa = PBXBuildFile; fileRef = 095284602055EFD000760073 /* TRMalleableFrameView.m */; };
@@ -50,6 +51,8 @@
 
 /* Begin PBXFileReference section */
 		090C6BCF20784DDD00EC552F /* DCMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCMessage.h; sourceTree = "<group>"; };
+		091D28C821A9D75700C60BEC /* DCInfoPageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCInfoPageViewController.h; sourceTree = "<group>"; };
+		091D28C921A9D75700C60BEC /* DCInfoPageViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCInfoPageViewController.m; sourceTree = "<group>"; };
 		09260EC520575AE900083813 /* DCGuild.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCGuild.h; sourceTree = "<group>"; };
 		09260EC620575AE900083813 /* DCGuild.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCGuild.m; sourceTree = "<group>"; };
 		09260EC820575BB200083813 /* DCChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCChannel.h; sourceTree = "<group>"; };
@@ -198,6 +201,8 @@
 				09D84D0A205F36B90070020A /* DCSettingsViewController.h */,
 				09D84D0B205F36B90070020A /* DCSettingsViewController.m */,
 				09C8E2EC204C3B64006A1422 /* Storyboard.storyboard */,
+				091D28C821A9D75700C60BEC /* DCInfoPageViewController.h */,
+				091D28C921A9D75700C60BEC /* DCInfoPageViewController.m */,
 				096DD77321A6E62200C7A3B1 /* DCWelcomeViewController.h */,
 				096DD77421A6E62200C7A3B1 /* DCWelcomeViewController.m */,
 				09C344B521A0B984005F8CEE /* DCImageViewController.h */,
@@ -386,6 +391,7 @@
 				09F4C6EF21A6EBD40018F312 /* BButton.m in Sources */,
 				09F4C6F021A6EBD40018F312 /* NSString+FontAwesome.m in Sources */,
 				09F4C6F221A6EBD40018F312 /* UIColor+BButton.m in Sources */,
+				091D28CA21A9D75700C60BEC /* DCInfoPageViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

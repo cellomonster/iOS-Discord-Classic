@@ -17,6 +17,9 @@
 @property WSWebSocket* websocket;
 @property NSString* token;
 @property NSString* gatewayURL;
+@property NSMutableDictionary* userChannelSettings;
+
+@property NSString* snowflake;
 
 @property NSMutableArray* guilds;
 @property NSMutableDictionary* channels;

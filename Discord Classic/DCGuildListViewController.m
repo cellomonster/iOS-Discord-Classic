@@ -36,19 +36,17 @@
 
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-	
 	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Guild Cell"];
-	if (cell == nil)
-		cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"Guild Cell"];
-	
 	
 	DCGuild* guildAtRowIndex = [DCServerCommunicator.sharedInstance.guilds objectAtIndex:indexPath.row];
 	
+	//Show blue indicator if guild has any unread messages
 	if(guildAtRowIndex.unread)
 		[cell setAccessoryType:UITableViewCellAccessoryDetailDisclosureButton];
 	else
 		[cell setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
 	
+	//Guild name and icon
 	[cell.textLabel setText:guildAtRowIndex.name];
 	[cell.imageView setImage:guildAtRowIndex.icon];
 	
@@ -56,24 +54,18 @@
 }
 
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
-	return 1;
-}
-
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-	return DCServerCommunicator.sharedInstance.guilds.count;
-}
-
-
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+	
 	if([DCServerCommunicator.sharedInstance.guilds objectAtIndex:indexPath.row] != DCServerCommunicator.sharedInstance.selectedGuild){
+		//Clear the loaded users array for lazy memory management. This will be fleshed out more later
 		DCServerCommunicator.sharedInstance.loadedUsers = NSMutableDictionary.new;
+		//Assign the selected guild
 		DCServerCommunicator.sharedInstance.selectedGuild = [DCServerCommunicator.sharedInstance.guilds objectAtIndex:indexPath.row];
 	}
+	
+	//Transition to channel list 
 	[self performSegueWithIdentifier:@"Guilds to Channels" sender:self];
 }
-
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender{
 	if ([segue.identifier isEqualToString:@"Guilds to Channels"]){
@@ -81,11 +73,32 @@
 		DCChannelListViewController *channelListViewController = [segue destinationViewController];
 		
 		if ([channelListViewController isKindOfClass:DCChannelListViewController.class])
+			//Assign selected guild for the channel list we are transitioning to. 
 			channelListViewController.selectedGuild = DCServerCommunicator.sharedInstance.selectedGuild;
 	}
 }
-- (IBAction)reconnect:(id)sender {
-	[DCServerCommunicator.sharedInstance reconnect];
+
+- (IBAction)joinGuildPrompt:(id)sender{
+	UIAlertView *joinPrompt = [[UIAlertView alloc] initWithTitle:@"Enter invite code"
+																											 message:nil
+																											delegate:self
+																						 cancelButtonTitle:@"Cancel"
+																						 otherButtonTitles:@"Join", nil];
+	
+	[joinPrompt setAlertViewStyle:UIAlertViewStylePlainTextInput];
+	[joinPrompt setDelegate:self];
+	[joinPrompt show];
 }
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+	if([[alertView buttonTitleAtIndex:buttonIndex] isEqualToString:@"Join"])
+		[DCTools joinGuild:[alertView textFieldAtIndex:0].text];
+}
+
+//- (IBAction)reconnect:(id)sender {[DCServerCommunicator.sharedInstance reconnect];}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{return 1;}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{return DCServerCommunicator.sharedInstance.guilds.count;}
 
 @end

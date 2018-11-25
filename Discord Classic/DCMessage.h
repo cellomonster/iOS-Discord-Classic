@@ -16,4 +16,7 @@
 @property int embeddedImageCount;
 @property NSMutableArray* embeddedImages;
 @property int contentHeight;
+
+- (void)deleteMessage;
+- (BOOL)isEqual:(id)other;
 @end

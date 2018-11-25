@@ -11,5 +11,6 @@
 @implementation DCChatTableCell
 
 -(void)layoutSubviews{
+	//To prevent cellview from screwing around with the uitextview, don't do anything.
 }
 @end

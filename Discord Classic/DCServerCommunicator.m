@@ -21,8 +21,6 @@
 @property int sequenceNumber;
 @property NSString* sessionId;
 
-@property NSString* snowflake;
-
 @property NSTimer* cooldownTimer;
 @property UIAlertView* alertView;
 @end
@@ -172,10 +170,10 @@
 						weakSelf.sessionId = [d valueForKey:@"session_id"];
 						weakSelf.snowflake = [d valueForKeyPath:@"user.id"];
 						
-						NSMutableDictionary* userChannelSettings = NSMutableDictionary.new;
+						weakSelf.userChannelSettings = NSMutableDictionary.new;
 						for(NSDictionary* guildSettings in [d valueForKey:@"user_guild_settings"])
 							for(NSDictionary* channelSetting in [guildSettings objectForKey:@"channel_overrides"])
-								[userChannelSettings setValue:@((bool)[channelSetting valueForKey:@"muted"]) forKey:[channelSetting valueForKey:@"channel_id"]];
+								[weakSelf.userChannelSettings setValue:@((bool)[channelSetting valueForKey:@"muted"]) forKey:[channelSetting valueForKey:@"channel_id"]];
 						
 						//Get user DMs and DM groups
 						//The user's DMs are treated like a guild, where the channels are different DM/groups
@@ -220,123 +218,8 @@
 						
 						
 						//Get servers (guilds) the user is a member of
-						for(NSDictionary* jsonGuild in [d valueForKey:@"guilds"]){
-							
-							NSMutableArray* userRoles;
-							
-							//Get roles of the current user
-							for(NSDictionary* member in [jsonGuild objectForKey:@"members"])
-								if([[member valueForKeyPath:@"user.id"] isEqualToString:weakSelf.snowflake])
-									userRoles = [[member valueForKey:@"roles"] mutableCopy];
-							
-							//Get @everyone role
-							for(NSDictionary* guildRole in [jsonGuild objectForKey:@"roles"])
-								if([[guildRole valueForKey:@"name"] isEqualToString:@"@everyone"])
-									[userRoles addObject:[guildRole valueForKey:@"id"]];
-							
-							DCGuild* newGuild = DCGuild.new;
-							newGuild.name = [jsonGuild valueForKey:@"name"];
-							newGuild.snowflake = [jsonGuild valueForKey:@"id"];
-							newGuild.channels = NSMutableArray.new;
-							
-							NSString* iconURL = [NSString stringWithFormat:@"https://cdn.discordapp.com/icons/%@/%@",
-																	 newGuild.snowflake, [jsonGuild valueForKey:@"icon"]];
-							
-							[DCTools processImageDataWithURLString:iconURL andBlock:^(NSData *imageData) {
-								newGuild.icon = [UIImage imageWithData:imageData];
-								
-								dispatch_async(dispatch_get_main_queue(), ^{
-									[NSNotificationCenter.defaultCenter postNotificationName:@"RELOAD GUILD LIST" object:weakSelf];
-								});
-								
-							}];
-							
-							for(NSDictionary* jsonChannel in [jsonGuild valueForKey:@"channels"]){
-								
-								//Make sure jsonChannel is a text cannel
-								//we dont want to include voice channels in the text channel list
-								if([[jsonChannel valueForKey:@"type"] isEqual: @0]){
-									
-									//Allow code is used to calculate the permission hirearchy.
-									/*
-									 0 - No overwrites. Channel should be created
-									 
-									 1 - Hidden by role. Channel should not be created unless another role contradicts (code 2)
-									 2 - Shown by role. Channel should be created unless hidden by member overwrite (code 3)
-									 
-									 3 - Hidden by member. Channel should not be created
-									 4 - Shown by member. Channel should be created
-									 
-									 3 & 4 are mutually exclusive
-									 */
-									int allowCode = 0;
-									
-									//Calculate permissions
-									for(NSDictionary* permission in [jsonChannel objectForKey:@"permission_overwrites"]){
-										
-										
-										
-										//Type of permission can either be role or member
-										NSString* type = [permission valueForKey:@"type"];
-										
-										if([type isEqualToString:@"role"]){
-											
-											//Check if this channel dictates permissions over any roles the user has
-											if([userRoles containsObject:[permission valueForKey:@"id"]]){
-												int deny = [[permission valueForKey:@"deny"] intValue];
-												int allow = [[permission valueForKey:@"allow"] intValue];
-												
-												if((deny & 1024) == 1024 && allowCode < 1)
-													allowCode = 1;
-												
-												if(((allow & 1024) == 1024) && allowCode < 2)
-													allowCode = 2;
-											}
-										}
-										
-										
-										if([type isEqualToString:@"member"]){
-											
-											//Check if
-											NSString* memberId = [permission valueForKey:@"id"];
-											if([memberId isEqualToString:weakSelf.snowflake]){
-												int deny = [[permission valueForKey:@"deny"] intValue];
-												int allow = [[permission valueForKey:@"allow"] intValue];
-												
-												if((deny & 1024) == 1024 && allowCode < 3)
-													allowCode = 3;
-												
-												if((allow & 1024) == 1024){
-													allowCode = 4;
-													break;
-												}
-											}
-										}
-									}
-									
-									if(allowCode == 0 || allowCode == 2 || allowCode == 4){
-										DCChannel* newChannel = DCChannel.new;
-										
-										newChannel.snowflake = [jsonChannel valueForKey:@"id"];
-										newChannel.name = [jsonChannel valueForKey:@"name"];
-										newChannel.lastMessageId = [jsonChannel valueForKey:@"last_message_id"];
-										newChannel.parentGuild = newGuild;
-										newChannel.type = 0;
-										
-										if([userChannelSettings objectForKey:newChannel.snowflake]){
-											newChannel.muted = true;
-										}
-										
-										//check if channel is muted
-										
-										[newGuild.channels addObject:newChannel];
-										[weakSelf.channels setObject:newChannel forKey:newChannel.snowflake];
-									}
-								}
-							}
-							
-							[weakSelf.guilds addObject:newGuild];
-						}
+						for(NSDictionary* jsonGuild in [d valueForKey:@"guilds"])
+							[weakSelf.guilds addObject:[DCTools convertJsonGuild:jsonGuild]];
 						
 						
 						//Read states are recieved in READY payload
@@ -367,11 +250,6 @@
 						dispatch_async(dispatch_get_main_queue(), ^{
 							[weakSelf.alertView dismissWithClickedButtonIndex:0 animated:YES];
 						});
-					
-					
-					if([t isEqualToString:@"MESSAGE_ACK"])
-						[NSNotificationCenter.defaultCenter postNotificationName:@"MESSAGE ACK" object:weakSelf];
-					
 					
 					if([t isEqualToString:@"MESSAGE_CREATE"]){
 						
@@ -404,6 +282,20 @@
 							});
 						}
 					}
+					
+					if([t isEqualToString:@"MESSAGE_ACK"])
+						[NSNotificationCenter.defaultCenter postNotificationName:@"MESSAGE ACK" object:weakSelf];
+					
+					if([t isEqualToString:@"MESSAGE_DELETE"])
+						dispatch_async(dispatch_get_main_queue(), ^{
+							//Send notification with the new message
+							//will be recieved by DCChatViewController
+							[NSNotificationCenter.defaultCenter postNotificationName:@"MESSAGE DELETE" object:weakSelf userInfo:d];
+						});
+						
+					
+					if([t isEqualToString:@"GUILD_CREATE"])
+						[weakSelf.guilds addObject:[DCTools convertJsonGuild:d]];
 				}
 					break;
 					

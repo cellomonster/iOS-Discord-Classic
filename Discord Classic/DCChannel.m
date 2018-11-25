@@ -115,7 +115,7 @@
 	NSMutableArray* messages = NSMutableArray.new;
 	
 	//Generate URL from args
-	NSMutableString* getChannelAddress = [[NSString stringWithFormat: @"https://discordapp.com/api/channels/%@%@", self.snowflake, @"/messages?"] mutableCopy];
+	NSMutableString* getChannelAddress = [[NSString stringWithFormat: @"https://discordapp.com/api/channels/%@/messages?", self.snowflake] mutableCopy];
 	
 	if(numberOfMessages)
 		[getChannelAddress appendString:[NSString stringWithFormat:@"limit=%i", numberOfMessages]];

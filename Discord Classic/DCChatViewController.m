@@ -17,7 +17,6 @@
 #import "TRMalleableFrameView.h"
 
 @interface DCChatViewController()
-@property bool viewingPresentTime;
 @property int numberOfMessagesLoaded;
 @property UIImage* selectedImage;
 @property UIRefreshControl *refreshControl;
@@ -29,6 +28,8 @@
 	[super viewDidLoad];
 	
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleMessageCreate:) name:@"MESSAGE CREATE" object:nil];
+	
+	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleMessageDelete:) name:@"MESSAGE DELETE" object:nil];
 	
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(reloadData) name:@"RELOAD CHAT DATA" object:nil];
 	
@@ -70,6 +71,15 @@
 	
 	if(self.viewingPresentTime)
 		[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height) animated:NO];
+}
+
+- (void)handleMessageDelete:(NSNotification*)notification {
+	DCMessage *compareMessage = DCMessage.new;
+	compareMessage.snowflake = [notification.userInfo valueForKey:@"id"];
+		
+	[self.messages removeObject:compareMessage];
+	[self.chatTableView reloadData];
+				
 }
 
 - (void)getMessages:(int)numberOfMessages beforeMessage:(DCMessage*)message{
@@ -147,17 +157,34 @@
 	return messageAtRowIndex.contentHeight + messageAtRowIndex.embeddedImageCount * 220;
 }
 
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+	self.selectedMessage = self.messages[indexPath.row];
+	
+	NSLog(@"Selected message. %@: %@", self.selectedMessage.snowflake, self.selectedMessage.content);
+	
+	if([self.selectedMessage.author.snowflake isEqualToString: DCServerCommunicator.sharedInstance.snowflake]){
+		UIActionSheet *messageActionSheet = [[UIActionSheet alloc] initWithTitle:self.selectedMessage.content delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:@"Delete" otherButtonTitles:nil];
+		[messageActionSheet setTag:1];
+		[messageActionSheet setDelegate:self];
+		[messageActionSheet showInView:self.view];
+	}
+}
+
+
+- (void)actionSheet:(UIActionSheet *)popup clickedButtonAtIndex:(NSInteger)buttonIndex {
+	if(buttonIndex == 0)
+		[self.selectedMessage deleteMessage];
+}
+
+
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView{
-	self.viewingPresentTime = (scrollView.contentOffset.y == scrollView.contentSize.height - scrollView.height);
+	self.viewingPresentTime = (scrollView.contentOffset.y >= scrollView.contentSize.height - scrollView.height - 10);
 }
 
--(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
-	return 1;
-}
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{return 1;}
 
--(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-	return self.messages.count;
-}
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{return self.messages.count;}
 
 
 - (void)keyboardWillShow:(NSNotification *)notification {
