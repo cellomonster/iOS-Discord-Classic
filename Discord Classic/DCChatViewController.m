@@ -31,7 +31,7 @@
 	
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleMessageDelete:) name:@"MESSAGE DELETE" object:nil];
 	
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(reloadData) name:@"RELOAD CHAT DATA" object:nil];
+	[NSNotificationCenter.defaultCenter addObserver:self.chatTableView selector:@selector(reloadData) name:@"RELOAD CHAT DATA" object:nil];
 	
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleReady) name:@"READY" object:nil];
 	
@@ -48,6 +48,7 @@
 	[self.refreshControl addTarget:self action:@selector(get50MoreMessages:) forControlEvents:UIControlEventValueChanged];
 }
 
+
 - (void)handleReady {
 	
 	if(DCServerCommunicator.sharedInstance.selectedChannel){
@@ -59,9 +60,6 @@
 	[self.refreshControl endRefreshing];
 }
 
-- (void)reloadData {
-	[self.chatTableView reloadData];
-}
 
 - (void)handleMessageCreate:(NSNotification*)notification {
   DCMessage* newMessage = [DCTools convertJsonMessage:notification.userInfo];
@@ -73,6 +71,7 @@
 		[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height) animated:NO];
 }
 
+
 - (void)handleMessageDelete:(NSNotification*)notification {
 	DCMessage *compareMessage = DCMessage.new;
 	compareMessage.snowflake = [notification.userInfo valueForKey:@"id"];
@@ -81,6 +80,7 @@
 	[self.chatTableView reloadData];
 				
 }
+
 
 - (void)getMessages:(int)numberOfMessages beforeMessage:(DCMessage*)message{
 	NSArray* newMessages = [DCServerCommunicator.sharedInstance.selectedChannel getMessages:numberOfMessages beforeMessage:message];
@@ -103,6 +103,7 @@
 	
 	[self.refreshControl endRefreshing];
 }
+
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
 	//static NSString *guildCellIdentifier = @"Channel Cell";
@@ -264,6 +265,7 @@
 	[self presentModalViewController:picker animated:YES];
 }
 
+
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
 	
 	[picker dismissModalViewControllerAnimated:YES];
@@ -279,7 +281,6 @@
 	[DCServerCommunicator.sharedInstance.selectedChannel sendImage:originalImage];
 }
 
--(void)get50MoreMessages:(UIRefreshControl *)control {
-	[self getMessages:50 beforeMessage:[self.messages objectAtIndex:0]];
-}
+
+-(void)get50MoreMessages:(UIRefreshControl *)control {[self getMessages:50 beforeMessage:[self.messages objectAtIndex:0]];}
 @end
