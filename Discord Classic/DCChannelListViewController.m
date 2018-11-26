@@ -29,6 +29,7 @@
 
 -(void)viewWillAppear:(BOOL)animated{
 	[self.navigationItem setTitle:self.selectedGuild.name];
+	[DCServerCommunicator.sharedInstance setSelectedChannel:nil];
 }
 
 

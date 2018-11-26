@@ -56,7 +56,7 @@
 		[self getMessages:50 beforeMessage:nil];
 	}
 	
-	//[self.chatTableView setContentOffset:CGPointMake(0, self.chatTableView.contentSize.height - self.chatTableView.frame.size.height) animated:NO];
+	[self.refreshControl endRefreshing];
 }
 
 - (void)reloadData {
@@ -114,13 +114,13 @@
 	
 	[cell.authorLabel setText:messageAtRowIndex.author.username];
 	
-	[cell setHeight:messageAtRowIndex.contentHeight + messageAtRowIndex.embeddedImageCount * 220];
+	[cell.contentTextView setText:messageAtRowIndex.content];
 	
-	[cell.contentView setText:messageAtRowIndex.content];
-	
-	[cell.contentView setHeight:[cell.contentView sizeThatFits:CGSizeMake(cell.contentView.width, MAXFLOAT)].height];
+	[cell.contentTextView setHeight:[cell.contentTextView sizeThatFits:CGSizeMake(cell.contentTextView.width, MAXFLOAT)].height];
 	
 	[cell.profileImage setImage:messageAtRowIndex.author.profileImage];
+	
+	[cell.contentView setBackgroundColor:messageAtRowIndex.pingingUser? [UIColor redColor] : [UIColor clearColor]];
 	
 	for (UIView *subView in cell.subviews) {
 		if ([subView isKindOfClass:[UIImageView class]]) {
@@ -128,9 +128,7 @@
 		}
 	}
 	
-	//[cell.contentView setScrollEnabled:NO];
-	
-	int imageViewOffset = cell.contentView.height + 37;
+	int imageViewOffset = cell.contentTextView.height + 37;
 	
 	for(UIImage* image in messageAtRowIndex.embeddedImages){
 		UIImageView* imageView = UIImageView.new;
@@ -160,8 +158,6 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
 	self.selectedMessage = self.messages[indexPath.row];
-	
-	NSLog(@"Selected message. %@: %@", self.selectedMessage.snowflake, self.selectedMessage.content);
 	
 	if([self.selectedMessage.author.snowflake isEqualToString: DCServerCommunicator.sharedInstance.snowflake]){
 		UIActionSheet *messageActionSheet = [[UIActionSheet alloc] initWithTitle:self.selectedMessage.content delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:@"Delete" otherButtonTitles:nil];

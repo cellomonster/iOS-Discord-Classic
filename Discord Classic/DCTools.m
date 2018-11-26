@@ -169,7 +169,8 @@
 			NSCharacterSet *charactersToRemove = [NSCharacterSet.alphanumericCharacterSet invertedSet];
 			NSString *mentionSnowflake = [[[newMessage.content substringWithRange:embededMention.range] componentsSeparatedByCharactersInSet:charactersToRemove] componentsJoinedByString:@""];
 			
-			NSLog(@"%@", mentionSnowflake);
+			if([mentionSnowflake isEqualToString: DCServerCommunicator.sharedInstance.snowflake])
+				newMessage.pingingUser = true;
 			
 			DCUser *user = [DCServerCommunicator.sharedInstance.loadedUsers valueForKey:mentionSnowflake];
 			

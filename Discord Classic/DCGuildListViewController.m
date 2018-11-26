@@ -32,6 +32,15 @@
 - (void)handleReady {
 	//Refresh tableView data on READY notification
   [self.tableView reloadData];
+	
+	if(!self.refreshControl){
+	self.refreshControl = UIRefreshControl.new;
+	self.refreshControl.attributedTitle = [[NSAttributedString alloc] initWithString:@"Reauthenticate"];
+	
+	[self.tableView addSubview:self.refreshControl];
+	
+	[self.refreshControl addTarget:self action:@selector(reconnect) forControlEvents:UIControlEventValueChanged];
+	}
 }
 
 
@@ -95,7 +104,10 @@
 		[DCTools joinGuild:[alertView textFieldAtIndex:0].text];
 }
 
-//- (IBAction)reconnect:(id)sender {[DCServerCommunicator.sharedInstance reconnect];}
+- (void)reconnect {
+	[DCServerCommunicator.sharedInstance reconnect];
+	[self.refreshControl endRefreshing];
+}
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{return 1;}
 
