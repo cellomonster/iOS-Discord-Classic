@@ -467,7 +467,7 @@
                                     <outlet property="delegate" destination="SPS-Go-Xtj" id="zAV-aN-J65"/>
                                 </connections>
                             </tableView>
-                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="naG-kY-gaA">
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="blackOpaque" id="naG-kY-gaA">
                                 <rect key="frame" x="0.0" y="372" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <items>
@@ -479,10 +479,9 @@
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="QSM-nz-CeE"/>
                                     <barButtonItem title="Item" id="Gi1-fu-TDp">
-                                        <textField key="customView" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" borderStyle="bezel" placeholder="Message" minimumFontSize="17" clearButtonMode="whileEditing" id="2TA-Zy-0gC">
-                                            <rect key="frame" x="48" y="7" width="215" height="30"/>
+                                        <textField key="customView" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Message" minimumFontSize="17" clearButtonMode="whileEditing" id="2TA-Zy-0gC">
+                                            <rect key="frame" x="52" y="7" width="207" height="30"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
-                                            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                             <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                             <connections>
@@ -498,7 +497,6 @@
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="ck3-W3-sb5"/>
                                 </items>
-                                <color key="tintColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                             </toolbar>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
@@ -574,6 +572,8 @@
         <class className="DCChatViewController" superclassName="UIViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/DCChatViewController.h"/>
             <relationships>
+                <relationship kind="action" name="chooseImage:"/>
+                <relationship kind="action" name="sendMessage:"/>
                 <relationship kind="outlet" name="chatTableView" candidateClass="UITableView"/>
                 <relationship kind="outlet" name="inputField" candidateClass="UITextField"/>
                 <relationship kind="outlet" name="toolbar" candidateClass="UIToolbar"/>
@@ -581,10 +581,14 @@
         </class>
         <class className="DCGuildListViewController" superclassName="UITableViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/DCGuildListViewController.h"/>
+            <relationships>
+                <relationship kind="action" name="joinGuildPrompt:"/>
+            </relationships>
         </class>
         <class className="DCImageViewController" superclassName="UIViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/DCImageViewController.h"/>
             <relationships>
+                <relationship kind="action" name="presentShareSheet:"/>
                 <relationship kind="outlet" name="imageView" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="scrollView" candidateClass="UIScrollView"/>
             </relationships>
@@ -595,6 +599,7 @@
         <class className="DCSettingsViewController" superclassName="UITableViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/DCSettingsViewController.h"/>
             <relationships>
+                <relationship kind="action" name="openTutorial:"/>
                 <relationship kind="outlet" name="tokenInputField" candidateClass="UITextField"/>
             </relationships>
         </class>
