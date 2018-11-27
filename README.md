@@ -8,3 +8,7 @@ An unofficial bare-bones Discord client for iOS 5 and 6
 Huge thanks to [Tyler Brasher](https://twitter.com/TyBrasher) for icon design
 
 ![screenshot](https://github.com/Cellomonster/iOS-Discord-Classic/raw/master/Screenshots.png)
+
+
+###### On Discord Tos
+It is known that third party clients (such as this) and modifications to the official client are **against terms of service.** However Discord staff have on multiple occasions stated they do not seek out banning users for using such clients/mods. However, if for what ever reason you are banned for using this client for what ever reason, **I am not responsible**. Use at your own risk!
