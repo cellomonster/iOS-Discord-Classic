@@ -14,10 +14,6 @@
 		<dict>
 			<key>CFBundleIconFiles</key>
 			<array>
-				<string>Screen Shot 2018-03-12 at 12.26.02 PM.png</string>
-				<string>Screen Shot 2018-03-12 at 12.26.02 PM 2.png</string>
-				<string>Screen_Shot_2018-03-28_at_12.27.14_AM 2.png</string>
-				<string>Screen_Shot_2018-03-28_at_12.27.14_AM.png</string>
 				<string>Icon@2x.png</string>
 				<string>Icon.png</string>
 			</array>
