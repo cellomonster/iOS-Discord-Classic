@@ -54,6 +54,8 @@
 
 - (void)startCommunicator{
 	
+	[self.alertView show];
+	
 	self.didAuthenticate = false;
 	
 	if(self.token!=nil){
@@ -82,11 +84,6 @@
 				case 10: {
 					
 					if(weakSelf.shouldResume){
-						
-						dispatch_async(dispatch_get_main_queue(), ^{
-							[weakSelf.alertView setTitle:@"Resuming"];
-						});
-						
 						NSLog(@"Sending Resume with sequence number %i, session ID %@", weakSelf.sequenceNumber, weakSelf.sessionId);
 						
 						//RESUME
@@ -104,10 +101,6 @@
 					}else{
 						
 						NSLog(@"Sending Identify");
-						
-						dispatch_async(dispatch_get_main_queue(), ^{
-							[weakSelf.alertView setTitle:@"Authenticating"];
-						});
 						
 						//IDENTIFY
 						[weakSelf sendJSON:@{
@@ -246,10 +239,12 @@
 						});
 					}
 					
-					if([t isEqualToString:@"RESUMED"])
+					if([t isEqualToString:@"RESUMED"]){
+						weakSelf.didAuthenticate = true;
 						dispatch_async(dispatch_get_main_queue(), ^{
 							[weakSelf.alertView dismissWithClickedButtonIndex:0 animated:YES];
 						});
+					}
 					
 					if([t isEqualToString:@"MESSAGE_CREATE"]){
 						
@@ -320,6 +315,8 @@
 
 
 - (void)sendResume{
+	[self.alertView setTitle:@"Resuming"];
+	
 	self.shouldResume = true;
 	[self startCommunicator];
 }
@@ -327,8 +324,6 @@
 
 
 - (void)reconnect{
-	
-	[self.alertView show];
 	
 	NSLog(@"Identify cooldown %s", self.identifyCooldown ? "true" : "false");
 	
@@ -339,6 +334,7 @@
 	//if not, send immediately
 	if(self.identifyCooldown){
 		NSLog(@"No cooldown in effect. Authenticating...");
+		[self.alertView setTitle:@"Authenticating"];
 		[self startCommunicator];
 	}else{
 		double timeRemaining = self.cooldownTimer.fireDate.timeIntervalSinceNow;

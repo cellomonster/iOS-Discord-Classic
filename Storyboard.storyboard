@@ -129,7 +129,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="aFs-Iw-A4I" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-126" y="504"/>
+            <point key="canvasLocation" x="544" y="524"/>
         </scene>
         <!--Settings View Controller - Settings-->
         <scene sceneID="qbG-hh-URF">
@@ -439,6 +439,11 @@
                     </tableView>
                     <navigationItem key="navigationItem" title="Channels" id="8HN-UR-APC">
                         <barButtonItem key="backBarButtonItem" title="Servers" id="g0Z-SR-CoJ"/>
+                        <barButtonItem key="rightBarButtonItem" title="Members" id="TDg-OD-kjq">
+                            <connections>
+                                <segue destination="PXD-U7-aFj" kind="push" id="37H-hE-Yz2"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <connections>
                         <segue destination="SPS-Go-Xtj" kind="push" identifier="Channels to Chat" id="VzJ-bP-Mkv"/>
@@ -503,6 +508,11 @@
                     </view>
                     <navigationItem key="navigationItem" id="VOY-oz-qxj">
                         <barButtonItem key="backBarButtonItem" title="Channels" id="Or6-sa-oea"/>
+                        <barButtonItem key="rightBarButtonItem" title="Members" id="Bbo-U1-qTl">
+                            <connections>
+                                <segue destination="PXD-U7-aFj" kind="push" id="l0E-1x-536"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="chatTableView" destination="FQU-uE-jCg" id="Zu3-NK-RP6"/>
@@ -523,6 +533,36 @@
                 </searchDisplayController>
             </objects>
             <point key="canvasLocation" x="1089" y="-87"/>
+        </scene>
+        <!--Table View Controller - Members-->
+        <scene sceneID="XQc-ZO-D2E">
+            <objects>
+                <tableViewController id="PXD-U7-aFj" sceneMemberID="viewController">
+                    <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="HNs-ae-d0L">
+                        <rect key="frame" x="0.0" y="64" width="320" height="416"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <prototypes>
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="siI-CZ-BbX">
+                                <rect key="frame" x="0.0" y="22" width="320" height="44"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                                    <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                </view>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="PXD-U7-aFj" id="D0A-6f-Baf"/>
+                            <outlet property="delegate" destination="PXD-U7-aFj" id="jCQ-qn-tSj"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="Members" id="fRC-Fn-SEq"/>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="fEM-tZ-UX7" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1635" y="524"/>
         </scene>
         <!--Image View Controller-->
         <scene sceneID="f9C-bg-NlD">
@@ -559,7 +599,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="a7p-Nr-Niu" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1511" y="-87"/>
+            <point key="canvasLocation" x="1635" y="-87"/>
         </scene>
     </scenes>
     <classes>
@@ -572,8 +612,6 @@
         <class className="DCChatViewController" superclassName="UIViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/DCChatViewController.h"/>
             <relationships>
-                <relationship kind="action" name="chooseImage:"/>
-                <relationship kind="action" name="sendMessage:"/>
                 <relationship kind="outlet" name="chatTableView" candidateClass="UITableView"/>
                 <relationship kind="outlet" name="inputField" candidateClass="UITextField"/>
                 <relationship kind="outlet" name="toolbar" candidateClass="UIToolbar"/>
@@ -581,14 +619,10 @@
         </class>
         <class className="DCGuildListViewController" superclassName="UITableViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/DCGuildListViewController.h"/>
-            <relationships>
-                <relationship kind="action" name="joinGuildPrompt:"/>
-            </relationships>
         </class>
         <class className="DCImageViewController" superclassName="UIViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/DCImageViewController.h"/>
             <relationships>
-                <relationship kind="action" name="presentShareSheet:"/>
                 <relationship kind="outlet" name="imageView" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="scrollView" candidateClass="UIScrollView"/>
             </relationships>
@@ -599,7 +633,6 @@
         <class className="DCSettingsViewController" superclassName="UITableViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/DCSettingsViewController.h"/>
             <relationships>
-                <relationship kind="action" name="openTutorial:"/>
                 <relationship kind="outlet" name="tokenInputField" candidateClass="UITextField"/>
             </relationships>
         </class>
@@ -613,6 +646,7 @@
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="fcm-4D-Lhj"/>
+        <segue reference="l0E-1x-536"/>
+        <segue reference="VzJ-bP-Mkv"/>
     </inferredMetricsTieBreakers>
 </document>
