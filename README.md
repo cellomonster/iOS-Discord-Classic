@@ -1,5 +1,6 @@
 # Discord Classic 
 An unofficial bare-bones Discord client for iOS 5 and 6.
+Not compatible with iPad.
 
 Report bugs, help test, get update alerts and hang out in the [Discord Server](https://discord.gg/A93uJh3)
 
