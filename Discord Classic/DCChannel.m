@@ -37,7 +37,7 @@
 		
 		[urlRequest setHTTPMethod:@"POST"];
 		
-		[urlRequest setHTTPBody:[NSData dataWithBytes:[messageString UTF8String] length:[messageString length]]];
+		[urlRequest setHTTPBody:[NSData dataWithBytes:[messageString UTF8String] length:[messageString lengthOfBytesUsingEncoding:NSUTF8StringEncoding]]];
 		[urlRequest addValue:DCServerCommunicator.sharedInstance.token forHTTPHeaderField:@"Authorization"];
 		[urlRequest addValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
 		
