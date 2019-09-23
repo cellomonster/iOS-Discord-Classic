@@ -47,6 +47,14 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
 	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Guild Cell"];
 	
+	//Sort guild list
+	DCServerCommunicator.sharedInstance.guilds = [DCServerCommunicator.sharedInstance.guilds sortedArrayUsingComparator:^NSComparisonResult(id a, id b) {
+		NSString *first = [(DCGuild*)a name];
+		NSString *second = [(DCGuild*)b name];
+		if([first compare:@"Direct Messages"] == 0) return false; // DMs at the top
+		return [first compare:second];
+	}];
+	
 	DCGuild* guildAtRowIndex = [DCServerCommunicator.sharedInstance.guilds objectAtIndex:indexPath.row];
 	
 	//Show blue indicator if guild has any unread messages
@@ -72,7 +80,14 @@
 		DCServerCommunicator.sharedInstance.selectedGuild = [DCServerCommunicator.sharedInstance.guilds objectAtIndex:indexPath.row];
 	}
 	
-	//Transition to channel list 
+	//Sort channel list
+	DCServerCommunicator.sharedInstance.selectedGuild.channels = [DCServerCommunicator.sharedInstance.selectedGuild.channels sortedArrayUsingComparator:^NSComparisonResult(id a, id b) {
+		NSString *first = [(DCChannel*)a name];
+		NSString *second = [(DCChannel*)b name];
+		return [first compare:second];
+	}];
+
+	//Transition to channel list
 	[self performSegueWithIdentifier:@"Guilds to Channels" sender:self];
 }
 
