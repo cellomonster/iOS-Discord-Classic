@@ -189,7 +189,7 @@
 	//thx to Pierre Legrain
 	//http://pyl.io/2015/08/17/animating-in-sync-with-ios-keyboard/
 	
-	int keyboardHeight = [[notification.userInfo objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size.height;
+	int keyboardHeight = UIDeviceOrientationIsPortrait([[UIDevice currentDevice] orientation]) ? [[notification.userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size.height : [[notification.userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size.width;
 	float keyboardAnimationDuration = [[notification.userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue];
 	int keyboardAnimationCurve = [[notification.userInfo objectForKey: UIKeyboardAnimationCurveUserInfoKey] integerValue];
 	
